@@ -1,0 +1,10 @@
+redis>=5.0.0
+python-dotenv
+# App backend deps (worker imports modules from each app)
+fastapi
+httpx
+google-generativeai
+pydantic
+networkx
+numpy
+python-multipart

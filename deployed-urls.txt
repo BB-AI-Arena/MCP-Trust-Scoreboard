@@ -1,0 +1,19 @@
+Koi Security Extensions — Deployed URLs
+========================================
+Generated: 2025-01-15
+
+App1 — Blast Radius Visualizer
+URL: https://www.perplexity.ai/computer/a/koi-blast-radius-visualizer-r2Pz6fQdT0yzaXS2Ne7Lsg
+
+App2 — Behavior Baseline Monitor
+URL: https://www.perplexity.ai/computer/a/koi-behavior-baseline-monitor-S8UY.9XZQ9aq52ZOwYZE3A
+
+App3 — Code Provenance Tracker
+URL: https://www.perplexity.ai/computer/a/koi-code-provenance-tracker-n49zbDo3R0uEZ.B_LzebaQ
+
+App4 — MCP Trust Scorecard
+URL: https://www.perplexity.ai/computer/a/koi-mcp-trust-scorecard-3hfsJodeRKSzLa9PeUpZ2g
+
+GitHub Repository
+URL: https://github.com/ClownRyda/MCP-Trust-Scoreboard
+Commit: 53306b4 — feat: Koi Security Extensions — full 4-app suite (83 files, 23,849 insertions)
