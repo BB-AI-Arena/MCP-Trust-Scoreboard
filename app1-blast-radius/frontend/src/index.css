@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #0A0E1A;
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #111827;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1F2937;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #374151;
+  }
+}
+
+@layer components {
+  /* Glow effects */
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.25), 0 0 40px rgba(0, 212, 255, 0.1);
+  }
+
+  .glow-accent-sm {
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+  }
+
+  .glow-danger {
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.3), 0 0 40px rgba(255, 68, 68, 0.1);
+  }
+
+  .glow-critical {
+    box-shadow: 0 0 20px rgba(255, 0, 102, 0.35), 0 0 60px rgba(255, 0, 102, 0.15);
+  }
+
+  .glow-success {
+    box-shadow: 0 0 20px rgba(0, 255, 156, 0.25);
+  }
+
+  .glow-warning {
+    box-shadow: 0 0 20px rgba(255, 184, 0, 0.25);
+  }
+
+  /* Text glow */
+  .text-glow-accent {
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+  }
+
+  .text-glow-critical {
+    text-shadow: 0 0 20px rgba(255, 0, 102, 0.8);
+  }
+
+  /* Card */
+  .card {
+    @apply bg-card border border-border rounded-xl;
+  }
+
+  /* Tag chip */
+  .tag-chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.25);
+    color: #00D4FF;
+  }
+
+  /* Scanning pulse ring */
+  .scan-ring {
+    animation: scan-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes scan-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scale(1.08);
+      opacity: 0.2;
+    }
+  }
+
+  /* Grid pattern background */
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}
+
+@layer utilities {
+  /* Backdrop blur for panels */
+  .backdrop-dark {
+    backdrop-filter: blur(12px);
+    background: rgba(10, 14, 26, 0.85);
+  }
+
+  /* Neon border */
+  .border-accent-glow {
+    border-color: #00D4FF;
+    box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.3);
+  }
+
+  /* Animate slide panel */
+  .panel-open {
+    transform: translateX(0);
+  }
+
+  .panel-closed {
+    transform: translateX(100%);
+  }
+}
