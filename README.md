@@ -1,178 +1,146 @@
+<div align="center">
+
+<img src="https://img.shields.io/badge/status-active%20dev-FFB800?style=flat-square&labelColor=0A0E1A" alt="status">
+<img src="https://img.shields.io/badge/version-0.4.0--alpha-FF4444?style=flat-square&labelColor=0A0E1A" alt="version">
+<img src="https://img.shields.io/badge/license-MIT-6B7A99?style=flat-square&labelColor=0A0E1A" alt="license">
+<img src="https://img.shields.io/badge/python-3.10%2B-3572A5?style=flat-square&logo=python&logoColor=white&labelColor=0A0E1A" alt="python">
+<img src="https://img.shields.io/badge/node-18%2B-339933?style=flat-square&logo=node.js&logoColor=white&labelColor=0A0E1A" alt="node">
+<img src="https://img.shields.io/badge/PRs-welcome-00FF9C?style=flat-square&labelColor=0A0E1A" alt="prs welcome">
+
 # 🐠 Koi Security Extensions
 
-**Koi Security Extensions** is a suite of four enterprise AI security tools designed to extend [Palo Alto Networks' Koi Agentic Endpoint Security](https://www.paloaltonetworks.com/) platform. As AI agents proliferate across enterprise environments — writing code, accessing APIs, querying databases, and executing workflows — traditional endpoint security tools fail to address the unique attack surfaces they introduce. Koi Security Extensions fills this gap with four purpose-built instruments: a blast radius visualizer that maps every system an agent can reach, a behavioral baseline monitor that detects anomalous agent activity in real time, a code provenance tracker that identifies AI-generated code and audits it for security risks, and an MCP server trust scorecard that gates access to the Model Context Protocol ecosystem before agents can connect to unknown servers. Together, these tools form a continuous AI security posture layer that integrates directly with **Palo Alto Networks Prisma AIRS** and **Cortex XDR** for enterprise-grade threat response.
+**Experimental security tooling for AI agents — built on top of Palo Alto Networks Koi.**
+
+Four dev-stage tools: blast radius mapping, behavioral anomaly detection, AI code provenance, and MCP server trust scoring.
+
+> ⚠️ This is a work in progress. APIs will change. Mock data is hardcoded in several places. Use in dev/lab environments only.
+
+[Blast Radius →](https://www.perplexity.ai/computer/a/koi-blast-radius-visualizer-r2Pz6fQdT0yzaXS2Ne7Lsg) · [Behavior Baseline →](https://www.perplexity.ai/computer/a/koi-behavior-baseline-monitor-S8UY.9XZQ9aq52ZOwYZE3A) · [Code Provenance →](https://www.perplexity.ai/computer/a/koi-code-provenance-tracker-n49zbDo3R0uEZ.B_LzebaQ) · [MCP Scorecard →](https://www.perplexity.ai/computer/a/koi-mcp-trust-scorecard-3hfsJodeRKSzLa9PeUpZ2g)
+
+</div>
 
 ---
 
-## The Four Tools
+## What's in here
 
-### 🔴 App 1 — Agentic Blast Radius Visualizer
-Maps the full attack surface of any AI agent by building a directed graph of every system, dataset, API, and credential it can reach. If an agent is compromised, the blast radius shows the exact scope of potential damage — from a single file system to cross-cloud credential chains. Enterprise security teams use it to enforce least-privilege during agent onboarding and to model compromise scenarios before deployment.
+Four standalone React + FastAPI apps that each tackle a different slice of AI agent security. They share a design system and nav but run on separate ports — no monorepo magic, just folders.
 
-### 🟡 App 2 — AI Agent Behavior Baseline Monitor
-Establishes statistical behavioral baselines for AI agents across five metrics (API call rate, file access, network destinations, execution time, active hours) and flags deviations in real time using Z-score anomaly detection. Gemini AI classifies anomaly clusters as DataExfiltration, LateralMovement, PrivilegeEscalation, or BenignDrift — giving SOC teams an actionable classification, not just a raw alert.
+### App 1 — Blast Radius Visualizer
+Input an agent's permissions and integrations, get a D3 force graph showing everything it can reach and a blast radius score (0–100). Gemini generates an attack narrative if you have an API key.
 
-### 🟣 App 3 — Vibe Code Provenance Tracker
-Detects which AI model generated any given code snippet by analyzing stylistic markers (comment patterns, naming conventions, structural idioms) without requiring a separate AI API call. Simultaneously scans for security vulnerabilities — hardcoded secrets, SQL injection, eval usage, shell injection, and more. Designed for security-gating AI-assisted PRs in enterprise CI/CD pipelines.
+### App 2 — Behavior Baseline Monitor
+30 days of mock behavioral data for 5 agents (Claude Code, Copilot, Cursor, AutoGPT, Custom). Z-score anomaly detection flags deviations. Gemini classifies anomaly clusters. Live feed simulates new events every 5s.
 
-### 🔵 App 4 — MCP Server Trust Scorecard
-Analyzes any Model Context Protocol server manifest and produces a weighted trust score across six dimensions: publisher identity, permission sprawl, network behavior, code transparency, version drift, and community signal. Powered by AbuseIPDB domain threat intelligence and Gemini AI for tool definition analysis. Enterprise teams use it as a pre-integration gate before connecting MCP servers to production AI agents.
+### App 3 — Code Provenance Tracker
+Paste code, upload a file, or drop a zip. Heuristic pattern matching (no API needed) tries to attribute code to Claude / GPT-4 / Gemini / Copilot / Human. Security scanner checks for secrets, SQLi, eval, shell injection, etc. Gemini gives an APPROVE / REVIEW / REJECT verdict.
+
+### App 4 — MCP Server Trust Scorecard
+Scan an MCP server by URL or paste a manifest. Scores 6 dimensions weighted into an overall trust rating. AbuseIPDB checks domains. Gemini analyzes tool definitions for suspicious intent.
 
 ---
 
-## Architecture
+## Project layout
 
 ```
 koi-security-extensions/
 ├── shared/
-│   └── design-tokens.js          # Shared color/typography tokens
+│   └── design-tokens.js
 ├── app1-blast-radius/
-│   ├── frontend/                  # React + Vite (port 5173)
-│   └── backend/                   # FastAPI (port 8001)
+│   ├── frontend/          # Vite dev server → :5173
+│   └── backend/           # FastAPI         → :8001
 ├── app2-behavior-baseline/
-│   ├── frontend/                  # React + Vite (port 5174)
-│   └── backend/                   # FastAPI (port 8002)
+│   ├── frontend/          # Vite dev server → :5174
+│   └── backend/           # FastAPI         → :8002
 ├── app3-code-provenance/
-│   ├── frontend/                  # React + Vite (port 5175)
-│   └── backend/                   # FastAPI (port 8003)
+│   ├── frontend/          # Vite dev server → :5175
+│   └── backend/           # FastAPI         → :8003
 ├── app4-mcp-scorecard/
-│   ├── frontend/                  # React + Vite (port 5176)
-│   └── backend/                   # FastAPI (port 8004)
+│   ├── frontend/          # Vite dev server → :5176
+│   └── backend/           # FastAPI         → :8004
 ├── .env.example
 └── README.md
 ```
 
-**Tech Stack:**
-- Frontend: React 18 + Tailwind CSS 3 + Vite 5
-- Backend: FastAPI + Python 3.10+
-- AI: Google Gemini 2.0 Flash (`google-generativeai`)
-- Threat Intel: AbuseIPDB API
-- Charts: Recharts
-- Graph Visualization: D3.js v7
-- PDF Export: jsPDF + html2canvas
-- Syntax Highlighting: highlight.js
+---
+
+## Stack
+
+- **Frontend:** React 18 + Tailwind CSS 3 + Vite 5
+- **Backend:** FastAPI + Python 3.10+, async via httpx
+- **AI:** Gemini 2.0 Flash (`google-generativeai`) — optional, degrades gracefully
+- **Threat intel:** AbuseIPDB — optional, degrades gracefully
+- **Graphs:** D3.js v7
+- **Charts:** Recharts
+- **Syntax highlighting:** highlight.js
+- **PDF export:** jsPDF + html2canvas
 
 ---
 
-## Setup
+## Running locally
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
-
-### 1. Configure Environment
+### 1. Env setup
 
 ```bash
 cp .env.example .env
-# Edit .env and add your API keys
+# Fill in GEMINI_API_KEY and/or ABUSEIPDB_API_KEY if you have them
+# Both are optional — apps note skipped checks in the UI
 ```
 
-Get your keys:
-- **Gemini**: [Google AI Studio](https://aistudio.google.com/app/apikey)
-- **AbuseIPDB**: [abuseipdb.com/register](https://www.abuseipdb.com/register)
-
-Both keys are optional — all four apps degrade gracefully without them.
-
-### 2. Run All Backends
-
-Open four terminal tabs:
+### 2. Backends (4 terminals)
 
 ```bash
-# Terminal 1 — Blast Radius
-cd app1-blast-radius/backend
-pip install -r requirements.txt
-cp ../../.env .env
-uvicorn main:app --reload --port 8001
-
-# Terminal 2 — Behavior Baseline
-cd app2-behavior-baseline/backend
-pip install -r requirements.txt
-cp ../../.env .env
-uvicorn main:app --reload --port 8002
-
-# Terminal 3 — Code Provenance
-cd app3-code-provenance/backend
-pip install -r requirements.txt
-cp ../../.env .env
-uvicorn main:app --reload --port 8003
-
-# Terminal 4 — MCP Scorecard
-cd app4-mcp-scorecard/backend
-pip install -r requirements.txt
-cp ../../.env .env
-uvicorn main:app --reload --port 8004
+cd app1-blast-radius/backend   && pip install -r requirements.txt && cp ../../.env .env && uvicorn main:app --reload --port 8001
+cd app2-behavior-baseline/backend && pip install -r requirements.txt && cp ../../.env .env && uvicorn main:app --reload --port 8002
+cd app3-code-provenance/backend   && pip install -r requirements.txt && cp ../../.env .env && uvicorn main:app --reload --port 8003
+cd app4-mcp-scorecard/backend     && pip install -r requirements.txt && cp ../../.env .env && uvicorn main:app --reload --port 8004
 ```
 
-### 3. Run All Frontends
-
-Open four more terminal tabs:
+### 3. Frontends (4 more terminals)
 
 ```bash
-# Terminal 5
-cd app1-blast-radius/frontend && npm install && npm run dev -- --port 5173
-
-# Terminal 6
+cd app1-blast-radius/frontend   && npm install && npm run dev -- --port 5173
 cd app2-behavior-baseline/frontend && npm install && npm run dev -- --port 5174
-
-# Terminal 7
-cd app3-code-provenance/frontend && npm install && npm run dev -- --port 5175
-
-# Terminal 8
-cd app4-mcp-scorecard/frontend && npm install && npm run dev -- --port 5176
-```
-
-Access the apps at:
-- Blast Radius: http://localhost:5173
-- Behavior Baseline: http://localhost:5174
-- Code Provenance: http://localhost:5175
-- MCP Scorecard: http://localhost:5176
-
----
-
-## Enterprise Integration
-
-All four tools are designed as security primitives for the Palo Alto Networks ecosystem:
-
-### Prisma AIRS Integration
-Feed scorecard and blast radius JSON into Prisma AIRS policy engine to:
-- Block `Untrusted` MCP servers at runtime
-- Enforce agent permission boundaries based on blast radius analysis
-- Auto-quarantine agents exhibiting DataExfiltration behavioral patterns
-
-### Cortex XDR Integration
-Stream findings to Cortex XDR for SOC visibility:
-- Anomaly alerts from Behavior Baseline Monitor as XDR incidents
-- Code Provenance risk findings as threat indicators
-- Blast Radius scores as asset risk context for endpoint protection
-
-### CI/CD Gate Pattern
-```
-PR opened → Code Provenance scan → risk > Medium → block merge
-Agent deployment → Blast Radius check → score > 75 → require review
-MCP server added → Trust Scorecard → rating < Medium → auto-reject
-Agent runtime → Behavior Baseline → anomaly detected → Cortex XDR alert
+cd app3-code-provenance/frontend   && npm install && npm run dev -- --port 5175
+cd app4-mcp-scorecard/frontend     && npm install && npm run dev -- --port 5176
 ```
 
 ---
 
-## API Reference
+## API keys
 
-| App | Endpoint | Method | Description |
-|-----|----------|--------|-------------|
-| Blast Radius | `/analyze` | POST | Analyze agent blast radius |
-| Blast Radius | `/health` | GET | Health check |
-| Behavior Baseline | `/agents` | GET | List all agents |
-| Behavior Baseline | `/baseline/{id}` | GET | Get agent baseline |
-| Behavior Baseline | `/anomalies/{id}` | GET | Get agent anomalies |
-| Behavior Baseline | `/summary/{id}` | GET | Gemini classification |
-| Code Provenance | `/scan` | POST | Scan code snippet |
-| Code Provenance | `/scan-repo` | POST | Scan zip repo |
-| Code Provenance | `/languages` | GET | Supported languages |
-| MCP Scorecard | `/scan` | POST | Scan MCP server |
-| MCP Scorecard | `/health` | GET | Health check |
+| Key | Used by | Get it |
+|---|---|---|
+| `GEMINI_API_KEY` | All 4 apps (AI analysis) | [aistudio.google.com](https://aistudio.google.com/app/apikey) |
+| `ABUSEIPDB_API_KEY` | App 2, App 4 (domain checks) | [abuseipdb.com/register](https://www.abuseipdb.com/register) |
 
 ---
 
-## License
+## Known issues / TODO
 
-MIT
+- [ ] App 2 mock data is seeded — `/ingest` endpoint doesn't persist state between restarts
+- [ ] App 3 zip scan has no file size limit yet
+- [ ] App 1 graph layout can get crowded with >15 nodes
+- [ ] No Docker Compose yet — running 8 processes manually is annoying
+- [ ] Nav links between apps are `href="#"` placeholders — needs a proper launcher or shared shell
+- [ ] Tests: basically none
+
+---
+
+## Integration targets
+
+Designed to eventually wire into **Palo Alto Networks Prisma AIRS** and **Cortex XDR** — but that plumbing doesn't exist yet. The JSON response shapes are modeled after what those APIs expect.
+
+---
+
+## Contributing
+
+Open an issue or just send a PR. No formal process right now.
+
+```bash
+# Backend — type hints on all public functions, graceful degradation required for any external API call
+# Frontend — Tailwind only, no inline styles, no new dependencies without a good reason
+```
+
+---
+
+<sub>MIT · Part of the Koi platform exploration · Not affiliated with or endorsed by Palo Alto Networks</sub>
