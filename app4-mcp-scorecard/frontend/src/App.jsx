@@ -63,8 +63,8 @@ function ScanProgress({ step, total }) {
   )
 }
 
-// ── KOI SHARED NAV HEADER ────────────────────────────────────────────────────
-function KoiHeader() {
+// ── Shared platform header ───────────────────────────────────────────────────
+function PlatformHeader() {
   const navLinks = [
     { label: 'Blast Radius', href: '#', active: false },
     { label: 'Behavior Baseline', href: '#', active: false },
@@ -78,11 +78,11 @@ function KoiHeader() {
       style={{ background: '#0D1220', borderColor: '#1F2937' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
-        {/* Left: Koi branding */}
+        {/* Left: platform branding */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className="text-lg leading-none select-none">🐟</span>
           <span className="text-xs font-500 text-muted whitespace-nowrap tracking-wide">
-            Koi Security Extensions
+            Agent Trust Platform
           </span>
         </div>
 
@@ -174,13 +174,11 @@ export default function App() {
   if (phase === 'idle') {
     return (
       <div className="min-h-screen flex flex-col">
-        <KoiHeader />
+        <PlatformHeader />
         <div className="flex-1 flex flex-col items-center justify-center px-4 py-16">
           <InputCard onScan={handleScan} error={error} />
           <p className="mt-8 text-xs text-muted text-center max-w-sm">
-            Integrates with{' '}
-            <span className="text-accent">Palo Alto Networks Prisma AIRS</span> and{' '}
-            <span className="text-accent">Cortex XDR</span>
+            Optional provider integrations are configuration-specific and are not required for local rules.
           </p>
         </div>
       </div>
@@ -191,7 +189,7 @@ export default function App() {
   if (phase === 'scanning') {
     return (
       <div className="min-h-screen flex flex-col">
-        <KoiHeader />
+        <PlatformHeader />
         <div className="flex-1 flex flex-col items-center justify-center px-4">
           <div className="w-full max-w-sm flex flex-col items-center gap-8">
             {/* Animated shield */}
@@ -241,7 +239,7 @@ export default function App() {
 
     return (
       <div className="min-h-screen flex flex-col">
-        <KoiHeader />
+        <PlatformHeader />
         <div className="flex-1 px-4 py-10">
           <div className="max-w-3xl mx-auto flex flex-col gap-6" id="results-view">
 
@@ -339,9 +337,7 @@ export default function App() {
 
             {/* Footer note */}
             <p className="text-xs text-muted text-center pb-4">
-              Designed to integrate with{' '}
-              <span className="text-accent">Palo Alto Networks Prisma AIRS</span> and{' '}
-              <span className="text-accent">Cortex XDR</span>
+              Assessment is evidence-backed where verification is available; unknowns remain unknown.
             </p>
           </div>
         </div>

@@ -1,0 +1,31 @@
+name: Prepare release evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact VERSION value
+        required: true
+        type: string
+      source_sha:
+        description: Exact reviewed source SHA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.source_sha }}
+      - name: Verify and prepare local release manifest
+        run: python3 scripts/prepare_release.py --version '${{ inputs.version }}' --sha '${{ inputs.source_sha }}' --output release-manifest.json
+      - name: Show release notes and manifest summary
+        run: |
+          sed -n '1,220p' docs/releases/${{ inputs.version }}.md
+          python3 -c 'import json; d=json.load(open("release-manifest.json")); print(d["version"], d["source_sha"], len(d["files"]), "files hashed")'

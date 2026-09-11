@@ -57,7 +57,7 @@ export default function ExportButton() {
       pdf.setFontSize(9)
       pdf.setTextColor(107, 122, 153)
       pdf.text(
-        `Koi Security Extensions — Blast Radius Visualizer — Generated ${now}`,
+        `Agent Trust Platform — Blast Radius Visualizer — Generated ${now}`,
         20,
         canvas.height - 10
       )

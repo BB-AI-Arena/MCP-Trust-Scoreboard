@@ -22,7 +22,7 @@ function Header() {
       <div className="flex items-center gap-2.5 min-w-0">
         <span className="text-xl leading-none select-none">🐠</span>
         <span className="text-sm font-semibold text-white whitespace-nowrap">
-          Koi Security Extensions
+          Agent Trust Platform
         </span>
       </div>
 

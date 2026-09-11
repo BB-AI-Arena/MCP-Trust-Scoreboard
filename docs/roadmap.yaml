@@ -1,0 +1,33 @@
+version: 1
+product: Agent Trust Platform
+items:
+  - id: ATP-A1
+    target: 2.0.0-alpha.1
+    title: Neutral namespace and provider contracts
+    status: in_progress
+    depends_on: []
+  - id: ATP-A2
+    target: 2.0.0-alpha.1
+    title: Durable PostgreSQL records and job ledger
+    status: in_progress
+    depends_on: [ATP-A1]
+  - id: ATP-A3
+    target: 2.0.0-alpha.1
+    title: Legacy compatibility and truthful local product surface
+    status: in_progress
+    depends_on: [ATP-A1]
+  - id: ATP-B1
+    target: 2.0.0-alpha.2
+    title: Tested MCP and OpenAPI collectors
+    status: planned
+    depends_on: [ATP-A2, ATP-A3]
+  - id: ATP-C1
+    target: 2.0.0-beta.1
+    title: Durable behavior monitoring and SDKs
+    status: planned
+    depends_on: [ATP-B1]
+  - id: ATP-D1
+    target: 2.0.0-rc.1
+    title: Release and recovery gates
+    status: planned
+    depends_on: [ATP-C1]

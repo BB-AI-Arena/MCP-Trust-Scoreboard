@@ -288,7 +288,7 @@ export default function App() {
         <div className="flex items-center gap-3">
           <span className="text-2xl">🐠</span>
           <span className="text-sm font-semibold text-muted tracking-widest uppercase">
-            Koi Security Extensions
+            Agent Trust Platform
           </span>
         </div>
 

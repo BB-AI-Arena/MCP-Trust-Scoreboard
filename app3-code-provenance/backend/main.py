@@ -9,6 +9,8 @@ import os
 import zipfile
 import logging
 import tempfile
+import posixpath
+import stat
 from typing import Optional, List, Dict, Any
 
 from fastapi import FastAPI, HTTPException, UploadFile, File
@@ -39,7 +41,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Vibe Code Provenance Tracker",
     description="Analyze source code for AI origin and security vulnerabilities.",
-    version="1.0.0",
+    version="2.0.0-alpha.1",
 )
 
 app.add_middleware(
@@ -68,6 +70,30 @@ EXTENSION_TO_LANGUAGE: Dict[str, str] = {
 }
 
 SCANNABLE_EXTENSIONS = set(EXTENSION_TO_LANGUAGE.keys())
+MAX_ARCHIVE_BYTES = 50_000_000
+MAX_ARCHIVE_MEMBERS = 2_000
+MAX_UNCOMPRESSED_BYTES = 50_000_000
+
+
+def _safe_zip_infos(zf: zipfile.ZipFile, compressed_size: int) -> list[zipfile.ZipInfo]:
+    """Reject traversal, links, and decompression bombs before reading files."""
+    if compressed_size > MAX_ARCHIVE_BYTES:
+        raise ValueError("Uploaded ZIP exceeds the 50 MB limit")
+    infos = zf.infolist()
+    if len(infos) > MAX_ARCHIVE_MEMBERS:
+        raise ValueError("ZIP contains too many members")
+    total = 0
+    for info in infos:
+        normalized = posixpath.normpath(info.filename)
+        if normalized == ".." or normalized.startswith("../") or normalized.startswith("/"):
+            raise ValueError("ZIP path escapes extraction root")
+        mode = (info.external_attr >> 16) & 0o170000
+        if mode == stat.S_IFLNK:
+            raise ValueError("ZIP symbolic links are not accepted")
+        total += info.file_size
+        if total > MAX_UNCOMPRESSED_BYTES:
+            raise ValueError("ZIP expands beyond the 50 MB limit")
+    return infos
 
 
 # ---------------------------------------------------------------------------
@@ -286,9 +312,14 @@ async def scan_repo(file: UploadFile = File(...)):
 
     try:
         with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+            try:
+                safe_infos = _safe_zip_infos(zf, len(zip_bytes))
+            except ValueError as exc:
+                raise HTTPException(status_code=422, detail=str(exc)) from exc
             # Collect scannable entries
             entries = [
-                name for name in zf.namelist()
+                info.filename for info in safe_infos
+                for name in [info.filename]
                 if not name.endswith("/")
                 and os.path.splitext(name.lower())[1] in SCANNABLE_EXTENSIONS
             ]
