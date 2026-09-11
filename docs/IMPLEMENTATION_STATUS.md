@@ -6,6 +6,7 @@ Updated: 2026-09-11
 
 - Repository: `BB-AI-Arena/MCP-Trust-Scoreboard`
 - Starting SHA: `c501d2a5b5e374a98f3e8c9f7ef570a6d36621b2`
+- Feature implementation ending SHA: `ee0134a77d9e1f373efafb01044e13ce1abc23ac` (`feat: establish vendor-neutral agent trust platform core`)
 - Branch: `feat/agent-trust-platform-v2-alpha1`
 - Proposed application version: `2.0.0-alpha.1` (`2.0.0a1` Python metadata)
 - Release state: unreleased; no tag, package, image, or GitHub release published
@@ -64,6 +65,11 @@ for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-pr
   lockfiles and behavior without review.
 - GitHub project/issue/PR operations: not run; `gh auth status` reported no
   authenticated host.
+- `git push -u origin feat/agent-trust-platform-v2-alpha1`: failed before
+  remote authentication (`could not read Username for 'https://github.com'`).
+- `scripts/prepare_release.py` validation: passed against the exact feature
+  SHA and generated only `/tmp/agent-trust-release-manifest.json`; no tag or
+  publication occurred.
 
 ## Security and migration notes
 
