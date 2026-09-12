@@ -70,7 +70,22 @@ try {
     'Enroll' {
       $secret = [Console]::ReadLine()
       if (-not $secret -or $secret.Length -lt 32) { throw 'Private bootstrap input required' }
-      try { $svc.Start([string[]]@($secret)) } finally { $secret = $null }
+      # ServiceController.Start(string[]) is not consistently bound by PowerShell
+      # 7 on hosted runners. Call StartService directly with an in-memory argv;
+      # the bootstrap is never an ImagePath/process command-line value.
+      Add-Type @'
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+public static class AtpScmStart {
+  [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern IntPtr OpenSCManager(string m,string d,uint a);
+  [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern IntPtr OpenService(IntPtr h,string n,uint a);
+  [DllImport("advapi32.dll", SetLastError=true)] static extern bool StartService(IntPtr h,uint c,[MarshalAs(UnmanagedType.LPArray, ArraySubType=UnmanagedType.LPWStr)] string[] a);
+  [DllImport("advapi32.dll", SetLastError=true)] static extern bool CloseServiceHandle(IntPtr h);
+  public static void Start(string name,string arg) { var m=OpenSCManager(null,null,0xF003F); if(m==IntPtr.Zero) throw new Win32Exception(); try { var s=OpenService(m,name,0x0010); if(s==IntPtr.Zero) throw new Win32Exception(); try { if(!StartService(s,1,new[]{arg})) throw new Win32Exception(); } finally { CloseServiceHandle(s); } } finally { CloseServiceHandle(m); } }
+}
+'@
+      try { [AtpScmStart]::Start($Name,$secret) } finally { $secret = $null }
       $svc.WaitForStatus('Running', [TimeSpan]::FromSeconds(40))
     }
     'Start' { $svc.Start(); $svc.WaitForStatus('Running', [TimeSpan]::FromSeconds(40)) }
