@@ -14,7 +14,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 )
@@ -35,7 +34,7 @@ func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, stat
 	// Only an explicit operator start enrolls. Recovery never reenrolls.
 	var bootstrap string
 	for _, arg := range args {
-		if regexp.MustCompile(`^[A-Za-z0-9]{32,}$`).MatchString(arg) {
+		if len(arg) >= 32 && !strings.HasPrefix(arg, "-") && !strings.ContainsAny(arg, `\\/:.`) {
 			bootstrap = arg
 			break
 		}
