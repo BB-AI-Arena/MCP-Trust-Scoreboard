@@ -62,7 +62,9 @@ class ServiceAcceptance:
         elif r.returncode:
             # Enrollment errors can contain StartService arguments in exception
             # context, so never include private-command output in failure logs.
-            if private:raise AssertionError('SCM enrollment/install failed (private output withheld)')
+            if private:
+                detail=(r.stderr or r.stdout).replace(private,'<redacted>')
+                raise AssertionError('SCM enrollment/install failed: '+detail[-2000:])
             raise AssertionError('SCM '+action+' failed: '+r.stderr[-2000:])
         return r.stdout
 
