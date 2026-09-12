@@ -10,6 +10,7 @@ Updated: 2026-09-11
 - Previous synchronized handoff SHA: `304a3ca1f224bcdc416875f40dce8d177079abef`
 - Current implementation commit: `b36dd89` (`ci: install legacy contract dependencies`)
 - Prior handoff documentation commit: `45ec43f`
+- Current UI polish commit: `50a03e5` (`feat: polish primary trust workspace`)
 - Branch: `feat/agent-trust-platform-v2-alpha1`
 - Proposed application version: `2.0.0-alpha.1` (`2.0.0a1` Python metadata)
 - Release state: unreleased; no tag, package, image, or GitHub release published
@@ -40,6 +41,11 @@ Updated: 2026-09-11
   optional Gemini import to remain lazy when no key is configured. The first
   remote rerun exposed these CI packaging gaps; the fix is pushed for another
   remote run.
+- Reworked the primary Blast Radius landing workspace with responsive
+  Agent Trust Platform navigation, a clearer Agent Access / Blast Radius
+  hero, local-first capability cues, improved assessment hierarchy, and soft
+  lighting/grid treatment. The existing analysis request and response flow is
+  unchanged.
 
 ## Baseline before changes
 
@@ -73,6 +79,7 @@ for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-pr
 - `.venv/bin/python -m pip check`: passed.
 - `npm run build` in `app2-behavior-baseline/frontend`: passed; Vite emitted
   its existing large-chunk warning.
+- `npm run build` in `app1-blast-radius/frontend` after UI polish: passed.
 - `.venv/bin/python -m compileall -q src tests worker app3-code-provenance/backend app4-mcp-scorecard/backend`: passed.
 - `.venv/bin/pip-audit`: passed for third-party Python dependencies; the
   local editable project is not published to PyPI and is reported as skipped.
