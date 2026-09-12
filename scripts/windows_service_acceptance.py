@@ -26,7 +26,7 @@ class ServiceAcceptance:
         self.sentinel=root/'unrelated.txt';self.sentinel.write_text('preserve unrelated data')
         try:
             self.call('Install',extra=['-Source',str(executable),'-Config',str(config)],private=bootstrap)
-            wait(lambda:(self.data/'status.json').exists())
+            wait(lambda:(self.data/'status.json').exists() and (self.data/'identity.dpapi').exists())
             self.identity=(self.data/'identity.dpapi').read_bytes()
             assert bootstrap.encode() not in self.identity and b'"credential"' not in self.identity
             # Only this disposable fixture tree becomes readable, never a user profile.

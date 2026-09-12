@@ -32,6 +32,10 @@ func (s *service) failure(err error) {
 
 func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, status chan<- svc.Status) (bool, uint32) {
 	status <- svc.Status{State: svc.StartPending, WaitHint: 30000}
+	// Emit a bounded startup marker before credential recovery so operators can
+	// distinguish SCM launch/ACL failures from enrollment or collector failures.
+	_ = os.MkdirAll(s.config.DataDir, 0700)
+	_ = os.WriteFile(filepath.Join(s.config.DataDir, "status.json"), []byte(`{"state":"starting","service":true}`), 0600)
 	// Diagnostics retain only argument count/length/hash, never argument values.
 	meta := make([]map[string]any, len(args))
 	for i, arg := range args {
