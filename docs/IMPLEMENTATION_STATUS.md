@@ -37,6 +37,9 @@ new product features, integrations and cosmetic UI work remain paused.
 - Adapt nested artifact findings/risk fields; show client-submitted snippet without
   new server retention. Freeze export-clone animations to prevent missing/dim PDF
   panels and omit export controls. No screen redesign or new workspace feature.
+- Manual PDF inspection also caught Unknown files counted as 100% AI-generated
+  and clipped summary values. Preserve unknown authorship, label model signals
+  experimental, and relax only the export clone's truncated text boxes.
 - Loopback publication; no host PostgreSQL/Redis ports. Private random fresh-install
   credentials, required explicit database password/API token, placeholder rejection
   and deployment preflight. Legacy `SECRET_KEY` does not authenticate legacy routes.
@@ -59,6 +62,8 @@ release artifacts.
 | Command | Result |
 | --- | --- |
 | `.venv/bin/pytest -o addopts= -q -ra` | 44 passed; 27 explicit integration/acceptance skips, separately executed |
+| `ACCEPTANCE_EVIDENCE=evidence/acceptance-b542a0a .venv/bin/pytest --run-integration --run-acceptance -o addopts= -q tests --junitxml=evidence/acceptance-b542a0a/junit.xml` | **71 passed**, zero skips, 182.37s on `b542a0af18720df17718b57870f8d83e509d04b1` before the final unknown-authorship/export and CI-owner fixes |
+| `ACCEPTANCE_EVIDENCE=evidence/acceptance-unknown-report .venv/bin/pytest --run-acceptance tests/acceptance -v --tb=short` | 14 passed, zero skips, 72.35s; unknown-authorship regression and visually inspected unclipped report |
 | `.venv/bin/pytest --run-integration tests/integration -v --tb=short` | 13 passed, zero skipped, 108.06s |
 | `ACCEPTANCE_EVIDENCE=evidence/acceptance-final-repairs .venv/bin/pytest --run-acceptance tests/acceptance -v --tb=short` | 14 passed, zero skipped, 70.56s, including delayed init and final report fixes; dirty development source retained |
 | `.venv/bin/python -m compileall -q src tests scripts` | Passed |
@@ -67,6 +72,7 @@ release artifacts.
 | `npm ci --ignore-scripts && npm audit --audit-level=high && node --test ../../tests/frontend/pdf-export.test.cjs && npm run build` in all four frontends | All passed; zero npm advisories, real jsPDF API checks and four builds |
 | `python3 scripts/scan_images.py --output evidence/containers-a911f42` | **Failed policy gate** on clean `a911f42`; full findings, image IDs and CycloneDX/checksums retained |
 | `python3 scripts/scan_images.py --output evidence/containers-os-update` | **Failed policy gate** after apt upgrade; 56 HIGH/CRITICAL matches per Python image, no exceptions |
+| `python3 scripts/scan_images.py --output evidence/containers-b542a0a` | **Failed policy gate** on clean `b542a0a`; same findings; all 44 evidence file checksums verified with `jq -r 'to_entries[] \u007c "\(.value)  \(.key)"' checksums.json \u007c sha256sum -c -` in that evidence directory |
 | `git diff --check` | Passed |
 
 Starlette deprecations, Recharts maintenance warning and bundle-size warnings
@@ -146,6 +152,18 @@ at clean `a911f42`: **nine jobs passed, container-security failed**. Acceptance
 and scan artifacts verified present (IDs 10290941392 and 10290077354), retained
 14 days. Later repairs require their own exact-source validation; the initial run
 did not test later repairs. No failed GitHub mutations or access escalations.
+
+[Second PR CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34669756761)
+on `b542a0a`: eight jobs passed; acceptance build failed on an Alpine CDN TLS
+error, and scanner teardown failed on root-owned cache permissions (its findings
+also failed the vulnerability policy). Evidence was retained. Remediation: at
+most three package-update retries, **no TLS/stale-repository bypass**, and scanner
+containers run with the invoking UID/GID. Latest CI must verify those repairs.
+
+Clean `b542a0a` local scanner evidence: database downloaded
+`2026-09-12T03:13:23.190054656Z`; scan-summary SHA-256
+`bb24ceefc69c2a03ecea283d0a90d6ce3242f455caefb00f507ea73a8ad296df`;
+checksums.json SHA-256 `097b5c5980cd0a7a13ac8ba63697792161def4fbd77ec3d6436b2f0648446ef1`.
 
 Next: resolve reported container blockers without exceptions, rerun exact-source
 gates and review dependent PRs. **After release gates**, the next product milestone

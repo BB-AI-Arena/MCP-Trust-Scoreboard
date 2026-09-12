@@ -29,6 +29,14 @@ export default function ReportExport() {
           results.style.animation = 'none';
           results.style.opacity = '1';
           results.style.transform = 'none';
+          // The screen's ellipsis boxes clip html2canvas font baselines. Export
+          // their complete contents with a relaxed line box and wrapping.
+          results.querySelectorAll('.truncate').forEach(node => {
+            node.style.overflow = 'visible';
+            node.style.whiteSpace = 'normal';
+            node.style.textOverflow = 'clip';
+            node.style.lineHeight = '1.6';
+          });
         },
         windowWidth: element.scrollWidth,
         windowHeight: element.scrollHeight,

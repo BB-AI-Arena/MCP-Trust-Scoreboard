@@ -175,6 +175,10 @@ def test_artifact_repository_treemap_and_report(browser_page, stack):
     assert response.value.status == 200
     page.locator(".treemap-cell").first.wait_for()
     assert page.locator(".treemap-cell").count() == 2
+    assert all(file["provenance"]["likely_model"] == "Unknown" for file in response.value.json()["files"])
+    model_signal = page.get_by_text("Model signals (experimental)").locator("..")
+    assert "Unknown" in model_signal.inner_text()
+    assert "100%" not in model_signal.inner_text()
     report(page, folder, "Export PDF Report", "#provenance-results", ["fixture.py", "safe.py", "Experimental", "Scanned Files"])
 
 

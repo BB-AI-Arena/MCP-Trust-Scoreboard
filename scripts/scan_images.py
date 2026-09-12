@@ -9,6 +9,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import tempfile
 
@@ -25,7 +26,7 @@ def scan(inventory, output):
         work = Path(temporary)
         cache = work / "cache"
         cache.mkdir()
-        base = ["docker", "run", "--rm", "--memory", "2g", "--cpus", "2",
+        base = ["docker", "run", "--rm", "--user", f"{os.getuid()}:{os.getgid()}", "--memory", "2g", "--cpus", "2",
                 "--mount", f"type=bind,src={work},dst=/work",
                 "--mount", f"type=bind,src={output},dst=/evidence"]
         network_base = [*base, SCANNER, "--cache-dir", "/work/cache"]

@@ -46,7 +46,9 @@ function getHighestRiskFile(files) {
 }
 
 function countAiGenerated(files) {
-  const ai = (files || []).filter(
+  const identified = (files || []).filter(f => f.provenance?.model && f.provenance.model !== 'Unknown');
+  if (!identified.length) return null;
+  const ai = identified.filter(
     (f) => f.provenance?.model && f.provenance.model !== 'Human'
   ).length;
   return files?.length ? Math.round((ai / files.length) * 100) : 0;
@@ -107,7 +109,7 @@ export default function RiskBreakdown({ results }) {
 
   const statsCards = [
     { label: 'Total Files', value: String(totalFiles), color: '#00D4FF' },
-    { label: 'AI-Generated', value: `${aiPct}%`, color: '#7C3AED' },
+    { label: 'Model signals (experimental)', value: aiPct === null ? 'Unknown' : `${aiPct}% of files`, color: '#7C3AED' },
     { label: 'Top Model', value: topModel, color: '#F59E0B', small: true },
     { label: 'Highest Risk File', value: highestRiskFile, color: '#FF4444', small: true },
   ];

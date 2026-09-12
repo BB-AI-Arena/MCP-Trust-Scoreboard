@@ -122,6 +122,9 @@ Method references: [Trivy image scanning](https://trivy.dev/docs/latest/guide/ta
 [pip vendoring policy](https://pip.pypa.io/en/latest/development/vendoring-policy/).
 Only its database download has network access; image archives are processed
 offline in a bounded container with **no Docker socket or host credentials**.
+It runs as the invoking UID/GID so cache/evidence files stay runner-owned. Alpine
+package updates retry at most three times for transient CDN failures; TLS checks,
+fresh repository requirements and failure exits remain enabled.
 Record scanner version/digest, database UpdatedAt/DownloadedAt (max age 48 hours),
 source SHA, dirty flag, image identities, exact commands, full findings, CycloneDX
 components and SHA-256 file checksums. Scan reports are time-sensitive evidence,
