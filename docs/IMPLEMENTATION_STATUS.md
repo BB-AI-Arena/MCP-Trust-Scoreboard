@@ -103,9 +103,9 @@ for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-pr
   advisories. The preceding run's missing legacy dependencies and global
   environment audit problem were corrected in `b36dd89`.
 
-License check: no `LICENSE` file exists in the checkout, while the historical
-README declared MIT. This branch flags the discrepancy and does not relicense
-or add a license file.
+License check: the repository now includes `LICENSE` with the standard MIT
+terms, consistent with the historical README declaration. Third-party
+dependencies and externally supplied content remain under their own licenses.
 
 ## Security and migration notes
 
