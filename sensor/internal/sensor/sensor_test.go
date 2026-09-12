@@ -149,3 +149,30 @@ func TestPathsAndMetadataBounds(t *testing.T) {
 		}
 	}
 }
+
+func TestTransportRequiresTrustedTLSAndExplicitPrivateScope(t *testing.T) {
+	calls := 0
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { calls++; w.Write([]byte(`{}`)) }))
+	defer server.Close()
+	c := config(t)
+	c.Server = server.URL
+	transport, e := NewTransport(c)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var out map[string]any
+	if transport.Call("GET", "/health", "fixture-private-token", nil, &out) == nil {
+		t.Fatal("unscoped private destination accepted")
+	}
+	c.AllowedCIDRs = []string{"127.0.0.1/32"}
+	transport, e = NewTransport(c)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if transport.Call("GET", "/health", "fixture-private-token", nil, &out) == nil {
+		t.Fatal("untrusted TLS accepted")
+	}
+	if calls != 0 {
+		t.Fatal("credentials reached untrusted endpoint")
+	}
+}

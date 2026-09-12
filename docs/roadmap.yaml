@@ -6,7 +6,10 @@ active_branch: feat/windows-endpoint-sensor
 base_branch: feat/crowdstrike-evidence-source
 dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/21
 endpoint_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/22
-windows_acceptance: pending
+endpoint_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/23
+windows_acceptance: foreground_server_2022_passed_initial_head
+windows_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34679332513
+endpoint_initial_sha: bebcaa09d8705befa83b6fa84923276591f8b2de
 falcon_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/20
 falcon_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/21
 connector_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/18
@@ -53,7 +56,7 @@ items:
   - id: ATP-C1
     target: 2.0.0-alpha.1
     title: Windows Endpoint Sensor v0.1 observe-only vertical slice
-    status: in_progress
+    status: in_review
     broader_baselines: planned
     depends_on: [ATP-B4]
   - id: ATP-D1

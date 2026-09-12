@@ -4,6 +4,7 @@ Run only in the dedicated disposable CI job. No vendor credentials or operator D
 The PostgreSQL process/cluster is created separately under RUNNER_TEMP by the job.
 """
 from datetime import datetime, timedelta, timezone
+from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import hashlib
 import json
@@ -52,6 +53,7 @@ def main():
     env={**os.environ,'AGENT_TRUST_API_TOKEN':token,'AGENT_TRUST_WORKSPACE_ID':'windows-ci',
         'AGENT_TRUST_HOST':'127.0.0.1','AGENT_TRUST_PORT':str(api_port)}
     headers={'Authorization':'Bearer '+token}
+    sensor_env={k:v for k,v in os.environ.items() if k not in ('DATABASE_URL','AGENT_TRUST_API_TOKEN','AGENT_TRUST_ENROLLMENT_SECRET')}
     received=[];accepted=set()
     class Receiver(BaseHTTPRequestHandler):
         def do_POST(self):
@@ -74,9 +76,17 @@ def main():
             p.terminate()
             try:p.wait(timeout=15)
             except subprocess.TimeoutExpired:p.kill();p.wait(timeout=5)
+    @contextmanager
+    def workspace():
+        with tempfile.TemporaryDirectory(prefix='atp-windows-sensor-') as temporary:
+            try:yield temporary
+            finally:
+                # Release Windows executable/spool handles BEFORE removing only
+                # this helper-created temporary directory, including on failure.
+                for child in reversed(children):stop(child)
     api=None
     try:
-        with tempfile.TemporaryDirectory(prefix='atp-windows-sensor-') as temporary:
+        with workspace() as temporary:
             root=Path(temporary);profile=root/'profile';data=root/'sensor-data';repo=root/'repository';repo.mkdir();(repo/'src').mkdir()
             cursor=profile/'AppData'/'Local'/'Programs'/'cursor'/'Cursor.exe';cursor.parent.mkdir(parents=True);shutil.copy2(helper,cursor)
             mcp=profile/'.cursor'/'mcp.json';mcp.parent.mkdir();sentinel=root/'MCP_MUST_NOT_EXECUTE'
@@ -91,11 +101,11 @@ def main():
                 'allowed_roots':[str(root)],'profile_roots':[str(profile)],'allowed_cidrs':['127.0.0.1/32'],
                 'allow_loopback_http':True,'interval_seconds':1,'spool_count':10000,'spool_bytes':32<<20,'spool_hours':24}
             config_path=root/'sensor.json';config_path.write_text(json.dumps(config))
-            enroll_env={**env,'AGENT_TRUST_ENROLLMENT_SECRET':provision['bootstrap_secret']}
+            enroll_env={**sensor_env,'AGENT_TRUST_ENROLLMENT_SECRET':provision['bootstrap_secret']}
             enrolled=subprocess.run([str(executable),'enroll','--config',str(config_path)],env=enroll_env,capture_output=True,text=True,timeout=30)
             assert enrolled.returncode==0,'enrollment failed (no private response logged)'
             secret=provision.pop('bootstrap_secret');assert secret.encode() not in (data/'identity.dpapi').read_bytes()
-            sensor=launch([str(executable),'run','--config',str(config_path),'--seconds','300'],'sensor')
+            sensor=launch([str(executable),'run','--config',str(config_path),'--seconds','300'],'sensor',sensor_env)
             def all_records(kind):
                 out=[]
                 for offset in range(0,4000,100):
@@ -107,8 +117,8 @@ def main():
             wait(lambda:observed('ai_tool_discovered'))
             wait(lambda:observed('mcp_configuration_discovered'))
             assert observed('software_inventory')
-            listener=socket.socket();listener.bind(('127.0.0.1',0));listener.listen()
-            actor=launch([str(cursor),f'127.0.0.1:{listener.getsockname()[1]}'],'fixture-process')
+            listener=socket.socket();listener.settimeout(15);listener.bind(('127.0.0.1',0));listener.listen()
+            actor=launch([str(cursor),f'127.0.0.1:{listener.getsockname()[1]}'],'fixture-process',sensor_env)
             connection,_=listener.accept()
             wait(lambda:any(e['data']['pid']==actor.pid for e in observed('process_started')))
             wait(lambda:any(e['data']['pid']==actor.pid for e in observed('process_network_connection')))
@@ -129,14 +139,14 @@ def main():
             assert persisted,'offline spool did not persist'
             # Retain one exact event and replay it after central acknowledgment.
             replay_path=next((data/'spool').glob('*.event'));replay_name=replay_path.name;replay_bytes=replay_path.read_bytes()
-            sensor=launch([str(executable),'run','--config',str(config_path),'--seconds','180'],'sensor')
+            sensor=launch([str(executable),'run','--config',str(config_path),'--seconds','180'],'sensor',sensor_env)
             assert len(list((data/'spool').glob('*.event')))>=len(persisted)
             api=launch([sys.executable,'-c','from agent_trust.api.app import run; run()'],'api')
             wait(lambda:httpx.get(origin+'/readiness').status_code==200)
             wait(lambda:persisted <= {e.get('event_id') for e in all_records('evidence')},150)
             stop(sensor)
             (data/'spool'/replay_name).write_bytes(replay_bytes)
-            sensor=launch([str(executable),'run','--config',str(config_path),'--seconds','120'],'sensor')
+            sensor=launch([str(executable),'run','--config',str(config_path),'--seconds','120'],'sensor',sensor_env)
             wait(lambda:not (data/'spool'/replay_name).exists(),60)
             replay_id=json.loads(replay_bytes)['event_id'];assert sum(e.get('event_id')==replay_id for e in all_records('evidence'))==1
             # Separate synthetic network/behavior fixtures exercise central rules;

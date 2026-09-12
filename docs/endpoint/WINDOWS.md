@@ -6,11 +6,16 @@ Observe-only, **not production-hardened**, not an EDR replacement. Sensor versio
 ## Validation boundary
 
 The dedicated `Windows endpoint sensor` workflow targets **windows-2022 x64**.
-Exact OS build, runner image version, source SHA and executable checksum are saved
-in `evidence/windows/acceptance.json` when the full scenario succeeds. Until that
-artifact exists, real Windows acceptance is pending; Linux contracts and Windows
-cross-compilation alone are not a Windows-support claim. Windows 10/11, ARM64 and
-other service-account configurations are not yet validated.
+Verified initial source `bebcaa09d8705befa83b6fa84923276591f8b2de`: **Windows Server
+2022 x64 build 20348**, runner image `20260907.297.1`, six native tests plus the full
+foreground vertical scenario passed. [Windows run 34679332513](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34679332513),
+artifact `windows-endpoint-34679332513-1` / `10293057019`. Downloaded
+`acceptance.json` confirms six offline events recovered, one replay deduplicated,
+five findings accepted in six webhook attempts, and zero blocking actions.
+Initial executable SHA-256 `68206c170558c833f89502bcb46fc8460f6472651cdda46bc8ae882c63c4246e`.
+Exact final-source evidence is linked in PR #23; do not infer it from this earlier
+snapshot. Windows 10/11, ARM64 and other service-account configurations are not yet
+validated. Cross-compilation alone is not a Windows-support claim.
 
 The acceptance harness uses real Toolhelp, IP Helper, file identities, DPAPI,
 registry/OS inventory, API, worker and disposable PostgreSQL. Cursor discovery uses
@@ -90,6 +95,9 @@ The local approved roots constrain centrally selected repository/tool/config pat
 no whole-filesystem default exists. Use a dedicated restricted data directory and
 protect the configuration from other users. Sensor enrollment applies an inheritable
 DACL granting the enrolling user, administrators and SYSTEM only to the data path.
+Enrollment refuses a nonempty preexisting data directory; it must not change
+permissions on arbitrary operator data. A no-sharing lock file excludes competing
+sensor processes across Windows sessions and releases on process death.
 
 ```powershell
 .\agent-trust-sensor.exe enroll --config C:\Private\sensor.json

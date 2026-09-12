@@ -16,6 +16,24 @@ func Enroll(c Config, bootstrap string) error {
 	if len(bootstrap) < 32 {
 		return fmt.Errorf("bootstrap required in private environment")
 	}
+	checkEmpty := func() error {
+		entries, err := os.ReadDir(c.DataDir)
+		if os.IsNotExist(err) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		for _, entry := range entries {
+			if entry.Name() != "sensor.lock" {
+				return fmt.Errorf("enrollment requires an empty dedicated data directory")
+			}
+		}
+		return nil
+	}
+	if err := checkEmpty(); err != nil {
+		return err
+	}
 	if e := os.MkdirAll(c.DataDir, 0700); e != nil {
 		return e
 	}
@@ -24,6 +42,9 @@ func Enroll(c Config, bootstrap string) error {
 		return lockError
 	}
 	defer unlock()
+	if err := checkEmpty(); err != nil {
+		return err
+	}
 	if e := RestrictDirectory(c.DataDir); e != nil {
 		return e
 	}

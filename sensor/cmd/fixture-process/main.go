@@ -18,5 +18,5 @@ func main() {
 	}
 	defer c.Close()
 	fmt.Fprint(c, "benign sensor fixture\n")
-	time.Sleep(90 * time.Second)
+	time.Sleep(600 * time.Second) // bounded; harness stops only its own helper
 }

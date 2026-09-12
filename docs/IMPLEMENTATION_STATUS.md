@@ -23,13 +23,30 @@ spool/privacy/transport tests: **4 passed**. Windows x64 executable/tests cross-
 Full local `.venv/bin/pytest -o addopts= -q -ra`: **103 passed / 33 gated skips**, 27.25s.
 `.venv/bin/pytest --run-integration tests/integration -v --tb=short --junitxml=evidence/endpoint-runtime/junit.xml`:
 **19 passed**, 207.06s, zero skips; existing 18 retained. Compileall/diff checks passed.
-Cross-compilation is NOT Windows validation: actual Windows workflow and final-head
-CI readback pending. No feature completeness or Windows-build claim yet.
+Initial implementation commit **bebcaa09d8705befa83b6fa84923276591f8b2de** is pushed in
+[PR #23](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/23), base PR #21.
+[Existing CI 34679332603](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34679332603)
+passed all ten jobs. [Windows CI 34679332513](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34679332513)
+and its PR run 34679354524 passed. Downloaded artifact **10293057019** confirms:
+Windows Server 2022 x64 build **20348**, runner **20260907.297.1**; six native tests,
+real foreground enrollment/process/TCP/file/registry/OS collection and full pipeline;
+six offline events recovered, identical replay deduplicated, five findings accepted
+in six receiver attempts, zero blocking actions. Discovery and behavioral test
+fixtures remain explicitly synthetic, not live Cursor/MCP/vendor validation.
+Executable checksum and exact commands: [endpoint/WINDOWS.md](endpoint/WINDOWS.md).
+
+Follow-up adds nonempty-directory/remote-hash guards, stronger TLS/scope tests and
+safer Windows harness cleanup/helper timing. Final ending head and its separate
+CI result must be read back on PR #23; earlier passing runs are not substituted.
+All changes are in review, not merged/approved/published. No GitHub operations failed.
 
 Known limitations: polling misses short-lived activity; no file-writer association,
 DNS/UDP, payloads, source-code read proof, complete inventory, learned baseline,
 production signing/updater, validated dedicated-account SCM deployment or enforcement.
-Issue #22 remains In progress until reviewed executable evidence; not Done.
+Issue #22 and [the private Project](https://github.com/users/BB-AI-Arena/projects/1)
+remain In review, not Done. Next concrete follow-up: dedicated least-privilege SCM
+account enrollment/start/recovery acceptance and a Windows client-OS test matrix;
+not dependency hardening or prevention.
 
 ## Prior slice history — read-only CrowdStrike source
 

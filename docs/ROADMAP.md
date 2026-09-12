@@ -9,7 +9,7 @@ Stable IDs are used for issues, board items, commits, and handoffs.
 | ATP-A3 | 2.0.0-alpha.1 | Legacy flow compatibility and honest docs | Four services remain runnable; demo limitations labeled | In review (partial) |
 | ATP-B1 | 2.0.0-alpha.2 | Real MCP stdio/Streamable HTTP and OpenAPI import | Local fixture protocol tests and safe egress | Planned |
 | ATP-B2 | 2.0.0-alpha.2 | Evidence, verification, snapshots, drift | Claimed/verified/observed states and diff tests | Planned |
-| ATP-C1 | 2.0.0-alpha.1 (sensor slice) | Windows observe-only endpoint sensor (#22); broader baselines remain future | Real Windows → offline spool → typed PostgreSQL evidence → finding → webhook | In progress; Windows CI pending |
+| ATP-C1 | 2.0.0-alpha.1 (sensor slice) | Windows observe-only endpoint sensor (#22); broader baselines remain future | Real Windows → offline spool → typed PostgreSQL evidence → finding → webhook | In review (PR #23); Windows Server 2022 foreground slice passed |
 | ATP-C2 | 2.0.0-beta.1 | Graph/artifact views and Python/JS SDKs | Multi-edge/cycle and telemetry mapping tests | Planned |
 | ATP-D1 | 2.0.0-rc.1 | Recovery, upgrade, compatibility, packaging, release prep | Fresh/upgrade/rollback/end-to-end gates | Alpha subset in review; dependency risk accepted, hardening deferred |
 | ATP-B3 | 2.0.0-alpha.1 | Connector framework, JSON evidence source, webhook finding destination | Authenticated durable end-to-end path with local receiver and retries | Implemented for review (#18); live vendor validation not claimed |

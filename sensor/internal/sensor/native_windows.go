@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -162,6 +163,9 @@ func Processes() (map[uint32]ProcessInfo, int, error) {
 	return out, denied, nil
 }
 func BoundedHash(path string) string {
+	if !filepath.IsAbs(path) || strings.HasPrefix(path, `\\`) {
+		return ""
+	}
 	f, e := os.Open(path)
 	if e != nil {
 		return ""

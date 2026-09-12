@@ -65,3 +65,19 @@ func TestWindowsNativeProcessAndFileIdentity(t *testing.T) {
 		t.Fatal("delete")
 	}
 }
+
+func TestEnrollmentPreservesExistingDirectory(t *testing.T) {
+	c := config(t)
+	path := filepath.Join(c.DataDir, "operator-file.txt")
+	os.WriteFile(path, []byte("preserve"), 0600)
+	if Enroll(c, "fixture-bootstrap-not-real-1234567890") == nil {
+		t.Fatal("nonempty directory accepted")
+	}
+	b, e := os.ReadFile(path)
+	if e != nil || string(b) != "preserve" {
+		t.Fatal("existing data altered")
+	}
+	if BoundedHash(`\\server\share\file.exe`) != "" {
+		t.Fatal("remote executable opened")
+	}
+}
