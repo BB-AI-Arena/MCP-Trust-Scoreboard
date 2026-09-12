@@ -114,7 +114,7 @@ def sync_once(engine, config: FalconConfig, workspace: str, *, since: str,
                      'hosts':{'cursor':None,'done':False},'alerts':{'cursor':None,'done':False},'not_before':0}
         for stream in ('hosts','alerts'):
             position = state[stream]
-            stats = {'pages_committed':0,'records_submitted':0,'cursor_replays':0,
+            stats = {'pages_committed':0,'records_submitted':0,'cursor_replays':0,'ingestion_job_ids':[],
                      'coverage':'previously_completed' if position['done'] else 'partial'}
             output['streams'][stream] = stats
             if position['done']:
@@ -133,6 +133,7 @@ def sync_once(engine, config: FalconConfig, workspace: str, *, since: str,
                     normalized = [source.normalize({'resource':item,'resource_type':'host' if stream=='hosts' else 'alert',
                         'config':config,'collected_at':now(),'agent_mapping':mapping},context) for item in items]
                     updated = {**position,'cursor':cursor,'done':not cursor,'cursor_time':time.time()}
+                    page_job_ids = []
                     # Page enqueue and checkpoint share one transaction on the
                     # SAME session holding the collection lock. No external calls.
                     with connection.begin():
@@ -142,10 +143,12 @@ def sync_once(engine, config: FalconConfig, workspace: str, *, since: str,
                                                  idempotency_key=key,connection=connection)
                             if job['kind']!='connector_ingest' or job['payload'].get('revision')!=payload['revision'] or job['payload'].get('logical_id')!=payload['logical_id']:
                                 raise FalconError('ingestion_key_conflict')
+                            page_job_ids.append(job['id'])
                         save_state(connection,identifier,workspace,{**state,stream:updated,'not_before':0})
                     state[stream] = position = updated
                     stats['pages_committed'] += 1
                     stats['records_submitted'] += len(normalized)
+                    stats['ingestion_job_ids'] = list(dict.fromkeys(stats['ingestion_job_ids'] + page_job_ids))
                     if not cursor:
                         stats['coverage'] = 'bounded_query_completed'
                         break

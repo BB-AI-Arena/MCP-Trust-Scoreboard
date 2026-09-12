@@ -117,7 +117,10 @@ or new service is added; invoke sync-once again to continue an unfinished window
 Hosts are current inventory, not historical host inventory for the alert interval.
 
 Summary fields include per-stream pages committed, records submitted (including
-unchanged records reusing existing jobs), cursor replays, errors and coverage.
+unchanged records reusing existing jobs), committed `ingestion_job_ids`, cursor
+replays, errors and coverage. Poll each ingestion ID through `/api/v1/jobs/{id}`;
+its completed result includes the independent delivery job IDs. IDs are included
+only after the page commit succeeds.
 `complete` means the bounded queries reached their end. Ingestion may still be
 queued, and destination delivery may be pending or failed independently.
 

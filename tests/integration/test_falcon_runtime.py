@@ -44,6 +44,9 @@ def test_postgres_page_atomicity_replay_revisions_mapping_and_delivery(pg_engine
     monkeypatch.setattr(JobLedger,'enqueue',original)
     first = sync_once(pg_engine,config,workspace,**kwargs)
     assert first['status']=='partial'
+    for stream in ('hosts','alerts'):
+        ids = first['streams'][stream]['ingestion_job_ids']
+        assert len(ids)==1 and JobLedger(pg_engine).get(ids[0],workspace)['kind']=='connector_ingest'
     with pg_engine.connect() as c:
         saved = json.loads(c.execute(select(connector_checkpoints.c.payload)).scalar_one())
         assert saved['alerts']['cursor'] and saved['hosts']['cursor']

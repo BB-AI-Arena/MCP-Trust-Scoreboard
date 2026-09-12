@@ -17,7 +17,16 @@ Branch `feat/crowdstrike-evidence-source`, base `feat/json-webhook-connectors`
 (PR #19), not main. Dependency order #15 → #16 → #17 → #19 → this feature.
 Tracking: [ATP-B4 #20](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/20),
 [dedicated private project](https://github.com/users/BB-AI-Arena/projects/1).
-Feature PR/ending SHA and exact-head CI results will be recorded after push.
+[Feature PR #21](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/21) is OPEN,
+base `feat/json-webhook-connectors`, In review, not Done. Initial implementation
+SHA `bf175ffdf16806a56ffbab5f2d240f1f82ee55f9`; exact-source CI
+[34677600114](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34677600114)
+passed all ten jobs. Its dependent-PR run
+[34677676274](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34677676274)
+also passed. The subsequent tested follow-up exposes committed ingestion-job IDs
+for following persistence/delivery through the existing jobs API. The actual
+ending head and its separate CI readback are recorded in the PR handoff (not
+inferred from these earlier runs); no merge or publication is automatic.
 
 ## Implemented
 
@@ -52,19 +61,37 @@ does not make vendor conclusions objectively verified.
 - Baseline `.venv/bin/pytest -o addopts= -q -ra`: **75 passed, 28 explicitly skipped**
   integration/browser tests (separate mandatory CI suites).
 - Feature `.venv/bin/pytest -o addopts= -q -ra`: **93 passed, 32 explicitly skipped**,
-  25.97s; two inherited Starlette warnings, not suppressed.
+  25.18s on the committed-job-ID follow-up; two inherited Starlette warnings,
+  not suppressed.
 - `.venv/bin/pytest --run-integration tests/integration -v --tb=short --junitxml=evidence/falcon-runtime/junit.xml`:
   **18 passed, zero skipped**, 201.25s. Original 14 retained plus four Falcon tests:
   real TLS/installed runtime delivery and restart; page rollback/revisions/mapping;
   rate-limit/checkpoint recovery; migration 003→004/repeat preservation.
 - Initial focused integration run: **4 passed**, 58.67s.
+- Follow-up `.venv/bin/pytest --run-integration tests/integration/test_falcon_runtime.py -v --tb=short`:
+  **4 passed**, 58.83s, including durable lookup of the returned job IDs.
 - `.venv/bin/python -m compileall -q src tests`; `git diff --check`: passed.
 - `.venv/bin/python -m pip install --no-deps --no-build-isolation -e .`: failed
   because this local environment lacks `setuptools.build_meta`. Normal isolated
   `.venv/bin/python -m pip install --no-deps -e .` and
   `.venv/bin/agent-trust-falcon --help`: passed; no application dependencies changed.
-- Existing four-workspace browser/report/build/recovery and scan/SBOM/secret checks
-  remain mandatory in CI. Exact feature-head CI is pending push; not claimed passed.
+- Exact implementation-source CI 34677600114: **all ten jobs passed**. Downloaded
+  JUnit confirms **18 runtime/PostgreSQL tests** and **14 full-stack/browser/report/
+  persistence/backup-restore tests**, no skips/failures/errors. Four frontend
+  builds/tests, Compose validation, Python/version checks and security jobs passed.
+
+Retained evidence was downloaded with
+`gh run download 34677600114 --repo BB-AI-Arena/MCP-Trust-Scoreboard --dir evidence/falcon-ci-34677600114`.
+Artifact IDs: runtime **10292499026**, acceptance **10292354660**, dependencies
+**10292484132**, container security **10292439475** (14-day CI retention).
+All **41 container evidence checksums verified**. Trivy 0.74.0 completed at
+2026-09-12T06:15:45Z using database updated 2026-09-12T01:00:32Z; 13 service
+identities / 12 distinct images with CycloneDX inventories and unchanged full
+reports. **Findings remain present**: each of six Python image identities has
+181 package/advisory matches, including 56 HIGH/CRITICAL matches, not unique CVE
+counts. No dependency/image changes or suppressions. Python/npm audits completed
+with no reported findings; the unpublished first-party application is explicitly
+not in the PyPI audit database. This is not a claim of vulnerability-free software.
 
 No credentials were supplied privately for live validation: **live CrowdStrike
 smoke was not run and remains pending**, not a development blocker. Tests use

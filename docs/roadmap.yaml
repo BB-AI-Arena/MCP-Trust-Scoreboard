@@ -6,12 +6,13 @@ active_branch: feat/crowdstrike-evidence-source
 base_branch: feat/json-webhook-connectors
 dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/19
 falcon_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/20
+falcon_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/21
 connector_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/18
 connector_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/19
 policy_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34671404252
 acceptance_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/16
-tested_implementation_sha: 5fb6f0a9d5c7fd89a406afb95f1ede05de1c6406
-exact_source_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34671947014
+tested_implementation_sha: bf175ffdf16806a56ffbab5f2d240f1f82ee55f9
+exact_source_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34677600114
 historical_acceptance_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670064621
 historical_gate_outcome: nine_jobs_passed_container_security_failed_under_superseded_policy
 acceptance_gates:
@@ -67,6 +68,6 @@ items:
   - id: ATP-B4
     target: 2.0.0-alpha.1
     title: Read-only CrowdStrike host and alert evidence source
-    status: in_progress
+    status: in_review
     live_validation: pending
     depends_on: [ATP-B3]
