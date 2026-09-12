@@ -17,9 +17,11 @@ Stable IDs are used for issues, board items, commits, and handoffs.
 | ATP-F1 | 2.1.0 | Optional inline enforcement and expiring approvals | Denied calls never reach upstream; replay-proof approvals | Planned |
 
 Runtime repair continuation: PR #12 is merged, but Phase A is not complete.
-UI work remains paused; owner-authorized connector development resumes. ATP-A2 persistence and ATP-A3 dependency remediation
-passed local and remote CI on `fix/runtime-postgres-release-gates` (PR #15).
-Release remains blocked for review and broader legacy/runtime/security gates.
+UI work remains paused; owner-authorized connector development has resumed in
+PR #19 (base PR #17, which depends on #16/#15). ATP-A2 persistence and the inherited
+ATP-A3 source dependency repairs passed local and remote CI. The alpha acceptance
+subset passes under the owner risk policy; maintainer review and broader roadmap
+completion remain separate from those measured checks.
 See [implementation status](IMPLEMENTATION_STATUS.md) for measured results.
 
 Alpha acceptance continuation: `test/alpha-release-acceptance` depends on open

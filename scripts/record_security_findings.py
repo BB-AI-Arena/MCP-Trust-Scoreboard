@@ -11,9 +11,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--evidence', required=True)
     parser.add_argument('--output', default='docs')
+    parser.add_argument('--run-id', required=True, type=int)
+    parser.add_argument('--artifact-id', required=True, type=int)
+    parser.add_argument('--run-attempt', default=1, type=int)
     args = parser.parse_args()
     source, output = Path(args.evidence), Path(args.output)
-    for name, digest in json.loads((source / 'checksums.json').read_text()).items():
+    checksums = json.loads((source / 'checksums.json').read_text())
+    for name, digest in checksums.items():
         assert Path(name).name == name
         assert hashlib.sha256((source / name).read_bytes()).hexdigest() == digest
     scan = json.loads((source / 'scan-summary.json').read_text())
@@ -32,6 +36,9 @@ def main():
                 item['images'].append(label)
     document = {'policy':STATUS, 'source_sha':scan['source_sha'], 'scanned_at':scan['scanned_at'],
         'scanner_image':scan['scanner_image'], 'database':scan['database'], 'images':images,
+        'ci_run':args.run_id, 'artifact_id':args.artifact_id,
+        'artifact_name':f'container-security-{args.run_id}-{args.run_attempt}',
+        'verified_checksums':len(checksums),
         'findings':list(findings.values())}
     output.mkdir(parents=True, exist_ok=True)
     (output / 'known_security_issues.json').write_text(json.dumps(document, indent=2) + '\n')
@@ -43,8 +50,8 @@ def main():
         f"Snapshot source: `{scan['source_sha']}`; scan: `{scan['scanned_at']}`. "
         'Historical evidence is not a newly scanned artifact. All severities are retained below. '
         'Repeated package matches and shared service images are not unique CVEs.', '',
-        'Raw baseline: [CI run 34670450930](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670450930), '
-        'artifact `container-security-34670450930-1` / ID `10290422302`; 41 checksums verified. '
+        f'Raw evidence: [CI run {args.run_id}](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/{args.run_id}), '
+        f'artifact `{document["artifact_name"]}` / ID `{args.artifact_id}`; {len(checksums)} checksums verified. '
         'Machine-readable companion: [known_security_issues.json](known_security_issues.json).', '',
         '## Image identities', '', '| Ref | Services | Image ID |', '| --- | --- | --- |']
     for image in images:

@@ -12,13 +12,17 @@ development, reviewed merges or approved alpha preparation/publication. Scanner
 execution, secrets, functional and data-integrity gates remain. Do not restart a
 CVE-remediation loop. Approval is still required; alpha is not production-hardened.
 
-Next dependency-ready product slice: separate EvidenceSource, FindingDestination
+Current product slice (ATP-B3, implemented in PR #19, awaiting review): separate EvidenceSource, FindingDestination
 and ResponseAdapter contracts. No selected vendor priority exists, so implement
 generic JSON ingestion and a configured webhook destination first. Authenticate
 ingestion, normalize/redact evidence, persist it and deterministic findings with
 transactional delivery jobs. Test real local endpoints, duplicates, failures and
 retry persistence. No vendor stubs or enforcement claims. Keep schemas versioned
 and use the existing PostgreSQL ledger; destination delivery is at least once.
+The working reference path and tested limits are in [CONNECTORS.md](CONNECTORS.md).
+Local HTTP/TLS fixture success is not live vendor validation; response contracts
+have no registered enforcement implementation. Follow this slice with a selected
+source/destination adapter using the same contracts, not a new CVE-hardening loop.
 
 1. Keep FastAPI, Python, React, Vite, D3, and Recharts. Introduce one Python
    namespace at `src/agent_trust` and retain the old app directories as tested

@@ -4,26 +4,26 @@ Accepted for development/alpha; hardening deferred.
 
 Owner-authorized development/alpha risk acceptance supersedes earlier zero-HIGH/CRITICAL instructions. Do not restart remediation automatically. This is not production hardening, a clean scan, an exploitability determination, or maintainer approval to publish. Scanner execution, inventory, secret, build, runtime, migration and data-integrity failures still block.
 
-Snapshot source: `6f9cdb8d8aac35b5647288200ecff16f31183fab`; scan: `2026-09-12T03:30:00.197989+00:00`. Historical evidence is not a newly scanned artifact. All severities are retained below. Repeated package matches and shared service images are not unique CVEs.
+Snapshot source: `5fb6f0a9d5c7fd89a406afb95f1ede05de1c6406`; scan: `2026-09-12T04:03:49.405735+00:00`. Historical evidence is not a newly scanned artifact. All severities are retained below. Repeated package matches and shared service images are not unique CVEs.
 
-Raw baseline: [CI run 34670450930](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670450930), artifact `container-security-34670450930-1` / ID `10290422302`; 41 checksums verified. Machine-readable companion: [known_security_issues.json](known_security_issues.json).
+Raw evidence: [CI run 34671947014](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34671947014), artifact `container-security-34671947014-1` / ID `10291645171`; 41 checksums verified. Machine-readable companion: [known_security_issues.json](known_security_issues.json).
 
 ## Image identities
 
 | Ref | Services | Image ID |
 | --- | --- | --- |
-| I1 | api-baseline | `sha256:007bbc8d343cd6c97c1d8b8f3ada14148131a66cdb1f13f57549811c9188a8a0` |
-| I2 | api-blast | `sha256:26e979df419f133932bcd99fbf8ebcb406a1492882c3d49a8b4c0ba4ac8f7bb5` |
-| I3 | api-platform, worker-platform | `sha256:d405f4eaf6421e9ce12ab83d415d775479bd627b44d163745dcf71179cfe488b` |
-| I4 | api-provenance | `sha256:1870141ab4d1a722dcdcd1995f324bf35f965cdb4e801bf2da6b178444a5f8bf` |
-| I5 | api-scorecard | `sha256:e717e02094a246f808159fb49a9cccd6d845be73fd30b090b3ac55e7dd4ba5be` |
-| I6 | frontend-baseline | `sha256:e92e1bb4772dde07f00766dd4c6b9eb9c5fa5ec17c28dc800f437462b19d9541` |
-| I7 | frontend-blast | `sha256:00c25096ed8e2e7c611ba2156e0c52a1b4b52b2ac5bae93108b79ad1bf295afa` |
-| I8 | frontend-provenance | `sha256:bc75697460f91998823edecd49cc3998ac1d456c03e7a629927847c368cf62ea` |
-| I9 | frontend-scorecard | `sha256:6c87f5ea2ef21a99eafb2b47872d558ff08fccbdf43c897b32de9565860bf329` |
-| I10 | postgres | `sha256:b649e45f44dcb90c7db8a677178de63382346ac1329eb3717d7cc27cd10da983` |
+| I1 | api-baseline | `sha256:2427560a14a49e5832c2589fa2a2853c66a369f4fe62466b8daff66f5b88ba32` |
+| I2 | api-blast | `sha256:401a90734499573ea9b3f7babb438758964cd0d8dcad33ba2f88d2e61a8d9d22` |
+| I3 | api-platform, worker-platform | `sha256:4ed27a16cef24eeef4249346db88714f36f3116daeba8bd6a4040d7b99bcaaea` |
+| I4 | api-provenance | `sha256:a3a5976cfd2877453fdca4e459c041dd37bc231665703080fb60e008970d4275` |
+| I5 | api-scorecard | `sha256:931c144bc07645886deddbe6618bebec7514a5730a27399fa9fb64a6b63cec54` |
+| I6 | frontend-baseline | `sha256:60e71aacd30b35f37bd4ab0113e75cb30eeb8d2bddc07554ddb2792e3a0e268a` |
+| I7 | frontend-blast | `sha256:297087f0d8e1d0e5d00930e533a6210c172d32e518f35c98b78abac7df9d1e15` |
+| I8 | frontend-provenance | `sha256:6e0756516da8bc48eb959f116ca068e62cc9e625171a156413f79d0c8968ac31` |
+| I9 | frontend-scorecard | `sha256:d82b68469958f18d504196c5dfd5befb0e792e5c90e5dedbd0f2f8c56cae38ca` |
+| I10 | postgres | `sha256:51de0ac08e21eb3cac34973d0ff7c48143e8bd546a73f362358d15fc6592b5d9` |
 | I11 | redis | `sha256:5509c0097c6064aa8a3b1df58f1d950e67090fffa6678ae8f3f1dc2385f12deb` |
-| I12 | worker | `sha256:26f2d96ab3c3e54d6ff02b518e2b71939f82d6071043a2a8cac95525dcc58900` |
+| I12 | worker | `sha256:922057d97d46f9fc83c9f7508228494f32e5f40042ba84199415babee5b654fa` |
 
 ## Observed findings
 

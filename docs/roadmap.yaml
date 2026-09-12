@@ -6,10 +6,12 @@ active_branch: feat/json-webhook-connectors
 base_branch: chore/alpha-dependency-risk-policy
 dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/17
 connector_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/18
+connector_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/19
 policy_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34671404252
 acceptance_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/16
-tested_implementation_sha: 74e340cfb7abec9ceb7a67ba6669e1cb0cfc9928
-exact_source_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670064621
+tested_implementation_sha: 5fb6f0a9d5c7fd89a406afb95f1ede05de1c6406
+exact_source_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34671947014
+historical_acceptance_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670064621
 historical_gate_outcome: nine_jobs_passed_container_security_failed_under_superseded_policy
 acceptance_gates:
   legacy_browser_and_downloads: implemented_in_review

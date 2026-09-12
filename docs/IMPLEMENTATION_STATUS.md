@@ -24,9 +24,11 @@ resources were removed after exact ownership checks; no user volumes/data change
 
 Historical full acceptance (71 passing tests and nine passing CI jobs; old
 vulnerability policy failed) is preserved in [PR16_ACCEPTANCE_HISTORY.md](PR16_ACCEPTANCE_HISTORY.md).
-The current [known-risk register](KNOWN_SECURITY_ISSUES.md) retains all 181 distinct
-advisory/package/version/severity rows across 12 images/13 services from verified
-artifact 10290422302, not just high/critical findings. Raw reports remain unchanged.
+The historical baseline artifact 10290422302 was downloaded and all 41 checksums
+verified. The current [known-risk register](KNOWN_SECURITY_ISSUES.md) retains all
+181 distinct advisory/package/version/severity rows across 12 images/13 services
+from connector CI artifact 10291645171. Its advisory/package/version/severity set
+is identical to that baseline. Raw reports remain unchanged; this is not a clean scan.
 
 ## Policy slice: implemented, CI passed, awaiting review
 
@@ -48,13 +50,19 @@ Policy commands/results:
   explicitly disclosed as unauditable.
 - `.venv/bin/python -m compileall -q src tests scripts`; `git diff --check`: passed.
 
-## Connector slice: implemented, local tests passed, CI pending
+## Connector slice: implemented, CI passed, awaiting review
 
 Branch `feat/json-webhook-connectors` starts at policy head `886560bb801be9c2d2a49627ea19d1ad3c5eee9d`;
 its review base is `chore/alpha-dependency-risk-policy` (PR #17), not main. PRs
 #15/#16 remain open at their verified heads. Tracking:
+[PR #19](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/19),
 [ATP-B3 #18](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/18),
 [private project](https://github.com/users/BB-AI-Arena/projects/1), In review, not Done.
+Ending product implementation SHA: `5fb6f0a9d5c7fd89a406afb95f1ede05de1c6406`.
+The following handoff commit changes documentation, the risk-register generator
+and its regression test only, not application behavior. Its ending SHA is the
+PR head (`git rev-parse HEAD`); the exact implementation source is preserved here
+so evidence is not misattributed to a later documentation commit.
 
 Implemented shared source/destination/response contracts and a working generic
 JSON → normalization → PostgreSQL evidence/finding → webhook path. The existing
@@ -68,8 +76,10 @@ was selected; no vendor stubs or live-provider claims were added.
 
 Local commands/results on the implemented connector tree:
 
-- `.venv/bin/pytest -o addopts= -q -ra`: **74 passed, 28 explicit integration/browser
-  skips**, two inherited Starlette warnings (not suppressed).
+- `.venv/bin/pytest -o addopts= -q -ra`: **75 passed, 28 explicit integration/browser
+  skips**, two inherited Starlette warnings (not suppressed). This includes one
+  additional risk-register artifact-provenance/corrupt-checksum regression beyond
+  the 74 tests at the product implementation SHA.
 - `.venv/bin/pytest --run-integration tests/integration -v --tb=short`: **14 passed,
   zero skipped** in 144.27 seconds: original 13 runtime/PostgreSQL tests retained,
   plus installed API/worker JSON-to-TLS-webhook, untrusted-certificate rejection,
@@ -77,8 +87,59 @@ Local commands/results on the implemented connector tree:
 - `.venv/bin/python -m compileall -q src tests scripts examples`; `git diff --check`:
   passed. Local example receiver smoke: two real POSTs returned 204 with the same
   delivery ID deduplicated. Example deduplication is in-memory/demo only.
-- Existing frontend/browser/report, deployment and scanner jobs remain mandatory
-  CI; no cosmetic UI or dependency changes. Exact-head CI results pending.
+- [Exact implementation CI 34671947014](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34671947014):
+  **all ten jobs passed**. `pytest`/compile/version checks passed; installed runtime
+  `pytest --run-integration tests/integration -v`: 14 passed, zero skips (77.89s).
+  `pytest --run-acceptance tests/acceptance -v --junitxml=evidence/acceptance/junit.xml`:
+  **14 passed, zero skipped/failed/errors**, 149.433s. Includes all four real browser
+  workspaces, downloaded PDF content/layout, backend failures, demo/experimental
+  labels, no-provider behavior, mixed legacy worker, recreation, upgrade and
+  separate database backup/restore. No extra local repeat of that unchanged suite.
+- For each of the four frontend directories CI ran `npm ci && node --test
+  ../../tests/frontend/pdf-export.test.cjs && npm run build`: passed. Python and
+  four npm audit wrappers completed; zero known top-level findings, editable
+  self-package unauditable and disclosed. This does **not** negate container CVEs.
+- CI `python3 scripts/scan_images.py`: completed with findings informational.
+  Compose preflight and committed-secret protections passed unchanged. No frontend,
+  application dependency, base image or production changes in the connector slice.
+
+### Retained evidence and remote state
+
+From exact implementation run 34671947014 (downloaded/read back):
+
+| Artifact | ID | Verified observations |
+| --- | --- | --- |
+| container-security-34671947014-1 | 10291645171 | 41 SHA-256 checksums; 12 image IDs, 13 services; 181 distinct advisory/package/version/severity rows; no dropped findings |
+| acceptance-34671947014-1 | 10290513697 | JUnit 14/14; traces/screenshots; four actual downloaded PDF reports and layout/content checks; zero browser external requests |
+| dependencies-34671947014-1 | 10291026577 | Python plus four npm raw JSON/summary reports; executions completed |
+
+Scan source `5fb6f0a9d5c7fd89a406afb95f1ede05de1c6406`, Trivy 0.74.0,
+scan `2026-09-12T04:03:49.405735+00:00`, DB UpdatedAt
+`2026-09-12T01:00:32.340244017Z`. All six affected Python images (seven services)
+still have 53 HIGH + 3 CRITICAL package matches each. Complete image IDs, packages,
+fixes when reported, accepted status and scanner digest are in
+[known_security_issues.json](known_security_issues.json); full inventories/SBOMs in
+the artifact. No CVE applicability investigation or remediation was resumed.
+The downloaded artifact-assurance report was also visually inspected: experimental
+warning, submitted fixture code and shell-injection finding are present; this is
+not an assertion of verified provenance. Behavior has no report download feature.
+
+Evidence commands (downloads are into ignored, separate evidence folders):
+
+```bash
+gh run download 34671947014 --name container-security-34671947014-1 --dir evidence/connector-ci-containers
+gh run download 34671947014 --name acceptance-34671947014-1 --dir evidence/connector-ci-acceptance
+gh run download 34671947014 --name dependencies-34671947014-1 --dir evidence/connector-ci-dependencies
+.venv/bin/python scripts/record_security_findings.py --evidence evidence/connector-ci-containers --run-id 34671947014 --artifact-id 10291645171
+gh run view 34671947014 --json status,conclusion,headSha,jobs
+```
+
+GitHub mutations were read back: PRs #17/#19 OPEN on their documented bases,
+issues #8/#11/#18 and dedicated project items In review, no duplicate issues.
+`gh pr edit 17` hit the installed CLI's deprecated Projects-classic query; the
+same authorized body update succeeded through `gh api --method PATCH` and was
+verified. No pending authentication/permission recovery or failed write remains.
+The stack must be reviewed in dependency order #15 → #16 → #17 → #19.
 
 Real services: local HTTP/TLS receiver, installed API/worker and disposable
 PostgreSQL. Injected fixtures: DNS/address failures, receiver 503 responses and
