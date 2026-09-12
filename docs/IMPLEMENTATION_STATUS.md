@@ -3,6 +3,57 @@
 Updated 2026-09-11 America/Chicago (2026-09-12 UTC). Alpha acceptance slice;
 new product features, integrations and cosmetic UI work remain paused.
 
+## Final verified handoff
+
+**Implemented for review; alpha release still blocked, not approved or published.**
+Ending tested implementation SHA: `74e340cfb7abec9ceb7a67ba6669e1cb0cfc9928`.
+Any subsequent handoff-only commit records these results without changing runtime,
+tests or CI; its SHA is available from this file's Git history/PR commit list.
+
+- `ACCEPTANCE_EVIDENCE=evidence/acceptance-74e340c .venv/bin/pytest --run-integration --run-acceptance -o addopts= -q tests --junitxml=evidence/acceptance-74e340c/junit.xml`:
+  **71 passed, zero skipped, 199.05s** (44 unit/contracts + 13 PostgreSQL + 14 full-stack).
+- `python3 scripts/scan_images.py --output evidence/containers-74e340c`:
+  **failed the unchanged vulnerability gate**, not scanner startup/cleanup. All
+  13 service-image identities covered; identical image IDs may be deduplicated.
+  Seven Python services have 53 high/3 critical package matches each. Four frontend
+  services, PostgreSQL and Redis have zero reported findings. Details below.
+- [Exact-source push CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670064621):
+  **nine jobs passed; only container-security failed** on the findings. Runner
+  reports independently show 44 unit, 13 integration and 14 acceptance passes.
+  Scanner runs as UID/GID 1001:1001, with no cache permission failure.
+- [PR CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670066157)
+  has the same nine-pass/one-fail outcome. Its tested source is GitHub's synthetic
+  PR merge commit `6c680c7c7fddd8cfe72b9760e5e39a901f918d95`, **not a repository merge**.
+  Push CI and local evidence test the exact implementation SHA above.
+- Downloaded/read back push artifacts `acceptance-34670064621-1` (ID 10290462883)
+  and `container-security-34670064621-1` (ID 10290417991). JUnit confirms 14 tests,
+  zero failures/errors/skips; the scan inventory confirms clean source `74e340c`.
+  All 41 CI evidence-file checksums verified. Artifacts expire after 14 days.
+- CI scanner database updated `2026-09-12T01:00:32.340244017Z`, downloaded
+  `2026-09-12T03:21:05.413331002Z`; scan time `2026-09-12T03:21:08.759783+00:00`.
+  CI scan-summary SHA-256 `d1f1523e3a5ecc8a53931a065529055ff41be7c6fbca73ec714615935eda2d75`;
+  checksums.json SHA-256 `fe59d330a5fb3cfdb90948d7f1f80c2c4efcd034370770a892574d171a617ca3`.
+- Local scan-summary SHA-256 `4b2e5f54537dc5a8b34a9b9507904c74375be11781fe5ff1ceca934d2e46b82a`;
+  local checksums.json SHA-256 `db3f4161c0efb5da042562b5255809375aca112bc29cef065485b07772a4c53c`.
+  All 44 local evidence-file checksums verified. Image IDs/digests, versions,
+  exact scanner commands and complete CycloneDX inventories are inside each bundle.
+- Visually inspected extracted report pages: blast graph/legend/mitigations,
+  artifact shell-injection finding, ZIP treemap/file summary with **Unknown** model
+  signals and unclipped values, and all six connector dimensions/correct score ring.
+  These supplement automated PDF structural/content/layout checks, not replace them.
+- Final local resource check: no `atp-acceptance-*` containers or volumes remain.
+  No operator resources were removed. Main/PR #15 unchanged; no merge/publication.
+  No failed or pending GitHub mutations; review and release findings remain open.
+  Manual release preparation was not dispatched at this blocked SHA: its full-CI
+  dependency must pass first. No protected approval gate is claimed.
+
+Checksum verification after downloading the push CI container artifact:
+
+```bash
+cd evidence/ci-source-74e340c/container-security-34670064621-1
+jq -r 'to_entries[] | "\(.value)  \(.key)"' checksums.json | sha256sum -c -
+```
+
 ## Source and release state
 
 - Starting SHA: `cbab41409d98fade11c2ccee316b7bebc1fab182`, clean checkout.
@@ -11,7 +62,7 @@ new product features, integrations and cosmetic UI work remain paused.
 - Branch: [test/alpha-release-acceptance](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/tree/test/alpha-release-acceptance),
   [PR #16](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/16), base
   `fix/runtime-postgres-release-gates`, **not main**. Initial implementation SHA
-  `a911f422cf75f672346a0a70d407a16c7105b39a`; final repair SHA recorded after commit.
+  `a911f422cf75f672346a0a70d407a16c7105b39a`; final tested SHA is `74e340cfb7abec9ceb7a67ba6669e1cb0cfc9928`.
   Main remains `31887614cf49dc93c31994945e107ab8339ca3ff`.
 - PR #12 is already merged at `19628da7e01603f6a35285048a86e2d7e7f9de7b`;
   README/license PRs #13/#14 are also merged. MIT/license/badges/history preserved.
@@ -55,9 +106,9 @@ new product features, integrations and cosmetic UI work remain paused.
 
 ## Measured checks
 
-Commands from the checkout unless a frontend directory is specified. Final
-clean-source evidence will supersede development runs; dirty builds are not exact
-release artifacts.
+Commands from the checkout unless a frontend directory is specified. The final
+verified section above supersedes development results below; dirty builds are not
+exact release artifacts.
 
 | Command | Result |
 | --- | --- |
@@ -72,7 +123,7 @@ release artifacts.
 | `npm ci --ignore-scripts && npm audit --audit-level=high && node --test ../../tests/frontend/pdf-export.test.cjs && npm run build` in all four frontends | All passed; zero npm advisories, real jsPDF API checks and four builds |
 | `python3 scripts/scan_images.py --output evidence/containers-a911f42` | **Failed policy gate** on clean `a911f42`; full findings, image IDs and CycloneDX/checksums retained |
 | `python3 scripts/scan_images.py --output evidence/containers-os-update` | **Failed policy gate** after apt upgrade; 56 HIGH/CRITICAL matches per Python image, no exceptions |
-| `python3 scripts/scan_images.py --output evidence/containers-b542a0a` | **Failed policy gate** on clean `b542a0a`; same findings; all 44 evidence file checksums verified with `jq -r 'to_entries[] \u007c "\(.value)  \(.key)"' checksums.json \u007c sha256sum -c -` in that evidence directory |
+| `python3 scripts/scan_images.py --output evidence/containers-b542a0a` | **Failed policy gate** on clean `b542a0a`; same findings; all 44 evidence-file checksums verified using the checksum command above in that evidence directory |
 | `git diff --check` | Passed |
 
 Starlette deprecations, Recharts maintenance warning and bundle-size warnings
@@ -158,7 +209,7 @@ on `b542a0a`: eight jobs passed; acceptance build failed on an Alpine CDN TLS
 error, and scanner teardown failed on root-owned cache permissions (its findings
 also failed the vulnerability policy). Evidence was retained. Remediation: at
 most three package-update retries, **no TLS/stale-repository bypass**, and scanner
-containers run with the invoking UID/GID. Latest CI must verify those repairs.
+containers run with the invoking UID/GID. The final CI above verified those repairs.
 
 Clean `b542a0a` local scanner evidence: database downloaded
 `2026-09-12T03:13:23.190054656Z`; scan-summary SHA-256

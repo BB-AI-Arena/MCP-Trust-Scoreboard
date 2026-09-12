@@ -5,6 +5,9 @@ active_branch: test/alpha-release-acceptance
 base_branch: fix/runtime-postgres-release-gates
 dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/15
 acceptance_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/16
+tested_implementation_sha: 74e340cfb7abec9ceb7a67ba6669e1cb0cfc9928
+exact_source_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670064621
+gate_outcome: nine_jobs_passed_container_security_failed
 acceptance_gates:
   legacy_browser_and_downloads: implemented_in_review
   container_recreation_upgrade_restore: implemented_in_review
