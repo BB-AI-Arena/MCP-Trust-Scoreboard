@@ -40,6 +40,9 @@ func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, stat
 	}
 	mb, _ := json.Marshal(meta)
 	_ = os.WriteFile(filepath.Join(s.config.DataDir, "service-args.json"), mb, 0600)
+	// Report Running before enrollment so SCM does not block on network I/O.
+	// Enrollment remains explicit and failure still terminates the service.
+	status <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop | svc.AcceptShutdown}
 	// Ephemeral StartService input, never ImagePath/process arguments or config.
 	// Only an explicit operator start enrolls. Recovery never reenrolls.
 	var bootstrap string
@@ -59,7 +62,6 @@ func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, stat
 	defer cancel()
 	done := make(chan error, 1)
 	go func() { done <- sensor.Run(ctx, s.config) }()
-	status <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop | svc.AcceptShutdown}
 	for {
 		select {
 		case err := <-done:
