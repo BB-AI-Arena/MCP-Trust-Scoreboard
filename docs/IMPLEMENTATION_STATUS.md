@@ -1,5 +1,8 @@
 # Implementation status — Windows endpoint vertical slice (issue #22)
 
+Service follow-up source: this branch adds SCM virtual-account acceptance after
+PR #23. GitHub Project status unverified: active authentication lacks read:project.
+
 Starting SHA `9aa41c1bdbd3c81c6bdf4ba5f33bf1035d18de43`. Rechecked GitHub and clean
 checkout: default main; #15/#16/#17/#19/#21 OPEN with unchanged heads; fetched safely.
 Branch `feat/windows-endpoint-sensor`, dependent base `feat/crowdstrike-evidence-source`

@@ -9,12 +9,15 @@ Stable IDs are used for issues, board items, commits, and handoffs.
 | ATP-A3 | 2.0.0-alpha.1 | Legacy flow compatibility and honest docs | Four services remain runnable; demo limitations labeled | In review (partial) |
 | ATP-B1 | 2.0.0-alpha.2 | Real MCP stdio/Streamable HTTP and OpenAPI import | Local fixture protocol tests and safe egress | Planned |
 | ATP-B2 | 2.0.0-alpha.2 | Evidence, verification, snapshots, drift | Claimed/verified/observed states and diff tests | Planned |
-| ATP-C1 | 2.0.0-alpha.1 (sensor slice) | Windows observe-only endpoint sensor (#22); broader baselines remain future | Real Windows → offline spool → typed PostgreSQL evidence → finding → webhook | In review (PR #23); Windows Server 2022 foreground slice passed |
-| ATP-C2 | 2.0.0-beta.1 | Graph/artifact views and Python/JS SDKs | Multi-edge/cycle and telemetry mapping tests | Planned |
+| ATP-C1 | 2.0.0-alpha.1 (sensor slice) | Windows observe-only sensor (#22), including SCM service acceptance | Foreground + service → offline spool → typed PostgreSQL evidence → finding → webhook | In review (PR #23 + service follow-up) |
+| ATP-C2 | 2.0.0-beta.1 | Endpoint behavioral detection, baselines, SDK/OpenTelemetry mappings (#5) | Duplicate/late telemetry, missing indicators, poisoning resistance, anomaly/policy distinction | Planned |
+| ATP-C3 | 2.0.0-beta.1 | DLP / sensitive data protection | Explicit privacy and response authority gates | Planned |
+| ATP-C4 | 2.0.0-beta.1 | Endpoint vulnerability / malware intelligence | Bounded inventory, matching and evidence tests | Planned |
 | ATP-D1 | 2.0.0-rc.1 | Recovery, upgrade, compatibility, packaging, release prep | Fresh/upgrade/rollback/end-to-end gates | Alpha subset in review; dependency risk accepted, hardening deferred |
 | ATP-B3 | 2.0.0-alpha.1 | Connector framework, JSON evidence source, webhook finding destination | Authenticated durable end-to-end path with local receiver and retries | Implemented for review (#18); live vendor validation not claimed |
 | ATP-B4 | 2.0.0-alpha.1 | Read-only CrowdStrike host/alert source | TLS fixture + PostgreSQL checkpoint/revision/worker/webhook tests | In review (#20, PR #21); live validation pending |
-| ATP-E1 | 2.0.0 | Human-reviewed stable release | Maintainer review after D; no automatic release | Planned |
+| ATP-E1 | 2.0.0-beta.1 | Graph and artifact assurance views (#6) | Multi-edge/cycle, declared/effective/observed and provenance tests | Planned |
+| ATP-E2 | 2.0.0 | Human-reviewed stable release | Maintainer review after D; no automatic release | Planned |
 | ATP-F1 | 2.1.0 | Optional inline enforcement and expiring approvals | Denied calls never reach upstream; replay-proof approvals | Planned |
 
 Runtime repair continuation: PR #12 is merged, but Phase A is not complete.

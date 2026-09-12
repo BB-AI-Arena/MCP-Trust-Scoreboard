@@ -131,6 +131,23 @@ jobs remain forensic records. The sensor does not execute a response to revocati
 
 ## Service runtime and uninstall
 
+The supported development service path is `scripts/windows_service.ps1`. It
+creates a virtual account `NT SERVICE\<service-name>`, automatic startup, and
+bounded SCM recovery: restart after 5 seconds and 30 seconds, then stop; reset
+after 24 hours. Non-crash exits are included. The helper captures SCM state,
+recovery, service DACL, token identity and owned-path ACLs.
+
+The account has access only to owned installation/data paths and normal
+`SeChangeNotifyPrivilege` traversal. It has no administrator, debug, backup,
+restore or impersonation privilege. User-bound DPAPI is used under its own
+profile. Interactive-user profile visibility is not assumed; inaccessible AI/MCP
+paths report `degraded`, and protected resources report `permission_missing`.
+Literal machine reboot persistence is unverified on hosted runners.
+
+Uninstall verifies service ownership, stops the service, removes registration and
+the executable, and preserves identity, spool, status, configuration and local
+evidence. There is no default purge.
+
 The executable includes an SCM handler and operator-only registration commands:
 
 ```powershell

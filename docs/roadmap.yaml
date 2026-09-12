@@ -59,6 +59,22 @@ items:
     status: in_review
     broader_baselines: planned
     depends_on: [ATP-B4]
+  - id: ATP-C2
+    target: 2.0.0-beta.1
+    title: Endpoint behavioral detection, baselines, and SDK/OpenTelemetry mappings
+    status: planned
+    source_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/5
+    depends_on: [ATP-C1]
+  - id: ATP-C3
+    target: 2.0.0-beta.1
+    title: DLP and sensitive data protection
+    status: planned
+    depends_on: [ATP-C2]
+  - id: ATP-C4
+    target: 2.0.0-beta.1
+    title: Endpoint vulnerability and malware intelligence
+    status: planned
+    depends_on: [ATP-C2]
   - id: ATP-D1
     target: 2.0.0-rc.1
     title: Release and recovery gates
@@ -66,6 +82,17 @@ items:
     alpha_gate_slice: true
     remaining: [maintainer_review, exact_source_release_gates]
     depends_on: [ATP-C1]
+  - id: ATP-E1
+    target: 2.0.0-beta.1
+    title: Graph and artifact assurance views
+    status: planned
+    source_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/6
+    depends_on: [ATP-B2, ATP-C2]
+  - id: ATP-E2
+    target: 2.0.0
+    title: Human-reviewed stable release
+    status: planned
+    depends_on: [ATP-D1, ATP-E1]
   - id: ATP-B3
     target: 2.0.0-alpha.1
     title: Connector contracts and JSON-to-webhook reference path

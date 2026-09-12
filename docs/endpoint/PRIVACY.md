@@ -25,6 +25,12 @@ Only the configured platform origin receives telemetry. HTTPS is verified; priva
 IP ranges require local configuration. Loopback HTTP is an explicit fixture exception.
 No automatic retry to another origin or credential forwarding through redirects.
 
+Service mode uses `NT SERVICE\<service-name>` with its own profile. It cannot see
+an interactive user's HKCU configuration, session-only processes or desktop state;
+those collectors report `degraded` or `permission_missing`. The service requests
+no broad profile ACLs or session impersonation. A future per-user helper requires
+separate enrollment and explicit session provenance.
+
 Local event count/bytes/time are bounded and drops are reported. Central evidence
 and jobs have no automatic expiry in this slice: apply separately reviewed retention
 and backup policy. Do not describe missing telemetry as no suspicious activity.

@@ -34,6 +34,12 @@ The local spool stores bounded, atomic event files and durable loss counters.
 Stable event IDs plus server idempotency provide at-least-once delivery. Installation
 is operator-controlled; no driver, updater, remote shell or prevention mechanism.
 
+Foreground mode sees only the invoking user's profile and permissions. Service
+mode runs the same binary as a per-service virtual account with automatic startup,
+bounded recovery and user-bound DPAPI. It does not impersonate interactive
+sessions or load their hives. A future per-user helper would need separate
+enrollment and session provenance; broad profile grants are not a substitute.
+
 References: [Go releases](https://go.dev/doc/devel/release),
 [Windows services](https://pkg.go.dev/golang.org/x/sys/windows/svc),
 [Toolhelp](https://learn.microsoft.com/en-us/windows/win32/toolhelp/taking-a-snapshot-and-viewing-processes),

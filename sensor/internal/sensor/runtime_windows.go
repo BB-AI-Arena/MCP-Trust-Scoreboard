@@ -141,6 +141,7 @@ func (m *Manager) discovery() error {
 		}
 	}
 	d, e := Discover(m.Config, m.Identity.Policy)
+	discoveryError := e
 	m.states["ai"] = "active"
 	if len(m.Config.ProfileRoots) == 0 && len(m.Identity.Policy.CustomTools) == 0 {
 		m.states["ai"] = "supported"
@@ -164,6 +165,9 @@ func (m *Manager) discovery() error {
 		}
 	}
 	m.states["mcp"] = "active"
+	if discoveryError != nil {
+		m.states["mcp"] = "degraded"
+	}
 	if len(m.Config.ProfileRoots) == 0 && len(m.Identity.Policy.MCPPaths) == 0 {
 		m.states["mcp"] = "supported"
 	}
@@ -296,7 +300,17 @@ func (m *Manager) Tick() error {
 	}
 	m.ticks++
 	m.online = m.Transport.Upload(m.Identity, m.Spool) == nil
-	return nil
+	reason := ""
+	if !m.online {
+		reason = "server_unavailable"
+	}
+	if m.Transport.AuthRejected {
+		reason = "authentication_rejected"
+	}
+	depth, stats := m.Spool.Health()
+	// Local health remains observable when server authentication is rejected.
+	status, _ := json.Marshal(map[string]any{"updated_at": timestamp(), "pid": os.Getpid(), "identity": RuntimeIdentity(), "online": m.online, "reason": reason, "collectors": m.states, "spool_depth": depth, "counters": stats})
+	return atomicWrite(filepath.Join(m.Config.DataDir, "status.json"), status)
 }
 func Run(ctx context.Context, c Config) error {
 	unlock, e := LockInstance(c.DataDir)

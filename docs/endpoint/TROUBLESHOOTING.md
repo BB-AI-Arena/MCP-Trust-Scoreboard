@@ -21,7 +21,21 @@
 - Spool corruption/disk-full: fail visibly and preserve files for operator action;
   the central heartbeat ages to offline. Do not reset the whole data directory.
 - Healthy/degraded/offline/visibility_gap is available via authenticated
-  `GET /api/v1/endpoints`; sensor installation alone does not set healthy.
+`GET /api/v1/endpoints`; sensor installation alone does not set healthy.
+
+- Service will not start: inspect SCM state, virtual identity, owned-path ACLs
+  and retained `data/status.json`; do not switch to LocalSystem.
+- Service recovery: `sc.exe qfailure <name>` must show 5-second and 30-second
+  delayed restarts followed by no action. A third rapid retry is not configured.
+- DPAPI failure after account/name change: identity is user-bound. Reconcile and
+  explicitly enroll with a fresh bootstrap; never copy `identity.dpapi`.
+- Spool not draining: status reports `server_unavailable` or
+  `authentication_rejected`; preserve the spool and reconcile connectivity or
+  revocation rather than deleting the data directory.
+- Endpoint revoked: authentication remains rejected after restart and automatic
+  reenrollment does not occur. Provision and explicitly enroll a new identity.
+- Uninstall removes only the owned executable and service registration; identity,
+  spool and configuration remain for explicit local retention decisions.
 
 Run native tests: `cd sensor; go test ./internal/sensor -v` on Windows. Full
 acceptance is `scripts/windows_acceptance.ps1` **only in the isolated CI job**; it

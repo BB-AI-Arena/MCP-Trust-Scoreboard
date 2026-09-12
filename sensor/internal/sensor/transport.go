@@ -15,9 +15,10 @@ import (
 )
 
 type Transport struct {
-	client    *http.Client
-	origin    string
-	notBefore time.Time
+	client       *http.Client
+	origin       string
+	notBefore    time.Time
+	AuthRejected bool
 }
 
 func NewTransport(c Config) (*Transport, error) {
@@ -92,6 +93,7 @@ func (t *Transport) Call(method, path, token string, body any, out any) error {
 		return fmt.Errorf("server unavailable")
 	}
 	defer response.Body.Close()
+	t.AuthRejected = response.StatusCode == 401 || response.StatusCode == 403
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		delay := 5 * time.Second
 		if v := response.Header.Get("Retry-After"); v != "" {

@@ -29,7 +29,7 @@ func TestSpoolRestartCapacityExpiryAndAck(t *testing.T) {
 		}
 	}
 	depth, stats := s.Health()
-	if depth != 10 || stats.Dropped != 2 {
+	if depth != 10 || stats.Dropped != 2 || stats.Expired != 0 {
 		t.Fatal(depth, stats)
 	}
 	s, e = OpenSpool(c)
@@ -57,8 +57,33 @@ func TestSpoolRestartCapacityExpiryAndAck(t *testing.T) {
 		t.Fatal(e)
 	}
 	depth, stats = s.Health()
-	if depth != 0 || stats.Sent != 9 || stats.Dropped != 3 {
+	if depth != 0 || stats.Sent != 9 || stats.Dropped != 3 || stats.Expired != 1 {
 		t.Fatal(depth, stats)
+	}
+}
+
+func TestRevocationRetainsStableSpoolAndReportsAuthentication(t *testing.T) {
+	c := config(t)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(401) }))
+	defer server.Close()
+	c.Server = server.URL
+	c.AllowLoopbackHTTP = true
+	c.AllowedCIDRs = []string{"127.0.0.1/32"}
+	s, _ := OpenSpool(c)
+	i := Identity{EndpointID: ID(), InstanceID: ID(), Credential: "fixture"}
+	event := i.Event("endpoint_heartbeat", "runtime", map[string]any{})
+	s.Add(event)
+	transport, _ := NewTransport(c)
+	if transport.Upload(i, s) == nil || !transport.AuthRejected {
+		t.Fatal("revocation not reported")
+	}
+	if transport.Upload(i, s) == nil || !transport.AuthRejected {
+		t.Fatal("retry hid revocation")
+	}
+	s, _ = OpenSpool(c)
+	events, _, err := s.Batch()
+	if err != nil || len(events) != 1 || events[0].EventID != event.EventID {
+		t.Fatal("rejected evidence lost")
 	}
 }
 func TestMCPRedactsNeverExecutesAndTracksOnlyMetadata(t *testing.T) {

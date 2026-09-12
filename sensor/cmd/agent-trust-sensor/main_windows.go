@@ -21,8 +21,23 @@ import (
 
 type service struct{ config sensor.Config }
 
-func (s *service) Execute(_ []string, requests <-chan svc.ChangeRequest, status chan<- svc.Status) (bool, uint32) {
-	status <- svc.Status{State: svc.StartPending}
+func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, status chan<- svc.Status) (bool, uint32) {
+	status <- svc.Status{State: svc.StartPending, WaitHint: 30000}
+	// Ephemeral StartService input, never ImagePath/process arguments or config.
+	// Only an explicit operator start enrolls. Recovery never reenrolls.
+	if len(args) < 5 || args[1] != "service" || args[2] != "--config" || args[4] != "--name" {
+		return false, 4
+	}
+	if len(args) > 5 {
+		bootstrap := args[len(args)-1]
+		if strings.HasPrefix(bootstrap, "-") || len(bootstrap) < 32 {
+			return false, 4
+		}
+		if err := sensor.Enroll(s.config, bootstrap); err != nil {
+			return false, 3
+		}
+		args[len(args)-1] = ""
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	done := make(chan error, 1)
@@ -90,12 +105,29 @@ func run() error {
 		defer s.Close()
 		cfg, e := s.Config()
 		exe, _ := os.Executable()
-		if e != nil || !strings.Contains(strings.ToLower(cfg.BinaryPathName), strings.ToLower(exe)) {
+		argv, parseErr := windows.DecomposeCommandLine(cfg.BinaryPathName)
+		if e != nil || parseErr != nil || len(argv) != 6 || !strings.EqualFold(argv[0], exe) || argv[1] != "service" || argv[2] != "--config" || argv[4] != "--name" || argv[5] != *name {
 			return fmt.Errorf("refusing unrelated service removal")
 		}
 		state, e := s.Query()
-		if e != nil || state.State != svc.Stopped {
-			return fmt.Errorf("stop sensor before uninstalling")
+		if e != nil {
+			return e
+		}
+		if state.State != svc.Stopped {
+			if _, e = s.Control(svc.Stop); e != nil {
+				return e
+			}
+			deadline := time.Now().Add(30 * time.Second)
+			for state.State != svc.Stopped && time.Now().Before(deadline) {
+				time.Sleep(200 * time.Millisecond)
+				state, e = s.Query()
+				if e != nil {
+					return e
+				}
+			}
+			if state.State != svc.Stopped {
+				return fmt.Errorf("service stop timed out")
+			}
 		}
 		return s.Delete()
 	}
@@ -119,7 +151,7 @@ func run() error {
 		return sensor.Run(ctx, c)
 	case "service":
 		return svc.Run(*name, &service{c})
-	case "install-service": // No account credentials accepted/stored. Operator selects account later.
+	case "install-service":
 		exe, e := os.Executable()
 		if e != nil {
 			return e
@@ -133,11 +165,19 @@ func run() error {
 			return e
 		}
 		defer m.Disconnect()
-		s, e := m.CreateService(*name, exe, mgr.Config{DisplayName: "Agent Trust Endpoint Sensor (observe-only)", StartType: mgr.StartManual}, "service", "--config", config, "--name", *name)
+		s, e := m.CreateService(*name, exe, mgr.Config{DisplayName: "Agent Trust Endpoint Sensor (observe-only)", StartType: mgr.StartAutomatic, ServiceStartName: `NT SERVICE\` + *name}, "service", "--config", config, "--name", *name)
 		if e != nil {
 			return e
 		}
 		defer s.Close()
+		if e = s.SetRecoveryActions([]mgr.RecoveryAction{{Type: mgr.ServiceRestart, Delay: 5 * time.Second}, {Type: mgr.ServiceRestart, Delay: 30 * time.Second}, {Type: mgr.NoAction}}, 86400); e != nil {
+			s.Delete()
+			return e
+		}
+		if e = s.SetRecoveryActionsOnNonCrashFailures(true); e != nil {
+			s.Delete()
+			return e
+		}
 		return nil
 	default:
 		return fmt.Errorf("unsupported command")

@@ -14,6 +14,7 @@ import (
 type Counters struct {
 	Sent       uint64 `json:"sent"`
 	Dropped    uint64 `json:"dropped"`
+	Expired    uint64 `json:"expired"` // Subset of Dropped; old counters decode as zero.
 	LastUpload string `json:"last_upload"`
 }
 type Spool struct {
@@ -115,6 +116,9 @@ func (s *Spool) trim() error {
 		}
 		// Count before removing: a crash may overcount, but cannot silently lose data.
 		s.Stats.Dropped++
+		if time.Since(info.ModTime()) > s.age {
+			s.Stats.Expired++
+		}
 		if e = s.save(); e != nil {
 			return e
 		}

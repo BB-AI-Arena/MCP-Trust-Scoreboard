@@ -55,13 +55,13 @@ def persisted_event_counts(engine, workspace_id):
     return Counter(json.loads(row).get('event_id') for row in rows)
 
 
-def main():
+def main(service_mode=False):
     if sys.platform!='win32' or os.getenv('AGENT_TRUST_DISPOSABLE_WINDOWS_TEST')!='1':
         raise RuntimeError('requires explicit isolated Windows test environment')
     assert os.environ['DATABASE_URL'].startswith('postgresql://fixture@127.0.0.1:')
     from agent_trust.storage.database import make_engine
     engine=make_engine(os.environ['DATABASE_URL'])
-    evidence=ROOT/'evidence'/'windows';evidence.mkdir(parents=True,exist_ok=True)
+    evidence=ROOT/'evidence'/'windows'/('service' if service_mode else 'foreground');evidence.mkdir(parents=True,exist_ok=True)
     executable=ROOT/'sensor'/'dist'/'agent-trust-sensor.exe'
     helper=ROOT/'sensor'/'dist'/'fixture-process.exe'
     version=json.loads(subprocess.check_output([str(executable),'version'],text=True))
@@ -84,11 +84,13 @@ def main():
     threading.Thread(target=receiver.serve_forever,daemon=True).start()
     env.update(AGENT_TRUST_WEBHOOK_URL=f'http://127.0.0.1:{receiver.server_port}/findings',
         AGENT_TRUST_WEBHOOK_ALLOWED_HOSTS='127.0.0.1',AGENT_TRUST_WEBHOOK_ALLOWED_CIDRS='127.0.0.1/32',AGENT_TRUST_WEBHOOK_ALLOW_HTTP='true')
-    children=[];handles=[]
+    children=[];handles=[];scm=None
     def launch(args,role,extra=None):
         log=open(evidence/(role+'.log'),'a',encoding='utf-8');handles.append(log)
         p=subprocess.Popen(args,env=extra or env,stdout=log,stderr=log,cwd=ROOT);children.append(p);return p
     def stop(p):
+        if service_mode and p is scm:
+            scm.stop();return
         if p.poll() is None:
             p.terminate()
             try:p.wait(timeout=15)
@@ -100,6 +102,7 @@ def main():
             finally:
                 # Release Windows executable/spool handles BEFORE removing only
                 # this helper-created temporary directory, including on failure.
+                if scm is not None:scm.cleanup()
                 for child in reversed(children):stop(child)
     api=None
     try:
@@ -118,11 +121,19 @@ def main():
                 'allowed_roots':[str(root)],'profile_roots':[str(profile)],'allowed_cidrs':['127.0.0.1/32'],
                 'allow_loopback_http':True,'interval_seconds':1,'spool_count':10000,'spool_bytes':32<<20,'spool_hours':24}
             config_path=root/'sensor.json';config_path.write_text(json.dumps(config))
-            enroll_env={**sensor_env,'AGENT_TRUST_ENROLLMENT_SECRET':provision['bootstrap_secret']}
-            enrolled=subprocess.run([str(executable),'enroll','--config',str(config_path)],env=enroll_env,capture_output=True,text=True,timeout=30)
-            assert enrolled.returncode==0,'enrollment failed (no private response logged)'
+            if service_mode:
+                from windows_service_acceptance import ServiceAcceptance
+                scm=ServiceAcceptance(root,executable,config_path,provision['bootstrap_secret'],evidence,sensor_env)
+                data=scm.data
+            else:
+                enroll_env={**sensor_env,'AGENT_TRUST_ENROLLMENT_SECRET':provision['bootstrap_secret']}
+                enrolled=subprocess.run([str(executable),'enroll','--config',str(config_path)],env=enroll_env,capture_output=True,text=True,timeout=30)
+                assert enrolled.returncode==0,'enrollment failed (no private response logged)'
             secret=provision.pop('bootstrap_secret');assert secret.encode() not in (data/'identity.dpapi').read_bytes()
-            sensor=launch([str(executable),'run','--config',str(config_path),'--seconds','300'],'sensor',sensor_env)
+            def start_sensor(seconds):
+                if service_mode:return scm.start()
+                return launch([str(executable),'run','--config',str(config_path),'--seconds',str(seconds)],'sensor',sensor_env)
+            sensor=scm if service_mode else start_sensor(300)
             def all_records(kind):
                 out=[]
                 for offset in range(0,4000,100):
@@ -134,6 +145,7 @@ def main():
             wait(lambda:observed('ai_tool_discovered'))
             wait(lambda:observed('mcp_configuration_discovered'))
             assert observed('software_inventory')
+            if scm:scm.validate_lifecycle()
             listener=socket.socket();listener.settimeout(15);listener.bind(('127.0.0.1',0));listener.listen()
             actor=launch([str(cursor),f'127.0.0.1:{listener.getsockname()[1]}'],'fixture-process',sensor_env)
             connection,_=listener.accept()
@@ -156,18 +168,23 @@ def main():
             assert persisted,'offline spool did not persist'
             # Retain one exact event and replay it after central acknowledgment.
             replay_path=next((data/'spool').glob('*.event'));replay_name=replay_path.name;replay_bytes=replay_path.read_bytes()
-            sensor=launch([str(executable),'run','--config',str(config_path),'--seconds','180'],'sensor',sensor_env)
+            sensor=start_sensor(180)
             assert len(list((data/'spool').glob('*.event')))>=len(persisted)
+            if scm:scm.assert_preserved(persisted)
             api=launch([sys.executable,'-c','from agent_trust.api.app import run; run()'],'api')
             wait(lambda:httpx.get(origin+'/readiness').status_code==200)
             wait(lambda:persisted <= persisted_event_counts(engine,'windows-ci').keys(),150)
             stop(sensor)
             (data/'spool'/replay_name).write_bytes(replay_bytes)
-            sensor=launch([str(executable),'run','--config',str(config_path),'--seconds','120'],'sensor',sensor_env)
+            sensor=start_sensor(120)
             wait(lambda:not (data/'spool'/replay_name).exists(),60)
             replay_id=json.loads(replay_bytes)['event_id']
             replay_count=persisted_event_counts(engine,'windows-ci')[replay_id]
             assert replay_count==1,f'persisted replay count must be exactly one, got {replay_count}'
+            if scm:
+                scm.summary.update(queued_count=len(persisted),recovered_count=len(persisted),uploaded_count=len(persisted),persisted_replay_count=replay_count,replay_attempts=1)
+                assert all(persisted_event_counts(engine,'windows-ci')[event_id]==1 for event_id in persisted)
+                wait(lambda:scm.health()['spool_depth']==0,120)
             # Separate synthetic network/behavior fixtures exercise central rules;
             # real collector activity above is not called malicious or attributed.
             from agent_trust.api.app import create_app
@@ -193,6 +210,22 @@ def main():
             findings=all_records('findings');assert all(not f['response']['executed'] for f in findings)
             assert not sentinel.exists() and actor.poll() is None,'no MCP execution or blocking'
             assert 'synthetic-never-upload-token' not in json.dumps(all_records('evidence'))
+            if scm:
+                # Restart both central processes with the SCM sensor still active.
+                old_pid=scm.health()['pid']
+                stop(api);api=launch([sys.executable,'-c','from agent_trust.api.app import run; run()'],'api')
+                wait(lambda:httpx.get(origin+'/readiness').status_code==200)
+                wait(lambda:scm.health()['online'])
+                assert scm.health()['pid']==old_pid
+                history=persisted_event_counts(engine,'windows-ci')
+                revoked=httpx.post(origin+'/api/v1/endpoints/'+provision['endpoint_id']+'/revoke',headers=headers)
+                assert revoked.status_code==200
+                scm.validate_revocation()
+                after=persisted_event_counts(engine,'windows-ci')
+                assert all(after[k]==v for k,v in history.items())
+                scm.validate_uninstall()
+                scm.summary.update(historical_evidence_preserved=True,findings_delivered=len(accepted),receiver_attempts=len(received),zero_enforcement_actions=True)
+                scm.save()
             connection.close();listener.close();stop(actor)
             # Stop all owned processes before disposable directory cleanup.
             for p in reversed(children):stop(p)
@@ -203,7 +236,7 @@ def main():
                 'persisted_offline_events':len(persisted),'deduplicated_replay':True,'finding_count':len(findings),
                 'persisted_replay_count':replay_count,'replay_verification':'single PostgreSQL statement snapshot',
                 'receiver_attempts':len(received),'accepted_deliveries':len(accepted),'blocking_actions':0,
-                'service_mode':'foreground runtime tested; SCM deployment under chosen service account not exercised',
+                'service_mode':'SCM virtual account' if service_mode else 'foreground',
                 'binary_sha256':hashlib.sha256(executable.read_bytes()).hexdigest(),'result':'passed'}
             (evidence/'acceptance.json').write_text(json.dumps(summary,indent=2))
     finally:
@@ -213,4 +246,4 @@ def main():
         engine.dispose()
 
 
-if __name__=='__main__':main()
+if __name__=='__main__':main('--service' in sys.argv)
