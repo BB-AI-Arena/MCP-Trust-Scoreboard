@@ -65,6 +65,14 @@ if ($Action -eq 'Install') {
   if ((Get-FileHash $exe -Algorithm SHA256).Hash -ne $owned.binary_sha256) { throw 'Installed binary changed; explicit reconciliation required' }
 }
 $svc = [ServiceProcess.ServiceController]::new($Name)
+function Wait-Running {
+  try { $svc.WaitForStatus('Running', [TimeSpan]::FromSeconds(40)) }
+  catch {
+    $state = (& sc.exe queryex $Name | Out-String)
+    $config = (& sc.exe qc $Name | Out-String)
+    throw ("service did not reach Running: " + $_.Exception.Message + "`n" + $state + $config)
+  }
+}
 try {
   switch ($Action) {
     'Enroll' {
@@ -98,9 +106,9 @@ public static class AtpScmStart {
 }
 '@
       try { [AtpScmStart]::Start($Name,$secret) } finally { $secret = $null }
-      $svc.WaitForStatus('Running', [TimeSpan]::FromSeconds(40))
+      Wait-Running
     }
-    'Start' { $svc.Start(); $svc.WaitForStatus('Running', [TimeSpan]::FromSeconds(40)) }
+    'Start' { $svc.Start(); Wait-Running }
     'Stop' { if ($svc.Status -ne 'Stopped') { $svc.Stop(); $svc.WaitForStatus('Stopped', [TimeSpan]::FromSeconds(40)) } }
     'Inspect' {
       $w = Get-CimInstance Win32_Service -Filter "Name='$Name'"
