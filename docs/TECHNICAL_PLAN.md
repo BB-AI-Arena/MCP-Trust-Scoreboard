@@ -6,6 +6,20 @@ vendor-neutral local/self-hosted product without deleting its useful flows.
 
 ## Scope and decisions
 
+Owner override (development/alpha): known third-party dependency CVEs are accepted
+and hardening deferred. Scans/raw findings/SBOMs remain; findings do not block
+development, reviewed merges or approved alpha preparation/publication. Scanner
+execution, secrets, functional and data-integrity gates remain. Do not restart a
+CVE-remediation loop. Approval is still required; alpha is not production-hardened.
+
+Next dependency-ready product slice: separate EvidenceSource, FindingDestination
+and ResponseAdapter contracts. No selected vendor priority exists, so implement
+generic JSON ingestion and a configured webhook destination first. Authenticate
+ingestion, normalize/redact evidence, persist it and deterministic findings with
+transactional delivery jobs. Test real local endpoints, duplicates, failures and
+retry persistence. No vendor stubs or enforcement claims. Keep schemas versioned
+and use the existing PostgreSQL ledger; destination delivery is at least once.
+
 1. Keep FastAPI, Python, React, Vite, D3, and Recharts. Introduce one Python
    namespace at `src/agent_trust` and retain the old app directories as tested
    compatibility surfaces during migration.
@@ -110,7 +124,8 @@ enforcement. Those are roadmap gates, not documentation-only checkboxes.
   implemented; unsupported kinds fail within their retry budget.
 - Readiness executes `SELECT 1` rather than merely opening a pooled connection.
 - Remediate npm advisories with jsPDF 4.2.1, Vite 6.4.3, and refreshed lockfiles;
-  keep all existing audit gates and test the real PDF export API and four builds.
+  keep audit execution and test the real PDF export API and four builds. Dependency
+  findings are now informational under the subsequent owner policy above.
 - Manual release preparation validates the exact version/SHA, runs the full CI
   (including Docker/PostgreSQL), and only then calculates checksums. It never
   publishes. Checksums are not an SBOM, a review, or a production-readiness claim.
@@ -121,7 +136,8 @@ Runtime test details and safe upgrade procedure: [RUNTIME_VALIDATION.md](RUNTIME
 
 PR #15 remains open at `cbab41409d98fade11c2ccee316b7bebc1fab182` on
 inspection. Work branches from that head, with a dependent PR targeting
-`fix/runtime-postgres-release-gates`, not main. Product development stays paused.
+`fix/runtime-postgres-release-gates`, not main. This records the earlier acceptance
+slice; the owner override above resumes connector development.
 
 1. Build the actual root Compose services, replacing only test resource names,
    resource limits and loopback host ports. Generate a fresh private configuration;
@@ -144,13 +160,14 @@ inspection. Work branches from that head, with a dependent PR targeting
    UID and volume paths; fresh/recreation/backup/upgrade tests must pass.
 6. CI adds acceptance and container-security as failing gates, preserves existing
    jobs, retains non-sensitive evidence even on failure, uses pinned Actions and
-   read-only permissions. HIGH/CRITICAL findings, including unfixed findings, block
-   release; no ignores, blanket exceptions or scanner-metadata deletion.
+   read-only permissions. The owner's later policy accepts dependency findings
+   for alpha; retain them without ignores or scanner-metadata deletion. Scanner
+   execution and all non-dependency security/functional gates still block.
 
 No schema migration beyond 003 in this slice. Legacy Redis stays a TTL-only
 compatibility queue, never the durable result store. Rules-only checks and mocked
 provider contracts do not verify live integrations. Linux amd64 Docker/Chromium
 is the acceptance target; other platforms/browsers require separate validation.
 Code completion, CI success, review, deployment and publication are distinct.
-After release gates, the next product slice is a vendor-neutral connector
-framework and one cross-vendor end-to-end integration; it is not implemented here.
+The owner has authorized the connector framework/reference integration now;
+dependency CVEs do not delay it. Live vendor validation remains a separate claim.

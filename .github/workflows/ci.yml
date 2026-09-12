@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, "feat/**", "fix/**", "test/**"]
+    branches: [main, "feat/**", "fix/**", "test/**", "chore/**"]
   pull_request:
-    branches: [main, "fix/**"]
+    branches: [main, "fix/**", "test/**", "chore/**"]
   workflow_call:
     inputs:
       source_sha:
@@ -138,11 +138,20 @@ jobs:
           . .audit-venv/bin/activate
           python -m pip install --upgrade pip
           python -m pip install --disable-pip-version-check -e '.[postgres,test]' pip-audit
-          pip-audit
+          python scripts/dependency_audit.py python --output evidence/dependencies/python
       - name: Audit frontend dependencies
         run: |
           audit_status=0
           for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-provenance/frontend app4-mcp-scorecard/frontend; do
-            (cd "$d" && npm ci --ignore-scripts && npm audit --audit-level=high) || audit_status=1
+            (cd "$d" && npm ci --ignore-scripts) || audit_status=1
+            python3 scripts/dependency_audit.py npm --directory "$d" --output "evidence/dependencies/$(dirname "$d")" || audit_status=1
           done
           exit "$audit_status"
+      - name: Retain informational dependency findings and execution evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: dependencies-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/dependencies
+          retention-days: 14
+          if-no-files-found: error

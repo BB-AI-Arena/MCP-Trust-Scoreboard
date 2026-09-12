@@ -21,7 +21,8 @@ python3 -m venv .venv
 .venv/bin/python -m pip_audit
 docker compose config --quiet
 for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-provenance/frontend app4-mcp-scorecard/frontend; do
-  (cd "$d" && npm ci --ignore-scripts && npm audit --audit-level=high && node --test ../../tests/frontend/pdf-export.test.cjs && npm run build) || exit 1
+  (cd "$d" && npm ci --ignore-scripts && node --test ../../tests/frontend/pdf-export.test.cjs && npm run build) || exit 1
+  python3 scripts/dependency_audit.py npm --directory "$d" --output "evidence/dependencies/$(dirname "$d")" || exit 1
 done
 ```
 
@@ -103,6 +104,7 @@ generating source checksums. The script refuses dirty/mismatched sources and
 explicitly records `release_ready: false`. No publishing job was added. SBOM,
 container scanning, complete legacy runtime/browser acceptance, and maintainer
 release review remain gates. The continuation now implements scans/SBOM and full
-stack acceptance, but container findings still block release; passing tests is not a stable
-release certification. Never weaken audit thresholds or suppress findings to
-make preparation succeed.
+stack acceptance. Dependency findings are now informational under explicit owner
+development/alpha risk acceptance; hardening is deferred. Scanner execution,
+inventory, runtime/data-integrity and secret checks still block. Retain findings;
+passing tests is not stable-release certification or publication approval.
