@@ -1,155 +1,144 @@
 # Implementation status
 
-Updated: 2026-09-11
+Updated: 2026-09-11 (America/Chicago). New features and UI work are paused.
 
-## Handoff
+## Current handoff
 
-- Repository: `BB-AI-Arena/MCP-Trust-Scoreboard`
-- Starting SHA: `c501d2a5b5e374a98f3e8c9f7ef570a6d36621b2`
-- Feature implementation ending SHA: `ee0134a77d9e1f373efafb01044e13ce1abc23ac` (`feat: establish vendor-neutral agent trust platform core`)
-- Previous synchronized handoff SHA: `304a3ca1f224bcdc416875f40dce8d177079abef`
-- Current implementation commit: `b36dd89` (`ci: install legacy contract dependencies`)
-- Prior handoff documentation commit: `45ec43f`
-- Current UI polish commit: `50a03e5` (`feat: polish primary trust workspace`)
-- Branch: `feat/agent-trust-platform-v2-alpha1`
-- Proposed application version: `2.0.0-alpha.1` (`2.0.0a1` Python metadata)
-- Release state: unreleased; no tag, package, image, or GitHub release published
+- Repository: `BB-AI-Arena/MCP-Trust-Scoreboard`.
+- Starting main SHA: `31887614cf49dc93c31994945e107ab8339ca3ff` (clean checkout).
+- Ending implementation SHA: `7ad048a77f05b6faff22e4e8d5bcdc0e39d4df53`.
+  Subsequent handoff-only commits do not change the tested implementation.
+- Branch: `fix/runtime-postgres-release-gates`, based on `main`.
+- **PR #12 is already merged**, at `19628da7e01603f6a35285048a86e2d7e7f9de7b`
+  on 2026-09-12 00:19:57 UTC. Prior text saying it was open was stale.
+  README/license PRs #13/#14 are also merged. Their appearance and MIT terms
+  are unchanged by this repair.
+- Proposed application version remains `2.0.0-alpha.1` (`2.0.0a1` Python).
+- **Release remains blocked.** Local checks requested for this slice pass;
+  remote CI/review and broader release acceptance are separate gates. Phase A
+  and later milestones are not complete. Nothing was merged or published in
+  this repair run; no tags, GitHub release, packages, or images were published.
 
-## Actually changed in this slice
+## Actually repaired
 
-- Added the `src/agent_trust` namespace with versioned domain models for
-  agents, principals, runs/jobs, connections, tools, resources, permissions,
-  events, evidence, findings, assessments, graph snapshots, artifacts, and
-  policy decisions.
-- Added rules-only, optional Gemini, OpenAI-compatible, and AbuseIPDB provider
-  contracts/adapters with explicit capabilities and unavailable/error states.
-- Added safe configuration, bearer/scoped workspace auth, restrictive CORS,
-  bounded API routes, PostgreSQL-compatible durable records, migrations, and a
-  lease/fencing/idempotent job ledger.
-- Added URL and ZIP safety helpers, tests, root packaging/version metadata,
-  neutral README/UI labels, migration/roadmap/plan documents, and CI.
-- Kept original four service directories, endpoints, Docker volumes, database
-  environment aliases, and legacy Redis contract unchanged for compatibility.
-- Added isolated FastAPI contract tests for all four legacy workspaces. They
-  exercise the actual `/analyze`, `/agents` + `/ingest`, `/scan` + `/scan-repo`,
-  and manifest `/scan` routes without provider credentials.
-- Corrected the artifact workspace so ZIP traversal rejection remains a 422
-  client error instead of being converted to a 500. Added explicit demo-mode
-  metadata for seeded behavior examples and an experimental/limitations label
-  for stylistic artifact signals.
-- Declared the legacy test dependencies in the root test extra and changed the
-  optional Gemini import to remain lazy when no key is configured. The first
-  remote rerun exposed these CI packaging gaps; the fix is pushed for another
-  remote run.
-- Reworked the primary Blast Radius landing workspace with responsive
-  Agent Trust Platform navigation, a clearer Agent Access / Blast Radius
-  hero, local-first capability cues, improved assessment hierarchy, and soft
-  lighting/grid treatment. The existing analysis request and response flow is
-  unchanged.
+- `Settings.from_env()` now uses concrete dataclass-instance defaults rather
+  than slotted class descriptors. Tests cover unset/minimal/explicit/invalid
+  environments; missing API tokens still fail closed.
+- Uvicorn is a required runtime dependency. The built image runs its unchanged
+  CMD, `agent-trust-api`, and `agent-trust-worker` without test extras.
+  Legacy `postgresql://` URLs select the packaged psycopg driver.
+- Packaged SQL migrations run transactionally under a PostgreSQL advisory
+  lock, including simultaneous API/worker startup. Migration 002 makes
+  idempotency workspace-scoped; 003 repairs old assessment projections from
+  existing durable jobs while retaining original results/other record metadata.
+- Enqueue/projection and terminal job/result/projection writes are atomic.
+  Concurrent equal keys return one original job without resetting its result.
+  Expired workers are fenced, including after waiting on row locks. Worker
+  deaths consume bounded attempts; retry backoff is capped.
+- Readiness actually queries PostgreSQL and returns 503 during an outage.
+- jsPDF 4.2.1, Vite 6.4.3, and patched transitive lockfile resolutions remove
+  all reported npm advisories across four apps. No UI/source design changes,
+  suppressed advisories, audit exceptions, or lowered thresholds.
+- CI adds actual Docker/PostgreSQL tests and PDF export API tests. Manual
+  release preparation runs full exact-SHA CI before source checksums; its
+  script refuses dirty/mismatched sources and records `release_ready: false`.
+  Existing checkout Action SHA was verified against its official v4.2.2 tag.
 
-## Baseline before changes
+## Baseline and development failures (not final results)
 
-- Four independent FastAPI backends and four React/Vite frontends; no root
-  Python package or repository tests.
-- `python3 -m compileall -q .`: passed.
-- `docker compose config`: failed because `.env` was absent; the Compose file
-  also emitted an obsolete `version` warning.
-- Frontend tests/builds: skipped because `node_modules` was absent and no test
-  script existed.
-- GitHub CLI authentication is available for the repository/project scope;
-  remote tracking is recorded below.
+- `Settings.from_env()` failed with `member_descriptor ... strip`.
+- The prior locally built platform image failed to start: Uvicorn was absent.
+- Existing `.venv/bin/pytest -q` passed 16 tests despite these startup defects.
+- Each frontend initially reported 11 advisories: 2 low, 4 moderate, 4 high,
+  1 critical. The inherited CI security job failed at that audit.
+- Initial new tests exposed harness issues (internal-network port publishing,
+  log capture, restart address changes, a bad PNG fixture CRC) and PostgreSQL
+  driver semantics (literal SQL percent formatting and INSERT rowcount).
+  These were corrected and the full integration suite rerun successfully;
+  the earlier failed/interrupted runs are not counted as acceptance evidence.
 
-## Verification for this branch
+## Final local verification
 
-Run after installing isolated dependencies:
+Commands run from the repository unless a frontend directory is specified:
 
-```bash
-python -m pip install -e '.[postgres,test]'
-pytest
-python -m compileall -q src tests
-docker compose config
-for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-provenance/frontend app4-mcp-scorecard/frontend; do (cd "$d" && npm ci && npm run build); done
-```
+| Command | Result |
+| --- | --- |
+| `.venv/bin/python -m pip install -e '.[postgres,test]' pip-audit` | Installed local test/audit environment |
+| `.venv/bin/pytest -o addopts= -q -ra` | **29 passed**, 13 integration tests explicitly skipped in this fast run |
+| `.venv/bin/pytest --run-integration tests/integration -v --tb=short -x` | **13 passed**, zero skipped, 129.35s |
+| `.venv/bin/python -m compileall -q src tests` | Passed |
+| `.venv/bin/python -m pip check` | Passed |
+| `.venv/bin/python -m pip_audit` | No known third-party vulnerabilities; local unpublished editable project not auditable on PyPI |
+| `npm ci --ignore-scripts && npm audit --audit-level=high` in each of the four frontend directories | Passed, **0 vulnerabilities in each** |
+| `node --test ../../tests/frontend/pdf-export.test.cjs && npm run build` in each frontend | Passed, 1 PDF API test per app and all four production builds |
+| `docker compose config --quiet` | Passed (configuration validation, not a full legacy runtime test) |
+| `git diff --check` and existing committed credential-pattern check | Passed |
+| Workflow YAML parsed with system Python/PyYAML | Passed syntax parsing; remote Actions remains authoritative |
+| `.venv/bin/python scripts/prepare_release.py --version 2.0.0-alpha.1 --sha 7ad048a77f05b6faff22e4e8d5bcdc0e39d4df53 --output <temporary-directory>/manifest.json` | Passed exact clean-source validation; local unapproved checksums only |
 
-- `.venv/bin/pytest -q`: passed, 16 tests. The run emits existing Starlette
-  TestClient deprecation warnings and the legacy Gemini SDK end-of-support
-  warning; no live provider call was made.
-- `.venv/bin/pytest -q tests/test_legacy_route_contracts.py`: passed, 4 tests.
-- `.venv/bin/python -m compileall -q src tests app2-behavior-baseline/backend app3-code-provenance/backend`: passed.
-- `.venv/bin/python -m pip check`: passed.
-- `npm run build` in `app2-behavior-baseline/frontend`: passed; Vite emitted
-  its existing large-chunk warning.
-- `npm run build` in `app1-blast-radius/frontend` after UI polish: passed.
-- `.venv/bin/python -m compileall -q src tests worker app3-code-provenance/backend app4-mcp-scorecard/backend`: passed.
-- `.venv/bin/pip-audit`: passed for third-party Python dependencies; the
-  local editable project is not published to PyPI and is reported as skipped.
-- `docker compose config`: passed after removing the obsolete Compose version
-  field and making `.env` optional for configuration validation.
-- `npm ci && npm run build`: passed for all four frontends. Builds emitted
-  existing large-chunk warnings for behavior/artifact bundles.
-- `npm ci` reported 11 dependency vulnerabilities (2 low, 4 moderate, 4
-  high, 1 critical) in each applicable legacy frontend. They remain an open
-  release/security gate; no `npm audit fix` was run because it could change
-  lockfiles and behavior without review.
-- `git push origin feat/agent-trust-platform-v2-alpha1`: passed for commits
-  `c54c9ec`, `391a3b0`, `f9bd411`, and `b36dd89`; the branch is synchronized
-  with origin.
-- `scripts/prepare_release.py` validation: passed against the final exact
-  SHA and generated only `/tmp/agent-trust-release-manifest-final.json`; no
-  tag or publication occurred.
-- Remote CI run `34660916896` after `b36dd89`: Python, Compose, all four
-  frontend builds, and Python dependency audit passed. The security job failed
-  only at the frontend dependency audit on the known high/critical lockfile
-  advisories. The preceding run's missing legacy dependencies and global
-  environment audit problem were corrected in `b36dd89`.
+Warnings remain visible: Starlette/TestClient deprecations, Recharts 2 end of
+maintenance notice, and large-bundle warnings for behavior/artifact frontends.
+No warnings were suppressed or size thresholds relaxed. The frontend check
+tests the real PDF library API, not a browser download-dialog flow.
 
-License check: the repository now includes `LICENSE` with the standard MIT
-terms, consistent with the historical README declaration. Third-party
-dependencies and externally supplied content remain under their own licenses.
+### Real end-to-end evidence
 
-## Security and migration notes
+The test builds the actual platform wheel/image, starts PostgreSQL 15 plus API
+and worker with only the two required environment values, submits an
+authenticated assessment (202), and sees a real rules-only worker result in
+both the durable job and assessment listing. It restarts all three containers,
+retrieves the same result, and resubmits the same key without changing terminal
+state. No Redis service, hosted key, or submitted-code execution is used.
 
-PostgreSQL is the durable target. SQLite appears only in isolated tests. Redis
-cache loss does not recover expired data. Back up the existing Postgres volume
-before adding migrations; rollback is an application/image rollback against
-preserved volumes, not a destructive reset. The modular API defaults to token
-auth and loopback CORS. Hosted providers are opt-in; models receive untrusted
-content without tool authority. Real collectors, telemetry SDKs, and
-enforcement remain open and must not be advertised as shipped. The frontend
-security audit remains a release blocker because the legacy lockfiles contain
-known high/critical vulnerabilities; no automatic audit fix was applied. The
-legacy Gemini dependency also reports end-of-support and needs a separately
-reviewed provider migration.
+Additional PostgreSQL cases exercise old-schema upgrade, concurrent migrations,
+six simultaneous equal keys, separate workspaces, seven independent claims
+past a held row lock, atomic rollback fault injection, a killed worker process,
+lease expiry/recovery/attempt limits, lock-wait expiry, retry backoff, and no
+open claim transaction during analysis. Auth tests cover 401/403/404 boundaries.
+The internal **test** network is isolated; this is not certification of the
+production stack's egress controls.
 
-## GitHub handoff
+## Migration, rollback, and remaining risks
 
-- Private linked project: https://github.com/users/BB-AI-Arena/projects/1
-- Pull request: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/12
-- Phase-A epic: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/11
-- Child issues: #1, #2, #3; later roadmap issues #5–#10.
-- Repository description/topics were updated. No repository identity, branch
-  protection, visibility, ownership, or license was changed.
-- PR remains open for maintainer review; the continuation comment is recorded
-  on the PR and issue #3. Nothing was merged, tagged, released, or published.
+No user database, deployment, or volume was modified. Only test-created
+containers, private networks and unique image tags were removed; their dummy
+data is intentionally disposable. Existing volumes and database/environment
+names remain unchanged. No legacy Redis data is imported or recovered.
 
-## Continuation handoff
+Before deployment, stop modular writers, take a PostgreSQL backup and test a
+restore separately. Startup requires DDL privileges and applies migrations
+001–003. Do not mix old/new workers. Old code assumes global idempotency and
+has the fixed startup/result defects; prefer a forward fix. If reverting,
+preserve current data, restore the pre-upgrade backup into a separate database,
+and reconcile new results before switching. Never delete/reset volumes.
+See [RUNTIME_VALIDATION.md](RUNTIME_VALIDATION.md) for commands and constraints.
 
-- Slice delivered: legacy route/response contract coverage and explicit demo /
-  experimental limitations (ATP-A3 dependency-ready slice).
-- CI packaging follow-up: root test extras now install the dependencies needed
-  by the preserved legacy route tests; the optional legacy Gemini provider no
-  longer prevents rules-only startup when its SDK is absent.
-- Remaining Phase A gates: live PostgreSQL integration/recovery tests,
-  frontend critical dependency remediation, complete legacy flow acceptance,
-  and maintainer review/merge. ATP-A3 is not marked complete.
-- Working: deterministic rules-only analysis, compatibility routes, isolated
-  legacy route tests, seeded behavior demo mode, ZIP and private-target safety
-  regressions.
-- Demo/experimental: seeded behavior fixtures; stylistic artifact-origin
-  signals; optional provider fallbacks.
-- Unsupported/not shipped: real MCP protocol discovery, OpenAPI import,
-  durable live behavior ingestion/SDKs, full evidence-backed graph/artifact
-  views, inline enforcement, proprietary integrations, shared SaaS isolation.
-- Next dependency-ready task: add disposable PostgreSQL integration tests for
-  migration, lease recovery, duplicate idempotency, and result survival across
-  restart; keep SQLite tests as fast unit coverage.
+Working and tested here: rules-only authenticated durable assessment lifecycle,
+workspace/scoped access, real PostgreSQL startup/migration/recovery, legacy
+route contracts, four frontend builds, PDF library exports.
+Still demo/experimental: seeded behavior, stylistic artifact-origin guesses.
+Still unsupported/unverified: MCP/OpenAPI collectors, real behavior baselines/
+SDKs, inline enforcement, live hosted providers, proprietary integrations,
+shared SaaS isolation, production egress/retention hardening. Only assessment
+jobs are implemented; unsupported kinds retry/fail, not successful engines.
+PostgreSQL 15/Linux Docker was tested; Desktop/remote Docker and other database
+majors were not. No container vulnerability scan, SBOM generation, full legacy
+Compose/browser acceptance, or live-user backup/restore was performed.
+Those release-wide gaps are not replaced by a green checksum manifest.
+
+## GitHub tracking and next task
+
+- Merged foundation: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/12
+- Phase A epic (reopened because acceptance is incomplete):
+  https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/11
+- Related open work: [ATP-A2 #2](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/2),
+  [ATP-A3 #3](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/3),
+  [ATP-D1 #8](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/8).
+- Existing private project: https://github.com/users/BB-AI-Arena/projects/1
+  PR #12 is Done; the epic is Blocked rather than implicitly complete.
+- Repair PR/push and remote CI: pending, to be recorded after read-back.
+  No failed permission requests or access-scope changes.
+
+Next dependency-ready task: review this runtime repair against remote CI, then
+complete ATP-A3's full legacy runtime/browser acceptance and ATP-D1's
+container-scan/SBOM/release gates. Keep new features/UI work paused.
