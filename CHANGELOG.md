@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Fix slotted `Settings.from_env()` defaults; install Uvicorn at runtime and
+  preserve the `postgresql://` environment alias with psycopg.
+- Apply serialized packaged PostgreSQL migrations; scope job idempotency to
+  workspace and repair assessment projections from existing durable results.
+- Synchronize job/result writes atomically; fence expired workers and bound
+  retries after worker death, including time spent waiting on row locks.
+- Add real container/HTTP/PostgreSQL startup, upgrade, recovery, authorization,
+  and persisted-result regression gates; readiness now queries the database.
+- Update all four frontend lockfiles (jsPDF 4.2.1, Vite 6.4.3 and patched
+  transitives), preserving audit thresholds and testing PDF export APIs.
+- Gate manual release evidence on exact source and full CI. Checksums do not
+  certify release readiness. No new features or UI changes in this repair slice.
+
 - Begin vendor-neutral Agent Trust Platform migration on branch
   `feat/agent-trust-platform-v2-alpha1`.
 - Add namespaced domain/provider/storage/API contracts and local security

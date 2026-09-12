@@ -1,4 +1,4 @@
-"""Transactional PostgreSQL job ledger with leases and stale-worker fencing."""
+"""Transactional jobs and assessment results with leases and stale-worker fencing."""
 
 from __future__ import annotations
 
@@ -7,17 +7,15 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from sqlalchemy import insert, select, text, update
+from sqlalchemy import select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
-from .database import jobs
+from .database import jobs, records
 
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
-
-
-def _iso(value: datetime) -> str:
-    return value.isoformat()
 
 
 def _decode(row) -> dict[str, Any]:
@@ -28,8 +26,36 @@ def _decode(row) -> dict[str, Any]:
     return result
 
 
+def _insert(connection, table):
+    return (pg_insert if connection.dialect.name == "postgresql" else sqlite_insert)(table)
+
+
+def _sync_assessment(connection, job) -> None:
+    """Maintain the public assessment projection in the job's transaction."""
+    if job["kind"] != "assessment":
+        return
+    payload = {
+        "id": job["id"], "job_id": job["id"], "workspace_id": job["workspace_id"],
+        "subject_id": job["payload"].get("subject_id"),
+        "profile": job["payload"].get("profile", "default"),
+        "schema_version": "2026-01", "status": job["status"],
+        "result": job.get("result"), "error": job.get("error"),
+    }
+    statement = _insert(connection, records).values(
+        id=job["id"], workspace_id=job["workspace_id"], kind="assessments",
+        payload=json.dumps(payload), created_at=job["created_at"], updated_at=job["updated_at"],
+    )
+    updated = connection.execute(statement.on_conflict_do_update(
+        index_elements=[records.c.id],
+        set_={"payload": statement.excluded.payload, "updated_at": statement.excluded.updated_at},
+        where=(records.c.workspace_id == job["workspace_id"]) & (records.c.kind == "assessments"),
+    ).returning(records.c.id))
+    if updated.first() is None:
+        raise PermissionError("assessment record identity conflicts with another record")
+
+
 class JobLedger:
-    """At-least-once job state. External calls must happen outside transactions."""
+    """At-least-once state. External calls always happen outside transactions."""
 
     def __init__(self, engine):
         self.engine = engine
@@ -37,62 +63,114 @@ class JobLedger:
     def enqueue(self, kind: str, workspace_id: str, payload: dict[str, Any], *, idempotency_key: str | None = None, max_attempts: int = 3) -> dict[str, Any]:
         if max_attempts < 1:
             raise ValueError("max_attempts must be positive")
-        job_id = str(uuid.uuid4())
-        now = _now()
-        values = dict(id=job_id, workspace_id=workspace_id, kind=kind, payload=json.dumps(payload), status="queued", attempts=0, max_attempts=max_attempts, available_at=_iso(now), lease_until=None, lease_token=None, result=None, error=None, idempotency_key=idempotency_key, created_at=_iso(now), updated_at=_iso(now))
+        now = _now().isoformat()
+        values = dict(id=str(uuid.uuid4()), workspace_id=workspace_id, kind=kind,
+                      payload=json.dumps(payload), status="queued", attempts=0,
+                      max_attempts=max_attempts, available_at=now, lease_until=None,
+                      lease_token=None, result=None, error=None,
+                      idempotency_key=idempotency_key or None, created_at=now, updated_at=now)
         with self.engine.begin() as connection:
-            if idempotency_key:
-                existing = connection.execute(select(jobs).where(jobs.c.idempotency_key == idempotency_key, jobs.c.workspace_id == workspace_id)).first()
-                if existing:
-                    return _decode(existing)
-            connection.execute(insert(jobs).values(**values))
-        return values | {"payload": payload}
+            statement = _insert(connection, jobs).values(**values).on_conflict_do_nothing(
+                index_elements=[jobs.c.workspace_id, jobs.c.idempotency_key],
+            ).returning(jobs)
+            row = connection.execute(statement).first()
+            if row is None:
+                # ON CONFLICT waits for the other submission's commit. The
+                # next statement sees it under PostgreSQL READ COMMITTED.
+                row = connection.execute(select(jobs).where(
+                    jobs.c.workspace_id == workspace_id, jobs.c.idempotency_key == idempotency_key,
+                )).one()
+                return _decode(row)
+            job = _decode(row)
+            _sync_assessment(connection, job)
+        return job
 
     def get(self, job_id: str, workspace_id: str) -> dict[str, Any] | None:
         with self.engine.connect() as connection:
             row = connection.execute(select(jobs).where(jobs.c.id == job_id, jobs.c.workspace_id == workspace_id)).first()
         return _decode(row) if row else None
 
+    def _expire_exhausted(self, connection, now: str) -> int:
+        rows = connection.execute(update(jobs).where(
+            jobs.c.attempts >= jobs.c.max_attempts,
+            ((jobs.c.status == "running") & (jobs.c.lease_until <= now)) | (jobs.c.status == "queued"),
+        ).values(status="failed", error="job attempt limit exhausted", lease_until=None,
+                 lease_token=None, updated_at=now).returning(jobs)).all()
+        for row in rows:
+            _sync_assessment(connection, _decode(row))
+        return len(rows)
+
     def claim(self, worker_id: str, lease_seconds: int = 60) -> dict[str, Any] | None:
+        if lease_seconds <= 0:
+            raise ValueError("lease_seconds must be positive")
         now = _now()
-        expiry = _iso(now)
         with self.engine.begin() as connection:
+            self._expire_exhausted(connection, now.isoformat())
+            statement = select(jobs).where(
+                jobs.c.attempts < jobs.c.max_attempts,
+                ((jobs.c.status == "queued") & (jobs.c.available_at <= now.isoformat())) |
+                ((jobs.c.status == "running") & (jobs.c.lease_until <= now.isoformat())),
+            ).order_by(jobs.c.created_at, jobs.c.id).limit(1)
             if connection.dialect.name == "postgresql":
-                statement = text("""SELECT * FROM agent_trust_jobs
-                    WHERE (status = 'queued' AND available_at <= :now)
-                       OR (status = 'running' AND lease_until < :now)
-                    ORDER BY created_at FOR UPDATE SKIP LOCKED LIMIT 1""")
-                row = connection.execute(statement, {"now": expiry}).first()
-            else:
-                row = connection.execute(select(jobs).where(((jobs.c.status == "queued") & (jobs.c.available_at <= expiry)) | ((jobs.c.status == "running") & (jobs.c.lease_until < expiry))).order_by(jobs.c.created_at).limit(1)).first()
+                statement = statement.with_for_update(skip_locked=True)
+            row = connection.execute(statement).first()
             if not row:
                 return None
-            job_id = row._mapping["id"]
-            token = f"{worker_id}:{uuid.uuid4()}"
-            updated = connection.execute(update(jobs).where(jobs.c.id == job_id).values(status="running", attempts=row._mapping["attempts"] + 1, lease_until=_iso(now + timedelta(seconds=lease_seconds)), lease_token=token, updated_at=expiry))
-            if updated.rowcount != 1:
-                return None
-            fresh = connection.execute(select(jobs).where(jobs.c.id == job_id)).first()
-        return _decode(fresh)
+            row = connection.execute(update(jobs).where(jobs.c.id == row.id).values(
+                status="running", attempts=row.attempts + 1,
+                lease_until=(now + timedelta(seconds=lease_seconds)).isoformat(),
+                lease_token=f"{worker_id}:{uuid.uuid4()}", updated_at=now.isoformat(),
+            ).returning(jobs)).one()
+            job = _decode(row)
+            _sync_assessment(connection, job)
+        return job
 
     def complete(self, job_id: str, lease_token: str, result: dict[str, Any]) -> bool:
-        now = _iso(_now())
         with self.engine.begin() as connection:
-            changed = connection.execute(update(jobs).where(jobs.c.id == job_id, jobs.c.status == "running", jobs.c.lease_token == lease_token).values(status="complete", result=json.dumps(result), error=None, lease_until=None, lease_token=None, updated_at=now)).rowcount
-        return changed == 1
+            current = connection.execute(select(jobs).where(
+                jobs.c.id == job_id, jobs.c.status == "running", jobs.c.lease_token == lease_token,
+            ).with_for_update()).first()
+            # Recheck time AFTER obtaining the lock. A blocked writer may have
+            # held a valid lease when it arrived but lost it while waiting.
+            now = _now().isoformat()
+            if current is None or current.lease_until <= now:
+                return False
+            row = connection.execute(update(jobs).where(
+                jobs.c.id == job_id, jobs.c.status == "running",
+                jobs.c.lease_token == lease_token, jobs.c.lease_until > now,
+            ).values(status="complete", result=json.dumps(result), error=None,
+                     lease_until=None, lease_token=None, updated_at=now).returning(jobs)).first()
+            if row is None:
+                return False
+            _sync_assessment(connection, _decode(row))
+        return True
 
     def fail(self, job_id: str, lease_token: str, error: str, retry_delay_seconds: int = 5) -> bool:
-        now = _now()
         with self.engine.begin() as connection:
-            row = connection.execute(select(jobs.c.attempts, jobs.c.max_attempts).where(jobs.c.id == job_id, jobs.c.status == "running", jobs.c.lease_token == lease_token)).first()
-            if not row:
+            predicate = (jobs.c.id == job_id, jobs.c.status == "running",
+                         jobs.c.lease_token == lease_token)
+            row = connection.execute(select(jobs).where(*predicate).with_for_update()).first()
+            now = _now()
+            if not row or row.lease_until <= now.isoformat():
                 return False
             terminal = row.attempts >= row.max_attempts
-            changed = connection.execute(update(jobs).where(jobs.c.id == job_id, jobs.c.status == "running", jobs.c.lease_token == lease_token).values(status="failed" if terminal else "queued", error=error[:4000], available_at=_iso(now if terminal else now + timedelta(seconds=retry_delay_seconds)), lease_until=None, lease_token=None, updated_at=_iso(now))).rowcount
-        return changed == 1
+            delay = min(300, max(0, retry_delay_seconds) * 2 ** min(row.attempts - 1, 10))
+            row = connection.execute(update(jobs).where(*predicate).values(
+                status="failed" if terminal else "queued", error=error[:4000],
+                available_at=(now if terminal else now + timedelta(seconds=delay)).isoformat(),
+                lease_until=None, lease_token=None, updated_at=now.isoformat(),
+            ).returning(jobs)).one()
+            _sync_assessment(connection, _decode(row))
+        return True
 
     def recover_abandoned(self, now: datetime | None = None) -> int:
-        now = now or _now()
+        now = (now or _now()).isoformat()
         with self.engine.begin() as connection:
-            changed = connection.execute(update(jobs).where(jobs.c.status == "running", jobs.c.lease_until < _iso(now)).values(status="queued", lease_token=None, lease_until=None, available_at=_iso(now), updated_at=_iso(now))).rowcount
-        return int(changed or 0)
+            exhausted = self._expire_exhausted(connection, now)
+            rows = connection.execute(update(jobs).where(
+                jobs.c.status == "running", jobs.c.lease_until <= now,
+            ).values(status="queued", lease_token=None, lease_until=None,
+                     available_at=now, updated_at=now).returning(jobs)).all()
+            for row in rows:
+                _sync_assessment(connection, _decode(row))
+        return exhausted + len(rows)

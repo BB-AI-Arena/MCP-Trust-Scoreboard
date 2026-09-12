@@ -1,5 +1,9 @@
 version: 1
 product: Agent Trust Platform
+release_state: blocked
+active_branch: fix/runtime-postgres-release-gates
+feature_ui_work: paused
+merged_foundation_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/12
 items:
   - id: ATP-A1
     target: 2.0.0-alpha.1

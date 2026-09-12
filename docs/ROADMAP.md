@@ -14,3 +14,9 @@ Stable IDs are used for issues, board items, commits, and handoffs.
 | ATP-D1 | 2.0.0-rc.1 | Recovery, upgrade, compatibility, packaging, release prep | Fresh/upgrade/rollback/end-to-end gates | Planned |
 | ATP-E1 | 2.0.0 | Human-reviewed stable release | Maintainer review after D; no automatic release | Planned |
 | ATP-F1 | 2.1.0 | Optional inline enforcement and expiring approvals | Denied calls never reach upstream; replay-proof approvals | Planned |
+
+Runtime repair continuation: PR #12 is merged, but Phase A is not complete.
+Feature/UI work is paused. ATP-A2 persistence and ATP-A3 dependency remediation
+are being validated on `fix/runtime-postgres-release-gates`. Release remains
+blocked until runtime, PostgreSQL, audit, and broader release gates are verified.
+See [implementation status](IMPLEMENTATION_STATUS.md) for measured results.

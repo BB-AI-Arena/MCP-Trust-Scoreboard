@@ -14,6 +14,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse
+from sqlalchemy import text
 
 from agent_trust import __version__
 from agent_trust.api.auth import AuthContext, context_dependency
@@ -68,8 +69,8 @@ def create_app(settings: Settings | None = None, engine=None) -> FastAPI:
     @app.get("/readiness", tags=["system"])
     def readiness() -> dict[str, str]:
         try:
-            with engine.connect():
-                pass
+            with engine.connect() as connection:
+                connection.execute(text("SELECT 1"))
         except Exception as exc:
             raise HTTPException(status_code=503, detail={"code": "database_unavailable", "message": "database is not ready"}) from exc
         return {"status": "ready", "database": "ok", "version": __version__}
@@ -116,7 +117,6 @@ def create_app(settings: Settings | None = None, engine=None) -> FastAPI:
     @app.post("/api/v1/assessments", status_code=202, tags=["assessments"])
     def submit_assessment(request: AssessmentRequest, context: AuthContext = Depends(assess)) -> dict[str, Any]:
         job = ledger.enqueue("assessment", context.workspace_id, {"subject_id": request.subject_id, "profile": request.profile, "content": request.content}, idempotency_key=request.idempotency_key)
-        repository.put("assessments", {"id": job["id"], "subject_id": request.subject_id, "profile": request.profile, "workspace_id": context.workspace_id, "status": "queued", "job_id": job["id"], "schema_version": "2026-01"}, context.workspace_id)
         return {"job_id": job["id"], "status": job["status"], "accepted": True}
 
     @app.get("/api/v1/assessments", tags=["assessments"])

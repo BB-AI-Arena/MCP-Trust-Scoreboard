@@ -14,6 +14,7 @@ dependencies = [
   "pydantic>=2,<3",
   "python-dotenv>=1,<2",
   "SQLAlchemy>=2,<3",
+  "uvicorn>=0.30,<1",
 ]
 
 [project.optional-dependencies]
@@ -34,6 +35,10 @@ agent-trust-worker = "agent_trust.jobs.worker:run"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"agent_trust.storage" = ["migrations/*.sql"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = ["integration: real Docker and PostgreSQL tests (enable with --run-integration)"]
