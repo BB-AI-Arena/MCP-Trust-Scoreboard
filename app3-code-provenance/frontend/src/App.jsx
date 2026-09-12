@@ -108,9 +108,9 @@ export default function App() {
         <div className="max-w-[1400px] mx-auto px-6 h-14 flex items-center justify-between gap-6">
           {/* Logo / App Suite */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <KoiFishIcon />
+            <PlatformIcon />
             <span className="font-semibold text-sm text-white tracking-tight">
-              🐠 Koi Security Extensions
+              Agent Trust Platform
             </span>
           </div>
 
@@ -120,7 +120,7 @@ export default function App() {
               App 3
             </span>
             <span className="text-sm font-semibold text-accent tracking-tight">
-              Code Provenance Tracker
+              Artifact Assurance
             </span>
           </div>
 
@@ -169,7 +169,7 @@ export default function App() {
               </h1>
               <p className="text-muted text-sm max-w-xl">
                 Detect AI-generated code, identify the generating model, surface
-                security vulnerabilities, and get Gemini-powered risk verdicts —
+                security vulnerabilities and review evidence-backed artifact assurance —
                 for single files or entire repositories.
               </p>
             </div>
@@ -298,7 +298,7 @@ export default function App() {
 
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="border-t border-border py-4 px-6 text-center text-muted text-xs">
-        Koi Security Extensions · Code Provenance Tracker · Powered by Gemini
+        Agent Trust Platform · Artifact Assurance · Optional provider analysis
       </footer>
     </div>
   );
@@ -481,7 +481,7 @@ function FileTable({ files, onSelect, selectedFile }) {
 }
 
 /* ─── Icons ───────────────────────────────────────────────── */
-function KoiFishIcon() {
+function PlatformIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M4 12 C4 7 20 7 20 12 C20 17 4 17 4 12Z" stroke="#00D4FF" strokeWidth="1.5" fill="none" />

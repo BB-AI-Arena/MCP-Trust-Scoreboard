@@ -6,11 +6,11 @@ const SUSPICIOUS_SNIPPET = `# config.py — suspicious snippet for demo
 import os
 import subprocess
 
-# Hardcoded credentials (DEMO — do not use in production)
-AWS_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLE"
-AWS_SECRET_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-DB_PASSWORD = "s3cr3tP@ssw0rd!"
-API_TOKEN = "sk-live-abcdef1234567890abcdef"
+# Placeholder values are intentionally non-secret demo strings.
+AWS_ACCESS_KEY = "replace-with-secret"
+AWS_SECRET_KEY = "replace-with-secret"
+DB_PASSWORD = "replace-with-secret"
+API_TOKEN = "replace-with-secret"
 
 def run_user_command(user_input):
     # CRITICAL: eval() on untrusted input

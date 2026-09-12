@@ -10,39 +10,53 @@ import RiskSummary from './components/RiskSummary.jsx'
 
 function Header() {
   const navItems = [
-    { label: 'Blast Radius', href: '#', current: true },
-    { label: 'Behavior Baseline', href: '#', current: false },
-    { label: 'Code Provenance', href: '#', current: false },
-    { label: 'MCP Scorecard', href: '#', current: false },
+    { label: 'Agent access', href: '#', current: true },
+    { label: 'Behavior', href: '#', current: false },
+    { label: 'Artifacts', href: '#', current: false },
+    { label: 'Connectors', href: '#', current: false },
   ]
 
   return (
-    <header className="relative z-50 flex items-center justify-between px-6 h-14 border-b border-border bg-card/80 backdrop-blur-md shrink-0">
+    <header className="relative z-50 flex items-center justify-between gap-5 px-5 sm:px-8 h-[4.25rem] border-b border-white/5 bg-bg/75 backdrop-blur-xl shrink-0">
       {/* Logo */}
-      <div className="flex items-center gap-2.5 min-w-0">
-        <span className="text-xl leading-none select-none">🐠</span>
-        <span className="text-sm font-semibold text-white whitespace-nowrap">
-          Koi Security Extensions
-        </span>
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center justify-center w-9 h-9 rounded-xl border border-accent/30 bg-accent/10 shadow-[0_0_24px_rgba(0,212,255,0.14)]">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M10 2.25 16 4.5v4.64c0 3.78-2.46 6.78-6 8.61-3.54-1.83-6-4.83-6-8.61V4.5l6-2.25Z" stroke="currentColor" strokeWidth="1.35" className="text-accent" />
+            <circle cx="10" cy="9" r="2" fill="currentColor" className="text-accent" />
+            <path d="M10 11v2.4M7.7 9H6.2M13.8 9h-1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" className="text-accent" />
+          </svg>
+        </div>
+        <div className="min-w-0">
+          <span className="block text-sm font-semibold text-white whitespace-nowrap tracking-tight">
+            Agent Trust Platform
+          </span>
+          <span className="hidden sm:block text-[10px] uppercase tracking-[0.2em] text-muted/80">
+            Local security workspace
+          </span>
+        </div>
       </div>
 
       {/* App name — centered */}
-      <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
-        <span className="text-sm font-bold tracking-wide text-accent text-glow-accent">
-          Blast Radius Visualizer
+      <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 flex-col items-center">
+        <span className="text-[10px] uppercase tracking-[0.22em] text-muted/80">
+          Workspace 02
+        </span>
+        <span className="text-sm font-semibold tracking-wide text-white">
+          Agent Access / Blast Radius
         </span>
       </div>
 
       {/* Nav */}
-      <nav className="flex items-center gap-1">
+      <nav className="flex items-center gap-1 overflow-x-auto max-w-[52%] sm:max-w-none scrollbar-none" aria-label="Security workspaces">
         {navItems.map((item) => (
           <a
             key={item.label}
             href={item.href}
             className={[
-              'px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150 whitespace-nowrap',
+              'px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-all duration-150 whitespace-nowrap',
               item.current
-                ? 'text-accent border border-accent/40 bg-accent/5 glow-accent-sm'
+                ? 'text-accent border border-accent/30 bg-accent/10 shadow-[0_0_18px_rgba(0,212,255,0.1)]'
                 : 'text-muted hover:text-white hover:bg-surface',
             ].join(' ')}
           >
@@ -237,34 +251,75 @@ export default function App() {
 
       {/* Content */}
       {state === 'idle' && (
-        <main className="flex flex-1 flex-col items-center justify-center px-4 py-10 relative z-10 overflow-y-auto">
-          <div className="w-full max-w-xl animate-fade-in">
-            {/* Hero heading */}
-            <div className="mb-8 text-center">
-              <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full border border-accent/20 bg-accent/5">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                <span className="text-xs font-medium text-accent tracking-wide">AGENTIC RISK ANALYSIS</span>
-              </div>
-              <h1 className="text-3xl font-bold text-white mb-2">
-                Blast Radius Visualizer
-              </h1>
-              <p className="text-sm text-muted leading-relaxed">
-                Map the attack surface of AI agents — permissions, integrations, lateral movement paths, and compromise scenarios.
-              </p>
+        <main className="flex flex-1 items-center px-5 sm:px-8 py-10 relative z-10 overflow-y-auto">
+          <div className="w-full max-w-6xl mx-auto animate-fade-in">
+            <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-16 items-center">
+              {/* Hero heading */}
+              <section className="max-w-xl">
+                <div className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-full border border-accent/20 bg-accent/5">
+                  <span className="relative flex w-2 h-2">
+                    <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-60 animate-ping" />
+                    <span className="relative inline-flex w-2 h-2 rounded-full bg-accent" />
+                  </span>
+                  <span className="text-[11px] font-semibold text-accent tracking-[0.16em]">ASSESSMENT WORKSPACE</span>
+                </div>
+                <h1 className="text-4xl sm:text-5xl font-semibold tracking-[-0.04em] text-white leading-[1.05] mb-5">
+                  See how far an agent can reach.
+                </h1>
+                <p className="text-base text-muted leading-relaxed max-w-lg">
+                  Build a permission and integration graph, surface lateral movement paths, and review deterministic blast-radius findings before they become surprises.
+                </p>
+
+                <div className="flex flex-wrap gap-2 mt-7">
+                  {['Permission-aware', 'Rules-first', 'Local by default'].map((label) => (
+                    <span key={label} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-xs text-slate-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-success" />
+                      {label}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 mt-10 max-w-md">
+                  <div className="border-l border-accent/40 pl-3">
+                    <p className="text-lg font-semibold text-white">01</p>
+                    <p className="text-[11px] text-muted mt-0.5">Map access</p>
+                  </div>
+                  <div className="border-l border-warning/40 pl-3">
+                    <p className="text-lg font-semibold text-white">02</p>
+                    <p className="text-[11px] text-muted mt-0.5">Score exposure</p>
+                  </div>
+                  <div className="border-l border-success/40 pl-3">
+                    <p className="text-lg font-semibold text-white">03</p>
+                    <p className="text-[11px] text-muted mt-0.5">Review paths</p>
+                  </div>
+                </div>
+              </section>
+
+              <section>
+                {/* Error banner */}
+                {error && (
+                  <div className="mb-4 p-4 rounded-xl border border-danger/30 bg-danger/10 text-danger text-sm flex items-start gap-2">
+                    <svg className="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M8 5v4M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <div className="mb-3 flex items-center justify-between px-1">
+                  <div>
+                    <p className="text-sm font-semibold text-white">Start an assessment</p>
+                    <p className="text-xs text-muted mt-1">Describe the agent’s declared access surface.</p>
+                  </div>
+                  <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted/70">
+                    <span className="w-1.5 h-1.5 rounded-full bg-success" />
+                    No key required
+                  </span>
+                </div>
+                <AgentInput onSubmit={handleAnalyze} />
+              </section>
             </div>
-
-            {/* Error banner */}
-            {error && (
-              <div className="mb-4 p-4 rounded-lg border border-danger/30 bg-danger/10 text-danger text-sm flex items-start gap-2">
-                <svg className="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M8 5v4M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                <span>{error}</span>
-              </div>
-            )}
-
-            <AgentInput onSubmit={handleAnalyze} />
           </div>
         </main>
       )}

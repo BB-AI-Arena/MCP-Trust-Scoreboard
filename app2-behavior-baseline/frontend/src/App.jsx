@@ -288,7 +288,7 @@ export default function App() {
         <div className="flex items-center gap-3">
           <span className="text-2xl">🐠</span>
           <span className="text-sm font-semibold text-muted tracking-widest uppercase">
-            Koi Security Extensions
+            Agent Trust Platform
           </span>
         </div>
 
@@ -296,6 +296,9 @@ export default function App() {
           <h1 className="text-base font-semibold text-white tracking-tight">
             Behavior Baseline Monitor
           </h1>
+          <p className="text-[10px] uppercase tracking-wider text-amber-300">
+            Demo mode · seeded examples
+          </p>
         </div>
 
         <nav className="flex items-center gap-1 text-xs font-medium">

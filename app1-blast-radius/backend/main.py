@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Blast Radius Visualizer API",
     description="Analyses AI agent permissions and integrations to compute blast radius.",
-    version="1.0.0",
+    version="2.0.0-alpha.1",
 )
 
 app.add_middleware(

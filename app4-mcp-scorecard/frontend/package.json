@@ -1,6 +1,6 @@
 {
-  "name": "koi-app4-mcp-scorecard",
-  "version": "1.0.0",
+  "name": "agent-trust-tool-connector-trust",
+  "version": "2.0.0-alpha.1",
   "private": true,
   "type": "module",
   "scripts": {

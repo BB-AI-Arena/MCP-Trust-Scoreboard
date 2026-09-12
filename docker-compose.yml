@@ -1,12 +1,11 @@
-version: "3.9"
-
 # =============================================================================
-# Koi Security Extensions — Local POC Stack
+# Agent Trust Platform — compatibility/local stack
 #
 # Topology:
 #   frontend-*    React apps served via Nginx  (ports 5173-5176)
 #   api-*         FastAPI backends              (ports 8001-8004)
-#   worker        Async scan job processor
+#   worker        Legacy Redis scan job processor
+#   worker-platform PostgreSQL job-ledger worker
 #   postgres      Scan result persistence
 #   redis         Job queue + result cache
 #
@@ -14,18 +13,17 @@ version: "3.9"
 #   cp .env.example .env     # add API keys (both optional)
 #   docker compose up --build
 #
-# Enterprise mapping:
-#   postgres → Amazon RDS (PostgreSQL Multi-AZ)
-#   redis    → Amazon ElastiCache (Redis Cluster)
-#   worker   → ECS Fargate task (SQS consumer)
-#   api-*    → ECS Fargate services behind ALB
-#   frontend → S3 + CloudFront
+# The namespaced platform service is single-tenant and local/self-hosted.
 # =============================================================================
 
 x-api-common: &api-common
   restart: unless-stopped
-  env_file: .env
   environment:
+    GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    ABUSEIPDB_API_KEY: ${ABUSEIPDB_API_KEY:-}
+    SECRET_KEY: ${SECRET_KEY:-change-me-local-only}
+    SCAN_MODE: ${SCAN_MODE:-async}
+    ALLOW_PRIVATE_COLLECTOR_TARGETS: ${ALLOW_PRIVATE_COLLECTOR_TARGETS:-false}
     REDIS_URL: redis://redis:6379/0
     DATABASE_URL: postgresql://${POSTGRES_USER:-koi}:${POSTGRES_PASSWORD:-koi_dev_password}@postgres:5432/${POSTGRES_DB:-koi_security}
   depends_on:
@@ -80,8 +78,11 @@ services:
       context: .
       dockerfile: worker/Dockerfile
     restart: unless-stopped
-    env_file: .env
     environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ABUSEIPDB_API_KEY: ${ABUSEIPDB_API_KEY:-}
+      SECRET_KEY: ${SECRET_KEY:-change-me-local-only}
+      SCAN_MODE: ${SCAN_MODE:-async}
       REDIS_URL: redis://redis:6379/0
       DATABASE_URL: postgresql://${POSTGRES_USER:-koi}:${POSTGRES_PASSWORD:-koi_dev_password}@postgres:5432/${POSTGRES_DB:-koi_security}
     depends_on:
@@ -145,6 +146,42 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
+
+  # -------------------------------------------------------------------------
+  # Namespaced platform API and durable worker
+  # -------------------------------------------------------------------------
+
+  api-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile.platform
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-koi}:${POSTGRES_PASSWORD:-koi_dev_password}@postgres:5432/${POSTGRES_DB:-koi_security}
+      AGENT_TRUST_API_TOKEN: ${AGENT_TRUST_API_TOKEN:-change-me-local-token}
+      AGENT_TRUST_AUTH_MODE: ${AGENT_TRUST_AUTH_MODE:-token}
+      AGENT_TRUST_WORKSPACE_ID: ${AGENT_TRUST_WORKSPACE_ID:-local}
+      AGENT_TRUST_ALLOWED_ORIGINS: ${AGENT_TRUST_ALLOWED_ORIGINS:-http://127.0.0.1:5173,http://localhost:5173}
+      AGENT_TRUST_IMPORT_APP: "1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  worker-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile.platform
+    restart: unless-stopped
+    command: ["agent-trust-worker"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-koi}:${POSTGRES_PASSWORD:-koi_dev_password}@postgres:5432/${POSTGRES_DB:-koi_security}
+      AGENT_TRUST_API_TOKEN: ${AGENT_TRUST_API_TOKEN:-change-me-local-token}
+      AGENT_TRUST_AUTH_MODE: ${AGENT_TRUST_AUTH_MODE:-token}
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # ---------------------------------------------------------------------------
   # Frontend Apps — Nginx-served React builds

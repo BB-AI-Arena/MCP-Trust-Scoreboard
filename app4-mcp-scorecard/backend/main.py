@@ -27,6 +27,7 @@ from pydantic import BaseModel
 from domain_checker import check_domains
 from gemini_analyzer import analyze_tools
 from scorer import score
+from egress_guard import validate_collector_url, UnsafeCollectorURL
 
 load_dotenv()
 
@@ -50,7 +51,7 @@ SCAN_MODE = os.getenv("SCAN_MODE", "async")
 # ---------------------------------------------------------------------------
 app = FastAPI(
     title="MCP Trust Scorecard API",
-    version="1.1.0",
+    version="2.0.0-alpha.1",
     description="Analyzes MCP server manifests for security trust across six dimensions.",
 )
 
@@ -103,7 +104,11 @@ def _extract_tools(manifest: dict) -> list:
 
 
 async def _fetch_manifest(url: str) -> dict:
-    async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+    try:
+        validate_collector_url(url, allow_private=os.getenv("ALLOW_PRIVATE_COLLECTOR_TARGETS", "false").lower() == "true")
+    except UnsafeCollectorURL as exc:
+        raise HTTPException(status_code=422, detail=f"Unsafe manifest URL: {exc}") from exc
+    async with httpx.AsyncClient(timeout=15, follow_redirects=False) as client:
         try:
             resp = await client.get(url)
             resp.raise_for_status()

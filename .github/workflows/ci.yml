@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install and test
+        shell: bash
+        run: |
+          python -m venv .ci-venv
+          . .ci-venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[postgres,test]'
+          pytest
+          python -m compileall -q src tests
+      - name: Check canonical version
+        shell: bash
+        run: |
+          test "$(cat VERSION)" = "2.0.0-alpha.1"
+          grep -q 'version = "2.0.0a1"' pyproject.toml
+          for f in app1-blast-radius/frontend/package.json app2-behavior-baseline/frontend/package.json app3-code-provenance/frontend/package.json app4-mcp-scorecard/frontend/package.json; do
+            test "$(node -p "require('./$f').version")" = "2.0.0-alpha.1"
+          done
+
+  frontend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [app1-blast-radius/frontend, app2-behavior-baseline/frontend, app3-code-provenance/frontend, app4-mcp-scorecard/frontend]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Build frontend
+        working-directory: ${{ matrix.app }}
+        run: npm ci && npm run build
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Validate Compose configuration
+        run: docker compose config
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Check committed files for common credential formats
+        run: |
+          if git grep -n -E 'AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{20,}|-----BEGIN (RSA |EC )?PRIVATE KEY-----'; then
+            echo 'Potential credential material found in tracked files' >&2
+            exit 1
+          fi
+      - name: Audit Python dependencies
+        run: |
+          python -m venv .audit-venv
+          . .audit-venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install --disable-pip-version-check -e '.[postgres,test]' pip-audit
+          pip-audit
+      - name: Audit frontend dependencies
+        run: |
+          for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-provenance/frontend app4-mcp-scorecard/frontend; do
+            (cd "$d" && npm ci --ignore-scripts && npm audit --audit-level=high)
+          done

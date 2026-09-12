@@ -1,4 +1,4 @@
-// Koi Security Extensions — Shared Design Tokens
+// Agent Trust Platform — Shared Design Tokens
 export const colors = {
   bg: '#0A0E1A',
   card: '#111827',

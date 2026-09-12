@@ -13,7 +13,7 @@ Result key: koi:scan:result:{job_id}  (Redis SET with TTL)
 
 from __future__ import annotations
 
-import importlib
+import importlib.util
 import json
 import logging
 import os
@@ -66,21 +66,35 @@ def connect_redis(url: str, max_retries: int = 10) -> redis.Redis:
 # Job processors — delegate to each app's backend modules
 # ---------------------------------------------------------------------------
 
-def _add_to_sys_path(app_backend: str) -> None:
-    """Add an app backend directory to sys.path so its modules are importable."""
+def _load_backend_module(app_backend: str, module_name: str):
+    """Load a legacy module under a unique name; avoid cross-app collisions."""
     backend_dir = os.path.join(
         os.path.dirname(__file__), "..", app_backend, "backend"
     )
     backend_dir = os.path.realpath(backend_dir)
+    path = os.path.join(backend_dir, f"{module_name}.py")
+    unique_name = f"legacy_{app_backend.replace('-', '_')}_{module_name}"
+    spec = importlib.util.spec_from_file_location(unique_name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"could not load {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[unique_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _add_to_sys_path(app_backend: str) -> None:
+    """Make same-directory legacy helper imports available."""
+    backend_dir = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", app_backend, "backend"))
     if backend_dir not in sys.path:
         sys.path.insert(0, backend_dir)
 
 
 def process_blast_radius(payload: dict) -> dict:
     _add_to_sys_path("app1-blast-radius")
-    graph_builder = importlib.import_module("graph_builder")
-    risk_scorer = importlib.import_module("risk_scorer")
-    gemini_analyzer = importlib.import_module("gemini_analyzer")
+    graph_builder = _load_backend_module("app1-blast-radius", "graph_builder")
+    risk_scorer = _load_backend_module("app1-blast-radius", "risk_scorer")
+    gemini_analyzer = _load_backend_module("app1-blast-radius", "gemini_analyzer")
 
     graph = graph_builder.build_graph(
         agent_name=payload.get("agent_name", "Unknown Agent"),
@@ -98,8 +112,8 @@ def process_blast_radius(payload: dict) -> dict:
 
 def process_behavior_scan(payload: dict) -> dict:
     _add_to_sys_path("app2-behavior-baseline")
-    anomaly_detector = importlib.import_module("anomaly_detector")
-    gemini_analyzer = importlib.import_module("gemini_analyzer")
+    anomaly_detector = _load_backend_module("app2-behavior-baseline", "anomaly_detector")
+    gemini_analyzer = _load_backend_module("app2-behavior-baseline", "gemini_analyzer")
 
     agent_id = payload.get("agent_id", "claude-code")
     anomalies = anomaly_detector.detect_anomalies(agent_id)
@@ -109,9 +123,9 @@ def process_behavior_scan(payload: dict) -> dict:
 
 def process_code_provenance(payload: dict) -> dict:
     _add_to_sys_path("app3-code-provenance")
-    provenance_detector = importlib.import_module("provenance_detector")
-    code_risk_scanner = importlib.import_module("code_risk_scanner")
-    gemini_analyzer = importlib.import_module("gemini_analyzer")
+    provenance_detector = _load_backend_module("app3-code-provenance", "provenance_detector")
+    code_risk_scanner = _load_backend_module("app3-code-provenance", "code_risk_scanner")
+    gemini_analyzer = _load_backend_module("app3-code-provenance", "gemini_analyzer")
 
     code = payload.get("code", "")
     language = payload.get("language", "python")
@@ -125,9 +139,9 @@ def process_code_provenance(payload: dict) -> dict:
 
 def process_mcp_scorecard(payload: dict) -> dict:
     _add_to_sys_path("app4-mcp-scorecard")
-    domain_checker = importlib.import_module("domain_checker")
-    scorer = importlib.import_module("scorer")
-    gemini_analyzer = importlib.import_module("gemini_analyzer")
+    domain_checker = _load_backend_module("app4-mcp-scorecard", "domain_checker")
+    scorer = _load_backend_module("app4-mcp-scorecard", "scorer")
+    gemini_analyzer = _load_backend_module("app4-mcp-scorecard", "gemini_analyzer")
 
     import re
     manifest = payload.get("manifest", {})

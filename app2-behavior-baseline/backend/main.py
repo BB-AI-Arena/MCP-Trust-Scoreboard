@@ -31,9 +31,9 @@ from gemini_analyzer import classify_anomaly_cluster
 # ---------------------------------------------------------------------------
 
 app = FastAPI(
-    title="Koi Security — Agent Behavior Baseline API",
-    description="Monitors AI agent behavioral baselines and detects anomalies.",
-    version="1.0.0",
+    title="Agent Trust Platform — Behavior Monitoring API",
+    description="Monitors agent behavioral baselines and detects anomalies.",
+    version="2.0.0-alpha.1",
 )
 
 app.add_middleware(
@@ -115,7 +115,14 @@ def list_agents():
                 "high_anomalies": high_count,
             }
         )
-    return {"agents": enriched, "total": len(enriched)}
+    return {
+        "agents": enriched,
+        "total": len(enriched),
+        # This preserved legacy workspace is intentionally backed by fixtures
+        # until durable authenticated event ingestion is enabled.
+        "data_mode": "demo",
+        "limitations": "Seeded examples are demonstration data, not live telemetry.",
+    }
 
 
 @app.get("/baseline/{agent_id}", tags=["Baseline"])
