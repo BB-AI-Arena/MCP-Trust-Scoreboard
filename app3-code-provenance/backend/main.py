@@ -376,6 +376,10 @@ async def scan_repo(file: UploadFile = File(...)):
             status_code=422,
             detail="Uploaded file is not a valid ZIP archive.",
         )
+    except HTTPException:
+        # Preserve deliberate client errors from archive validation. The
+        # generic handler below must not turn a rejected upload into a 500.
+        raise
     except Exception as exc:
         logger.exception("Unexpected error processing ZIP: %s", exc)
         raise HTTPException(status_code=500, detail=f"Failed to process archive: {str(exc)}")

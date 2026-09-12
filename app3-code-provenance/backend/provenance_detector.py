@@ -304,6 +304,11 @@ def detect_provenance(code: str, language: str) -> dict:
             "confidence": 0,
             "markers": [],
             "model_scores": {m: 0 for m in ALL_MODELS},
+            "assessment_type": "experimental_style_signal",
+            "limitations": (
+                "Stylistic signals are experimental and are not verified authorship, "
+                "provenance, or an approval gate."
+            ),
         }
 
     raw_scores: Dict[str, int] = {}
@@ -342,4 +347,9 @@ def detect_provenance(code: str, language: str) -> dict:
         "confidence": confidence,
         "markers": winning_markers,
         "model_scores": normalized,
+        "assessment_type": "experimental_style_signal",
+        "limitations": (
+            "Stylistic signals are experimental and are not verified authorship, "
+            "provenance, or an approval gate."
+        ),
     }
