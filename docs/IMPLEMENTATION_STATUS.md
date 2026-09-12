@@ -47,6 +47,19 @@ Go portable tests **5 passed**, Windows executable cross-build and compileall/di
 checks passed. Pre-clarification head `b94f8f628d534fe6bca12eebb10b94296bd7ff2d`
 passed all ten CI jobs (34679626574/34679628953) and the Windows workflow
 (34679626578/34679628965). Final-head readback is recorded separately on PR #23.
+Head `8dc316da700a8a1512f3d0f563fb47e57fcc629f` passed the ten-job CI run
+34679870729 and Windows PR run 34679873211, but Windows push run **34679870733
+failed** its replay-count assertion. Logs show telemetry arriving between offset
+pages: that live listing cannot serve as an exact cardinality snapshot. The harness
+now counts persisted events in one PostgreSQL statement, retaining multiplicity
+(not deduplicating away real duplicate records). A regression oracle test injects
+a genuine duplicate and verifies it remains visible across more than two pages.
+The raw failed-run logs remain retained. A new final-head Windows run is required;
+the passing sibling run does not erase this failure.
+Snapshot-check repair: `.venv/bin/pytest -o addopts= -q -ra` **105 passed / 33
+explicitly gated skips**, 30.54s; `.venv/bin/python -m compileall -q src tests
+scripts/windows_acceptance.py` and `git diff --check` passed. No production code,
+gate or assertion threshold changed for this harness repair.
 All changes are in review, not merged/approved/published. No GitHub operations failed.
 
 Known limitations: polling misses short-lived activity; no file-writer association,

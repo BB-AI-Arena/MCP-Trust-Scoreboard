@@ -5,6 +5,7 @@ The PostgreSQL process/cluster is created separately under RUNNER_TEMP by the jo
 """
 from datetime import datetime, timedelta, timezone
 from contextlib import contextmanager
+from collections import Counter
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import hashlib
 import json
@@ -40,10 +41,26 @@ def wait(check,seconds=120):
     raise AssertionError('Windows acceptance condition timed out')
 
 
+def persisted_event_counts(engine, workspace_id):
+    """One statement snapshot, not shifting offset pages during live ingestion.
+
+    Keep multiplicity: a genuine duplicate logical event MUST fail acceptance.
+    Only used against the dedicated disposable acceptance database.
+    """
+    from sqlalchemy import select
+    from agent_trust.storage.database import records
+    with engine.connect() as connection:
+        rows=connection.execute(select(records.c.payload).where(
+            records.c.kind=='evidence',records.c.workspace_id==workspace_id)).scalars().all()
+    return Counter(json.loads(row).get('event_id') for row in rows)
+
+
 def main():
     if sys.platform!='win32' or os.getenv('AGENT_TRUST_DISPOSABLE_WINDOWS_TEST')!='1':
         raise RuntimeError('requires explicit isolated Windows test environment')
     assert os.environ['DATABASE_URL'].startswith('postgresql://fixture@127.0.0.1:')
+    from agent_trust.storage.database import make_engine
+    engine=make_engine(os.environ['DATABASE_URL'])
     evidence=ROOT/'evidence'/'windows';evidence.mkdir(parents=True,exist_ok=True)
     executable=ROOT/'sensor'/'dist'/'agent-trust-sensor.exe'
     helper=ROOT/'sensor'/'dist'/'fixture-process.exe'
@@ -143,21 +160,22 @@ def main():
             assert len(list((data/'spool').glob('*.event')))>=len(persisted)
             api=launch([sys.executable,'-c','from agent_trust.api.app import run; run()'],'api')
             wait(lambda:httpx.get(origin+'/readiness').status_code==200)
-            wait(lambda:persisted <= {e.get('event_id') for e in all_records('evidence')},150)
+            wait(lambda:persisted <= persisted_event_counts(engine,'windows-ci').keys(),150)
             stop(sensor)
             (data/'spool'/replay_name).write_bytes(replay_bytes)
             sensor=launch([str(executable),'run','--config',str(config_path),'--seconds','120'],'sensor',sensor_env)
             wait(lambda:not (data/'spool'/replay_name).exists(),60)
-            replay_id=json.loads(replay_bytes)['event_id'];assert sum(e.get('event_id')==replay_id for e in all_records('evidence'))==1
+            replay_id=json.loads(replay_bytes)['event_id']
+            replay_count=persisted_event_counts(engine,'windows-ci')[replay_id]
+            assert replay_count==1,f'persisted replay count must be exactly one, got {replay_count}'
             # Separate synthetic network/behavior fixtures exercise central rules;
             # real collector activity above is not called malicious or attributed.
             from agent_trust.api.app import create_app
             from agent_trust.config import Settings
-            from agent_trust.storage.database import make_engine
             from fastapi.testclient import TestClient
             sys.path.insert(0,str(ROOT/'tests'))
             from test_endpoint import ADMIN,enrollment,ingest,signals
-            engine=make_engine(env['DATABASE_URL']);client=TestClient(create_app(Settings(api_token='fixture-endpoint-administrator',workspace_id='windows-ci'),engine))
+            client=TestClient(create_app(Settings(api_token='fixture-endpoint-administrator',workspace_id='windows-ci'),engine))
             synthetic,_=enrollment(client,policy)
             fixture_policy=httpx.get(origin+'/api/v1/endpoints/'+synthetic['endpoint_id']+'/policy',headers={'Authorization':'Bearer '+synthetic['credential']}).json()
             events=[{k:v for k,v in e.items() if k not in ('workspace_id','id')}|{'endpoint_id':synthetic['endpoint_id'],'sensor_instance_id':synthetic['sensor_instance_id']} for e in signals(fixture_policy)]
@@ -175,7 +193,7 @@ def main():
             findings=all_records('findings');assert all(not f['response']['executed'] for f in findings)
             assert not sentinel.exists() and actor.poll() is None,'no MCP execution or blocking'
             assert 'synthetic-never-upload-token' not in json.dumps(all_records('evidence'))
-            connection.close();listener.close();stop(actor);engine.dispose()
+            connection.close();listener.close();stop(actor)
             # Stop all owned processes before disposable directory cleanup.
             for p in reversed(children):stop(p)
             summary={'source_sha':os.getenv('SENSOR_SOURCE_SHA',os.getenv('GITHUB_SHA','local')),'version':version,'runner_os':os.getenv('ImageOS'),
@@ -183,6 +201,7 @@ def main():
                 'fixture_discovery':['Cursor path with benign helper','MCP JSON without execution'],
                 'synthetic_detections':['periodic network pattern','destructive metadata pattern'],
                 'persisted_offline_events':len(persisted),'deduplicated_replay':True,'finding_count':len(findings),
+                'persisted_replay_count':replay_count,'replay_verification':'single PostgreSQL statement snapshot',
                 'receiver_attempts':len(received),'accepted_deliveries':len(accepted),'blocking_actions':0,
                 'service_mode':'foreground runtime tested; SCM deployment under chosen service account not exercised',
                 'binary_sha256':hashlib.sha256(executable.read_bytes()).hexdigest(),'result':'passed'}
@@ -191,6 +210,7 @@ def main():
         for p in reversed(children):stop(p)
         for h in handles:h.close()
         receiver.shutdown();receiver.server_close()
+        engine.dispose()
 
 
 if __name__=='__main__':main()
