@@ -63,13 +63,15 @@ for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-pr
   high, 1 critical) in each applicable legacy frontend. They remain an open
   release/security gate; no `npm audit fix` was run because it could change
   lockfiles and behavior without review.
-- GitHub project/issue/PR operations: not run; `gh auth status` reported no
-  authenticated host.
-- `git push -u origin feat/agent-trust-platform-v2-alpha1`: failed before
-  remote authentication (`could not read Username for 'https://github.com'`).
-- `scripts/prepare_release.py` validation: passed against the exact feature
-  SHA and generated only `/tmp/agent-trust-release-manifest.json`; no tag or
-  publication occurred.
+- `git push -u origin feat/agent-trust-platform-v2-alpha1`: passed after
+  authentication.
+- `scripts/prepare_release.py` validation: passed against the final exact
+  SHA and generated only `/tmp/agent-trust-release-manifest-final.json`; no
+  tag or publication occurred.
+
+License check: no `LICENSE` file exists in the checkout, while the historical
+README declared MIT. This branch flags the discrepancy and does not relicense
+or add a license file.
 
 ## Security and migration notes
 
@@ -83,12 +85,11 @@ enforcement remain open and must not be advertised as shipped.
 
 ## GitHub handoff
 
-Pending because `gh auth status` reported no authenticated GitHub host:
-
-1. Create/reuse private linked Project `Agent Trust Platform v2` with states
-   Ready, In progress, In review, Blocked, Done and fields Phase, Area,
-   Priority, Target version.
-2. Create/deduplicate issues ATP-A1 through ATP-D1, link dependencies, update
-   repository description/topics, and open a PR from this branch to `main`.
-3. Read back all remote objects after mutation. Do not merge, tag, publish, or
-   change repository identity/license.
+- Private linked project: https://github.com/users/BB-AI-Arena/projects/1
+- Pull request: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/12
+- Phase-A epic: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/11
+- Child issues: #1, #2, #3; later roadmap issues #5–#10.
+- Repository description/topics were updated. No repository identity, branch
+  protection, visibility, ownership, or license was changed.
+- PR remains open for maintainer review; nothing was merged, tagged, released,
+  or published.

@@ -124,4 +124,7 @@ See [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md),
 
 ## License
 
-MIT. Copyright and attribution from the original project are preserved.
+No `LICENSE` file is present in the current checkout. The historical README
+declared MIT, but this refactor does not silently relicense the repository;
+maintainers must resolve and commit the authoritative license before release.
+Copyright and attribution are otherwise preserved.
