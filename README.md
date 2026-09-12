@@ -1,6 +1,7 @@
 <div align="center">
 
 <img src="https://img.shields.io/badge/Proposed-2.0.0--alpha.1-00D4FF?style=for-the-badge&labelColor=0A0E1A" alt="proposed application version">
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-00FF9C?style=for-the-badge&labelColor=0A0E1A" alt="MIT license"></a>
 <a href="https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/workflows/ci.yml"><img src="https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
 <img src="https://img.shields.io/badge/Python-3.10%2B-3572A5?style=for-the-badge&logo=python&logoColor=white&labelColor=0A0E1A" alt="Python 3.10 or newer">
 <img src="https://img.shields.io/badge/React-Vite-61DAFB?style=for-the-badge&logo=react&logoColor=white&labelColor=0A0E1A" alt="React and Vite">
@@ -216,7 +217,11 @@ See [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md),
 
 ## License
 
-No `LICENSE` file is present in the current checkout. The historical README
-declared MIT, but this refactor does not silently relicense the repository;
-maintainers must resolve and commit the authoritative license before release.
-Copyright and attribution are otherwise preserved.
+This repository’s original code and documentation are available under the
+[MIT License](LICENSE). You may use, copy, modify, distribute, sublicense, and
+sell it, provided that the copyright and license notices are retained. It is
+provided without warranty.
+
+Third-party dependencies, fonts, icons, fixtures, and externally supplied
+content remain subject to their own licenses and notices. The MIT license does
+not grant rights to third-party names, services, or data.
