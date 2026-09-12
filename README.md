@@ -183,6 +183,11 @@ explicitly configured webhook through durable retryable jobs. Evidence sources,
 finding destinations and response authority are separate: delivery is not
 enforcement. Tested with real local HTTP/TLS endpoints, not live vendor services.
 
+The [read-only CrowdStrike Falcon source](docs/connectors/CROWDSTRIKE.md) adds an
+operator `agent-trust-falcon` command for host context and alert retrieval, revision
+tracking and delivery through that same path. Hosts/Alerts READ scopes only;
+fixture-tested, with live validation pending. No containment or response execution.
+
 ## Architecture
 
 ```mermaid

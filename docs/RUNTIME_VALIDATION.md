@@ -1,5 +1,11 @@
 # Runtime and PostgreSQL validation
 
+The read-only Falcon continuation adds migration `004_connector_checkpoints.sql`
+and an operator collector command. Existing recovery tests are retained, now
+expecting four applied migrations; a dedicated 003→004 test preserves preexisting
+records. See [Falcon setup/rollback](connectors/CROWDSTRIKE.md). This is additive
+feature state, not a change to credentials, user volumes or legacy queue names.
+
 This is a regression gate, not new product functionality. See
 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for actual results and SHAs.
 The continuation adds [full Compose/browser and image acceptance](ALPHA_ACCEPTANCE.md)

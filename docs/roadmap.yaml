@@ -2,9 +2,10 @@ version: 1
 product: Agent Trust Platform
 release_state: awaiting_gates_and_maintainer_review
 dependency_policy: accepted_for_development_alpha_hardening_deferred
-active_branch: feat/json-webhook-connectors
-base_branch: chore/alpha-dependency-risk-policy
-dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/17
+active_branch: feat/crowdstrike-evidence-source
+base_branch: feat/json-webhook-connectors
+dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/19
+falcon_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/20
 connector_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/18
 connector_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/19
 policy_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34671404252
@@ -63,3 +64,9 @@ items:
     title: Connector contracts and JSON-to-webhook reference path
     status: in_review
     depends_on: [ATP-A2]
+  - id: ATP-B4
+    target: 2.0.0-alpha.1
+    title: Read-only CrowdStrike host and alert evidence source
+    status: in_progress
+    live_validation: pending
+    depends_on: [ATP-B3]

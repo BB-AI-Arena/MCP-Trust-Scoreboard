@@ -4,6 +4,12 @@ Target: unreleased 2.0.0-alpha.1. Local/self-hosted, **not production-hardened**
 Dependency CVEs are [accepted for development/alpha](KNOWN_SECURITY_ISSUES.md);
 this is not live vendor validation or release approval.
 
+The [read-only CrowdStrike source](connectors/CROWDSTRIKE.md) extends this same
+path with Hosts/Alerts retrieval, vendor-origin revisions and an operator sync-once
+command. Source/destination dispatch is registered; no response adapter is enabled.
+Its additive migration 004 stores private collector checkpoints. The reference
+generic JSON behavior below remains unchanged (it does not use those checkpoints).
+
 The generic JSON evidence source and webhook finding destination implement:
 
 ```text
@@ -16,7 +22,8 @@ authenticated JSON → normalized, claimed evidence → PostgreSQL ingestion job
 
 `EvidenceSource.normalize`, `FindingDestination.deliver`, and `ResponseAdapter`
 are separate contracts under `agent_trust.adapters.connectors`. Registered adapters
-are `generic-json` (ingest schema 1) and `webhook` (deliver findings schema 1).
+are `generic-json` (ingest schema 1), `crowdstrike-falcon` (read host/alert evidence,
+normalization schema falcon-1) and `webhook` (deliver findings schema 1).
 `GET /api/v1/connectors` reports these roles; **no response adapter is registered**.
 Neither source ingestion nor a destination HTTP 2xx means quarantine, remediation,
 enforcement, or an action confirmed by an upstream product.
@@ -119,8 +126,9 @@ Unauthenticated requests return 401; insufficient scope 403; invalid envelope 42
 
 ## Storage, upgrade, rollback and tests
 
-No new schema migration: use existing versioned records and PostgreSQL job ledger
-(migrations 001–003). Evidence, findings, delivery enqueue and ingestion completion
+The generic path uses existing versioned records and PostgreSQL job ledger
+(migrations 001–003); the Falcon continuation adds private checkpoints in 004.
+Evidence, findings, delivery enqueue and ingestion completion
 commit together under the lease fence. Network calls never hold that transaction.
 Raw content is discarded; metadata/jobs remain until operator-controlled retention.
 No automated retention expiry is claimed. Existing assessment and legacy routes,

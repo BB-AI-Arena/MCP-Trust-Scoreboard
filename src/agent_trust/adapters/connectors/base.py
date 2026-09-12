@@ -38,4 +38,8 @@ DESCRIPTORS = [
      'capabilities':['ingest'], 'enforce':False},
     {'id':'webhook','role':'finding_destination','schema_versions':['1'],
      'capabilities':['deliver_findings'], 'enforce':False},
+    {'id':'crowdstrike-falcon','role':'evidence_source','schema_versions':['falcon-1'],
+     'capabilities':['read_host_inventory','read_alerts'], 'enforce':False,
+     'validation':'local TLS protocol fixtures; live pending',
+     'operations':['oauth2AccessToken','QueryDevicesByFilterScroll','GetDeviceDetailsV2','PostCombinedAlertsV1']},
 ]
