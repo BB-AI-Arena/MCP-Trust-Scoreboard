@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -31,6 +32,14 @@ func (s *service) failure(err error) {
 
 func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, status chan<- svc.Status) (bool, uint32) {
 	status <- svc.Status{State: svc.StartPending, WaitHint: 30000}
+	// Diagnostics retain only argument count/length/hash, never argument values.
+	meta := make([]map[string]any, len(args))
+	for i, arg := range args {
+		h := sha256.Sum256([]byte(arg))
+		meta[i] = map[string]any{"length": len(arg), "sha256_prefix": fmt.Sprintf("%x", h[:4])}
+	}
+	mb, _ := json.Marshal(meta)
+	_ = os.WriteFile(filepath.Join(s.config.DataDir, "service-args.json"), mb, 0600)
 	// Ephemeral StartService input, never ImagePath/process arguments or config.
 	// Only an explicit operator start enrolls. Recovery never reenrolls.
 	var bootstrap string

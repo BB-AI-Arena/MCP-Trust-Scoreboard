@@ -66,6 +66,8 @@ class ServiceAcceptance:
                 detail=(r.stderr or r.stdout).replace(private,'<redacted>')
                 error_path=self.data/'service-startup.error'
                 if error_path.exists(): detail += ' startup='+error_path.read_text(errors='replace')
+                args_path=self.data/'service-args.json'
+                if args_path.exists(): detail += ' args='+args_path.read_text(errors='replace')
                 raise AssertionError('SCM enrollment/install failed: '+detail[-2000:])
             raise AssertionError('SCM '+action+' failed: '+r.stderr[-2000:])
         return r.stdout
