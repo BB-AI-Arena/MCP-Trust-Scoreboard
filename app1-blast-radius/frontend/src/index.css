@@ -23,6 +23,13 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  button,
+  a,
+  input,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
@@ -114,6 +121,31 @@
       linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
     background-size: 40px 40px;
   }
+
+  /* Soft lighting keeps the landing surface dimensional without competing
+     with the graph visualization in the results workspace. */
+  .grid-bg::before,
+  .grid-bg::after {
+    content: '';
+    position: absolute;
+    width: 34rem;
+    height: 34rem;
+    border-radius: 999px;
+    filter: blur(80px);
+    opacity: 0.18;
+  }
+
+  .grid-bg::before {
+    top: 8%;
+    left: 8%;
+    background: rgba(0, 212, 255, 0.28);
+  }
+
+  .grid-bg::after {
+    right: 4%;
+    bottom: -18%;
+    background: rgba(110, 72, 255, 0.22);
+  }
 }
 
 @layer utilities {
@@ -136,5 +168,14 @@
 
   .panel-closed {
     transform: translateX(100%);
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }
