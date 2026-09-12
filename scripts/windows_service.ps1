@@ -80,9 +80,21 @@ using System.Runtime.InteropServices;
 public static class AtpScmStart {
   [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern IntPtr OpenSCManager(string m,string d,uint a);
   [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern IntPtr OpenService(IntPtr h,string n,uint a);
-  [DllImport("advapi32.dll", SetLastError=true)] static extern bool StartService(IntPtr h,uint c,[MarshalAs(UnmanagedType.LPArray, ArraySubType=UnmanagedType.LPWStr)] string[] a);
+  [DllImport("advapi32.dll", SetLastError=true)] static extern bool StartService(IntPtr h,uint c,IntPtr a);
   [DllImport("advapi32.dll", SetLastError=true)] static extern bool CloseServiceHandle(IntPtr h);
-  public static void Start(string name,string arg) { var m=OpenSCManager(null,null,0xF003F); if(m==IntPtr.Zero) throw new Win32Exception(); try { var s=OpenService(m,name,0x0010); if(s==IntPtr.Zero) throw new Win32Exception(); try { if(!StartService(s,1,new[]{arg})) throw new Win32Exception(); } finally { CloseServiceHandle(s); } } finally { CloseServiceHandle(m); } }
+  public static void Start(string name,string arg) {
+    var m=OpenSCManager(null,null,0xF003F); if(m==IntPtr.Zero) throw new Win32Exception();
+    try {
+      var s=OpenService(m,name,0x0010); if(s==IntPtr.Zero) throw new Win32Exception();
+      IntPtr text=IntPtr.Zero, argv=IntPtr.Zero;
+      try {
+        text=Marshal.StringToHGlobalUni(arg);
+        argv=Marshal.AllocHGlobal(IntPtr.Size);
+        Marshal.WriteIntPtr(argv,text);
+        if(!StartService(s,1,argv)) throw new Win32Exception();
+      } finally { if(argv!=IntPtr.Zero) Marshal.FreeHGlobal(argv); if(text!=IntPtr.Zero) Marshal.FreeHGlobal(text); CloseServiceHandle(s); }
+    } finally { CloseServiceHandle(m); }
+  }
 }
 '@
       try { [AtpScmStart]::Start($Name,$secret) } finally { $secret = $null }
