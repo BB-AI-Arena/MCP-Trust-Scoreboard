@@ -48,6 +48,11 @@ if ($Action -eq 'Install') {
   if ($LASTEXITCODE -ne 0) { throw 'SCM registration failed; preserve installation for inspection' }
   @{ name=$Name; binary_sha256=(Get-FileHash $exe -Algorithm SHA256).Hash; format=1 } | ConvertTo-Json | Set-Content $marker
   Set-PrivateAcl $InstallRoot 'ReadAndExecute'
+  # Existing files were created before the directory ACL was finalized; grant
+  # the virtual account read/execute explicitly without touching the parent.
+  & icacls.exe $exe /grant ($account+':(RX)') | Out-Null
+  & icacls.exe $settings /grant ($account+':(R)') | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw 'Owned executable/config ACL failed' }
   New-Item -ItemType Directory -Path $data | Out-Null
   Set-PrivateAcl $data 'Modify'
   # Service has only traversal privilege; no debug/backup/restore/impersonation.
