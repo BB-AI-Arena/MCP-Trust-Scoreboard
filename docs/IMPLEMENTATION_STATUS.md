@@ -9,6 +9,7 @@ Updated: 2026-09-11
 - Feature implementation ending SHA: `ee0134a77d9e1f373efafb01044e13ce1abc23ac` (`feat: establish vendor-neutral agent trust platform core`)
 - Previous synchronized handoff SHA: `304a3ca1f224bcdc416875f40dce8d177079abef`
 - Current implementation commit: `b36dd89` (`ci: install legacy contract dependencies`)
+- Prior handoff documentation commit: `45ec43f`
 - Branch: `feat/agent-trust-platform-v2-alpha1`
 - Proposed application version: `2.0.0-alpha.1` (`2.0.0a1` Python metadata)
 - Release state: unreleased; no tag, package, image, or GitHub release published
@@ -89,12 +90,11 @@ for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-pr
 - `scripts/prepare_release.py` validation: passed against the final exact
   SHA and generated only `/tmp/agent-trust-release-manifest-final.json`; no
   tag or publication occurred.
-- Remote PR checks before this continuation: Python, Compose, and all four
-  frontend builds passed; security failed on the known frontend audit
-  vulnerabilities. The first new run also failed Python because legacy test
-  dependencies were not installed and failed Python audit because it inspected
-  the runner's global environment; both workflow issues were corrected in
-  `b36dd89`.
+- Remote CI run `34660916896` after `b36dd89`: Python, Compose, all four
+  frontend builds, and Python dependency audit passed. The security job failed
+  only at the frontend dependency audit on the known high/critical lockfile
+  advisories. The preceding run's missing legacy dependencies and global
+  environment audit problem were corrected in `b36dd89`.
 
 License check: no `LICENSE` file exists in the checkout, while the historical
 README declared MIT. This branch flags the discrepancy and does not relicense
