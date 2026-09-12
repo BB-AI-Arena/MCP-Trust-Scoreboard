@@ -53,6 +53,7 @@ class Software(Strict):
 
 
 class Process(Strict):
+    observation: Literal['first_seen_snapshot','no_longer_visible_snapshot'] | None = None
     process_key: Name
     pid: int = Field(ge=0, le=4294967295)
     parent_pid: int = Field(default=0, ge=0, le=4294967295)
@@ -144,7 +145,8 @@ class EndpointEvent(Strict):
     def typed_data(self):
         if self.event_type not in DATA:
             raise ValueError('unsupported_endpoint_event_type')
-        self.data = DATA[self.event_type].model_validate(self.data).model_dump(mode='json')
+        # Omitting new optional None fields preserves old canonical replay hashes.
+        self.data = DATA[self.event_type].model_validate(self.data).model_dump(mode='json',exclude_none=True)
         if self.observed_at.tzinfo is None or not datetime.now(timezone.utc)-timedelta(days=14) <= self.observed_at <= datetime.now(timezone.utc)+timedelta(minutes=5):
             raise ValueError('timestamp_outside_offline_window')
         self.observed_at = self.observed_at.astimezone(timezone.utc)

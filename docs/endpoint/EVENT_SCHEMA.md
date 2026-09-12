@@ -24,6 +24,11 @@ Evidence remains `claimed`, verification null, method `authenticated_endpoint_re
 
 See executable Pydantic definitions in `src/agent_trust/domain/endpoint.py`.
 No freeform `content`, command lines, prompts, environment values or source files.
+Process `observation` distinguishes `first_seen_snapshot` from
+`no_longer_visible_snapshot`. Initial discovery is not a just-started process;
+absence can mean exit or lost visibility. Older v0.1 spool records without this
+optional label retain their canonical replay form. AI evidence approval status
+is derived from the server-bound policy, never a device-submitted approval field.
 Relative repository paths reject drive/absolute/traversal forms. Repository IDs
 must belong to the endpoint's central policy. Approval/classification are central
 policy, not device assertions. No automatic mapping to AI agents or Falcon hosts.

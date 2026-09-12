@@ -38,6 +38,15 @@ Executable checksum and exact commands: [endpoint/WINDOWS.md](endpoint/WINDOWS.m
 Follow-up adds nonempty-directory/remote-hash guards, stronger TLS/scope tests and
 safer Windows harness cleanup/helper timing. Final ending head and its separate
 CI result must be read back on PR #23; earlier passing runs are not substituted.
+The final contract clarification labels polling lifecycle observations and adds
+server-derived AI approval status; older unlabeled spool records retain canonical
+replay compatibility. Dedicated tests cover both, without changing migration 005.
+Clarification verification: `.venv/bin/pytest -o addopts= -q -ra` **104 passed / 33
+gated skips**, 28.78s; focused real PostgreSQL endpoint test **1 passed**, 11.03s;
+Go portable tests **5 passed**, Windows executable cross-build and compileall/diff
+checks passed. Pre-clarification head `b94f8f628d534fe6bca12eebb10b94296bd7ff2d`
+passed all ten CI jobs (34679626574/34679628953) and the Windows workflow
+(34679626578/34679628965). Final-head readback is recorded separately on PR #23.
 All changes are in review, not merged/approved/published. No GitHub operations failed.
 
 Known limitations: polling misses short-lived activity; no file-writer association,

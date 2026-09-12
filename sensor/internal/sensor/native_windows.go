@@ -101,7 +101,7 @@ type ProcessInfo struct {
 }
 
 func (p ProcessInfo) Data() map[string]any {
-	return map[string]any{"process_key": p.Key, "pid": p.PID, "parent_pid": p.ParentPID, "parent_key": p.ParentKey, "executable": p.Executable, "parent_executable": p.ParentExecutable, "session_id": p.Session, "user_sid": p.SID, "sha256": p.Hash}
+	return map[string]any{"observation": "first_seen_snapshot", "process_key": p.Key, "pid": p.PID, "parent_pid": p.ParentPID, "parent_key": p.ParentKey, "executable": p.Executable, "parent_executable": p.ParentExecutable, "session_id": p.Session, "user_sid": p.SID, "sha256": p.Hash}
 }
 func Processes() (map[uint32]ProcessInfo, int, error) {
 	h, e := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)

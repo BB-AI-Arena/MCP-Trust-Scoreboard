@@ -227,7 +227,9 @@ func (m *Manager) Tick() error {
 		}
 		for pid, p := range m.processes {
 			if current, ok := next[pid]; !ok || current.Key != p.Key {
-				if e = m.emit("process_stopped", "process", p.Data()); e != nil {
+				data := p.Data()
+				data["observation"] = "no_longer_visible_snapshot"
+				if e = m.emit("process_stopped", "process", data); e != nil {
 					return e
 				}
 			}

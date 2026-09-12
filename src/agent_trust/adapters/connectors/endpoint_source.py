@@ -13,6 +13,9 @@ class WindowsEndpointSource:
     def records(payload, job_id, connection):
         evidence = {k:v for k,v in payload.items() if k not in ('input_digest','policy')}
         evidence['id'] = 'evidence-'+job_id
+        if payload['event_type'] in ('ai_tool_discovered','ai_tool_running'):
+            evidence['approval_status'] = ('approved' if payload['data']['tool_id'] in payload['policy']['approved_tools'] else 'unapproved')
+            evidence['approval_source'] = 'server_bound_enrollment_policy'
         row = connection.execute(select(endpoints).where(endpoints.c.id==payload['endpoint_id'],
             endpoints.c.workspace_id==payload['workspace_id']).with_for_update()).mappings().one()
         state, findings = correlate(evidence,json.loads(row['correlation']),payload['policy'])

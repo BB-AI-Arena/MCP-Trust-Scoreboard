@@ -149,3 +149,21 @@ def test_enrollment_expiry_and_other_workspace(endpoint_platform):
     other=TestClient(create_app(replace(settings,workspace_id='other'),ledger.engine))
     assert other.get('/api/v1/endpoints',headers=ADMIN).json()['items']==[]
     assert other.post('/api/v1/endpoints/'+provision['endpoint_id']+'/revoke',headers=ADMIN).status_code==404
+
+
+def test_approval_is_server_derived_and_optional_polling_label_preserves_replay(endpoint_platform):
+    client,ledger,settings=endpoint_platform
+    identity,_=enrollment(client,{'approved_tools':['fixture-ai']})
+    data={'tool_id':'fixture-ai','path':'C:\\fixture.exe','source':'configured_path'}
+    assert ingest(client,identity,[event(identity,'ai_tool_discovered',data)]).status_code==202
+    process_one(ledger,'fixture',settings)
+    evidence=client.get('/api/v1/evidence',headers=ADMIN).json()['items'][0]
+    assert evidence['approval_status']=='approved' and evidence['approval_source']=='server_bound_enrollment_policy'
+    assert ingest(client,identity,[event(identity,'ai_tool_discovered',data|{'approval_status':'approved'})]).status_code==422
+    process=event(identity,'process_started',{'process_key':'10:100','pid':10})
+    normalized=EndpointEvent.model_validate(process)
+    assert 'observation' not in normalized.data  # old spool canonical form unchanged
+    first=ingest(client,identity,[process]);assert first.status_code==202
+    assert ingest(client,identity,[process]).json()==first.json()
+    process['event_id']=str(uuid.uuid4());process['data']['observation']='first_seen_snapshot'
+    assert ingest(client,identity,[process]).status_code==202

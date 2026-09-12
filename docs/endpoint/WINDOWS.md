@@ -156,6 +156,9 @@ data directory only under separate operator policy. No global cleanup command.
 Discovery refreshes every 30 ticks, health every 10 ticks. States are `supported`,
 `active`, `degraded`, `permission_missing`, `unsupported`. Polling gaps are explicitly
 reported even when active. More privileges are not automatically requested.
+Lifecycle event labels explicitly mean first-seen/no-longer-visible snapshots,
+not complete start/stop auditing. An inaccessible process can disappear from the
+snapshot without exiting. AI evidence carries server-derived approval status.
 
 ## Spool and delivery
 
