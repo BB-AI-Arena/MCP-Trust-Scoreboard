@@ -8,7 +8,7 @@ Updated: 2026-09-11
 - Starting SHA: `c501d2a5b5e374a98f3e8c9f7ef570a6d36621b2`
 - Feature implementation ending SHA: `ee0134a77d9e1f373efafb01044e13ce1abc23ac` (`feat: establish vendor-neutral agent trust platform core`)
 - Previous synchronized handoff SHA: `304a3ca1f224bcdc416875f40dce8d177079abef`
-- Current implementation commit: `c54c9ec` (`test: cover legacy workspace contracts`)
+- Current implementation commit: `b36dd89` (`ci: install legacy contract dependencies`)
 - Branch: `feat/agent-trust-platform-v2-alpha1`
 - Proposed application version: `2.0.0-alpha.1` (`2.0.0a1` Python metadata)
 - Release state: unreleased; no tag, package, image, or GitHub release published
@@ -35,6 +35,10 @@ Updated: 2026-09-11
   client error instead of being converted to a 500. Added explicit demo-mode
   metadata for seeded behavior examples and an experimental/limitations label
   for stylistic artifact signals.
+- Declared the legacy test dependencies in the root test extra and changed the
+  optional Gemini import to remain lazy when no key is configured. The first
+  remote rerun exposed these CI packaging gaps; the fix is pushed for another
+  remote run.
 
 ## Baseline before changes
 
@@ -80,13 +84,17 @@ for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-pr
   release/security gate; no `npm audit fix` was run because it could change
   lockfiles and behavior without review.
 - `git push origin feat/agent-trust-platform-v2-alpha1`: passed for commits
-  `c54c9ec` and `391a3b0`; the branch is synchronized with origin.
+  `c54c9ec`, `391a3b0`, `f9bd411`, and `b36dd89`; the branch is synchronized
+  with origin.
 - `scripts/prepare_release.py` validation: passed against the final exact
   SHA and generated only `/tmp/agent-trust-release-manifest-final.json`; no
   tag or publication occurred.
 - Remote PR checks before this continuation: Python, Compose, and all four
   frontend builds passed; security failed on the known frontend audit
-  vulnerabilities. The new push must rerun those checks.
+  vulnerabilities. The first new run also failed Python because legacy test
+  dependencies were not installed and failed Python audit because it inspected
+  the runner's global environment; both workflow issues were corrected in
+  `b36dd89`.
 
 License check: no `LICENSE` file exists in the checkout, while the historical
 README declared MIT. This branch flags the discrepancy and does not relicense
@@ -121,6 +129,9 @@ reviewed provider migration.
 
 - Slice delivered: legacy route/response contract coverage and explicit demo /
   experimental limitations (ATP-A3 dependency-ready slice).
+- CI packaging follow-up: root test extras now install the dependencies needed
+  by the preserved legacy route tests; the optional legacy Gemini provider no
+  longer prevents rules-only startup when its SDK is absent.
 - Remaining Phase A gates: live PostgreSQL integration/recovery tests,
   frontend critical dependency remediation, complete legacy flow acceptance,
   and maintainer review/merge. ATP-A3 is not marked complete.
