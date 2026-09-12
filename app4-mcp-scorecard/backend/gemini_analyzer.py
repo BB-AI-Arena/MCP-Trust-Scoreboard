@@ -5,14 +5,11 @@ Analyzes MCP tool definitions using Gemini 2.0 Flash for security insights.
 
 import json
 import os
-import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
 
 _api_key = os.getenv("GEMINI_API_KEY", "")
-if _api_key:
-    genai.configure(api_key=_api_key)
 
 SYSTEM_PROMPT = (
     "You are a security analyst. Analyze these MCP tool definitions for suspicious behavior, "
@@ -40,6 +37,16 @@ def analyze_tools(tool_definitions: list) -> dict:
     if not _api_key:
         result = dict(_FALLBACK)
         result["risk_flags"] = ["Gemini API key not configured — set GEMINI_API_KEY in .env"]
+        return result
+
+    # Keep the optional provider out of the import path for rules-only scans.
+    # A missing SDK is an unavailable provider, never a startup failure.
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=_api_key)
+    except Exception as exc:  # noqa: BLE001
+        result = dict(_FALLBACK)
+        result["risk_flags"] = [f"Gemini provider unavailable: {exc}"]
         return result
 
     prompt = (
