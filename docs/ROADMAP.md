@@ -5,8 +5,8 @@ Stable IDs are used for issues, board items, commits, and handoffs.
 | ID | Target | Scope | Acceptance gate | Status |
 | --- | --- | --- | --- | --- |
 | ATP-A1 | 2.0.0-alpha.1 | Neutral naming, namespace, contracts, safe config, baseline CI | Import/version/branding checks | In progress |
-| ATP-A2 | 2.0.0-alpha.1 | PostgreSQL records, job ledger, authenticated migration API | Persistence, retries, fencing, auth tests | In progress |
-| ATP-A3 | 2.0.0-alpha.1 | Legacy flow compatibility and honest docs | Four services remain runnable; demo limitations labeled | In progress |
+| ATP-A2 | 2.0.0-alpha.1 | PostgreSQL records, job ledger, authenticated migration API | Persistence, retries, fencing, auth tests | In review (repair #15) |
+| ATP-A3 | 2.0.0-alpha.1 | Legacy flow compatibility and honest docs | Four services remain runnable; demo limitations labeled | In review (partial) |
 | ATP-B1 | 2.0.0-alpha.2 | Real MCP stdio/Streamable HTTP and OpenAPI import | Local fixture protocol tests and safe egress | Planned |
 | ATP-B2 | 2.0.0-alpha.2 | Evidence, verification, snapshots, drift | Claimed/verified/observed states and diff tests | Planned |
 | ATP-C1 | 2.0.0-beta.1 | Durable behavior events and baselines | Auth, duplicates, late data, warm-up tests | Planned |
@@ -17,6 +17,6 @@ Stable IDs are used for issues, board items, commits, and handoffs.
 
 Runtime repair continuation: PR #12 is merged, but Phase A is not complete.
 Feature/UI work is paused. ATP-A2 persistence and ATP-A3 dependency remediation
-are being validated on `fix/runtime-postgres-release-gates`. Release remains
-blocked until runtime, PostgreSQL, audit, and broader release gates are verified.
+passed local and remote CI on `fix/runtime-postgres-release-gates` (PR #15).
+Release remains blocked for review and broader legacy/runtime/security gates.
 See [implementation status](IMPLEMENTATION_STATUS.md) for measured results.

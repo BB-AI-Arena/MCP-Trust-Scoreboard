@@ -8,14 +8,15 @@ Updated: 2026-09-11 (America/Chicago). New features and UI work are paused.
 - Starting main SHA: `31887614cf49dc93c31994945e107ab8339ca3ff` (clean checkout).
 - Ending implementation SHA: `7ad048a77f05b6faff22e4e8d5bcdc0e39d4df53`.
   Subsequent handoff-only commits do not change the tested implementation.
+- Remotely validated handoff SHA: `5b175af1f94246bea604d5abf2b2ea3510c1eb9b`.
 - Branch: `fix/runtime-postgres-release-gates`, based on `main`.
 - **PR #12 is already merged**, at `19628da7e01603f6a35285048a86e2d7e7f9de7b`
   on 2026-09-12 00:19:57 UTC. Prior text saying it was open was stale.
   README/license PRs #13/#14 are also merged. Their appearance and MIT terms
   are unchanged by this repair.
 - Proposed application version remains `2.0.0-alpha.1` (`2.0.0a1` Python).
-- **Release remains blocked.** Local checks requested for this slice pass;
-  remote CI/review and broader release acceptance are separate gates. Phase A
+- **Release remains blocked.** Local checks, remote CI, and exact-SHA manual
+  preparation pass; review and broader release acceptance remain gates. Phase A
   and later milestones are not complete. Nothing was merged or published in
   this repair run; no tags, GitHub release, packages, or images were published.
 
@@ -136,9 +137,26 @@ Those release-wide gaps are not replaced by a green checksum manifest.
   [ATP-D1 #8](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/8).
 - Existing private project: https://github.com/users/BB-AI-Arena/projects/1
   PR #12 is Done; the epic is Blocked rather than implicitly complete.
-- Repair PR/push and remote CI: pending, to be recorded after read-back.
-  No failed permission requests or access-scope changes.
+- Repair PR: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/15
+  **Open / In review**, head `fix/runtime-postgres-release-gates`, base `main`.
+  Branch: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/tree/fix/runtime-postgres-release-gates
+- `git push -u origin fix/runtime-postgres-release-gates`: passed; remote head
+  and PR base/head were read back. Main remains at the starting SHA. Related
+  issue comments, reopened epic, and board mutations were also read back.
+- [Push CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34667430426)
+  and [PR CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34667466073):
+  **all eight jobs passed** at `5b175af1f94246bea604d5abf2b2ea3510c1eb9b`.
+  The remote runtime job independently reports **13 passed**, no skips.
+- `gh workflow run release-prepare.yml --repo BB-AI-Arena/MCP-Trust-Scoreboard --ref fix/runtime-postgres-release-gates -f version=2.0.0-alpha.1 -f source_sha=5b175af1f94246bea604d5abf2b2ea3510c1eb9b`:
+  [manual preparation](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34667511352)
+  **passed**, including exact-SHA validation, all eight reusable CI jobs and
+  checksum preparation. The manifest was generated locally on that runner;
+  it is not a published release, SBOM, uploaded artifact, or approval.
+- No failed/pending GitHub mutations, permission requests, or access-scope
+  changes. PR review is pending. Handoff-only tip commits can retrigger CI;
+  current results are visible on the PR without rewriting the exact tested SHA
+  recorded above. No merge/publication was requested by these workflows.
 
-Next dependency-ready task: review this runtime repair against remote CI, then
+Next dependency-ready task: review this runtime repair with its passing CI, then
 complete ATP-A3's full legacy runtime/browser acceptance and ATP-D1's
 container-scan/SBOM/release gates. Keep new features/UI work paused.
