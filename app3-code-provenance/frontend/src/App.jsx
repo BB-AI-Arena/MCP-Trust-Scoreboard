@@ -4,6 +4,7 @@ import ProvenanceMap from './components/ProvenanceMap.jsx';
 import RiskBreakdown from './components/RiskBreakdown.jsx';
 import SnippetViewer from './components/SnippetViewer.jsx';
 import ReportExport from './components/ReportExport.jsx';
+import { legacyResult } from './legacyResult.js';
 
 // ─── Nav links ───────────────────────────────────────────────
 const NAV_LINKS = [
@@ -86,7 +87,9 @@ export default function App() {
 
       setScanProgress(100);
       await new Promise((r) => setTimeout(r, 400));
-      setResults({ ...data, type });
+      setResults(type === 'repo'
+        ? { ...data, files: data.files.map(file => legacyResult(file)), type }
+        : { ...legacyResult(data, code), type });
       setAppState('results');
     } catch (err) {
       setError(err.message || 'Scan failed');
@@ -234,6 +237,7 @@ export default function App() {
         {/* RESULTS */}
         {appState === 'results' && results && (
           <div id="provenance-results" className="animate-slide-up">
+            <p role="note">Experimental stylistic signals — not verified authorship or an approval gate. Hosted analysis may be unavailable.</p>
             {/* Results header bar */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">

@@ -75,6 +75,7 @@ export default function ExportButton() {
 
   return (
     <button
+      data-html2canvas-ignore="true"
       onClick={handleExport}
       disabled={exporting}
       className={[

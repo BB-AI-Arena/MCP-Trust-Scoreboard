@@ -13,6 +13,7 @@ Result key: koi:scan:result:{job_id}  (Redis SET with TTL)
 
 from __future__ import annotations
 
+import asyncio
 import importlib.util
 import json
 import logging
@@ -133,7 +134,7 @@ def process_code_provenance(payload: dict) -> dict:
 
     provenance = provenance_detector.detect_provenance(code, language)
     risks = code_risk_scanner.scan_code(code, language)
-    verdict = gemini_analyzer.analyze_snippet(code, provenance, risks)
+    verdict = asyncio.run(gemini_analyzer.analyze_snippet(code, provenance, risks))
     return {"filename": filename, "language": language, "provenance": provenance, "risks": risks, "gemini": verdict}
 
 

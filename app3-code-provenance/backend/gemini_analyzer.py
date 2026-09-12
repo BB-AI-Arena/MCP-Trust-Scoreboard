@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # Gemini client setup (lazy — only initialized if API key is present)
 # ---------------------------------------------------------------------------
 
-GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_API_KEY: str = (os.environ.get("GEMINI_API_KEY", "") if os.getenv("AGENT_TRUST_HOSTED_ANALYSIS", "false").lower() == "true" else "")
 GEMINI_MODEL: str = "gemini-2.0-flash"
 
 _genai = None

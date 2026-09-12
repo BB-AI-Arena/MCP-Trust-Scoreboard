@@ -14,6 +14,7 @@ export default function ReportExport() {
 
       const element = document.getElementById('provenance-results');
       if (!element) throw new Error('Results element not found');
+      await document.fonts.ready;
 
       // Capture with html2canvas
       const canvas = await html2canvas(element, {
@@ -21,6 +22,14 @@ export default function ReportExport() {
         scale: 1.5,
         useCORS: true,
         logging: false,
+        onclone: (document) => {
+          // A click during the entrance animation must not capture its initial
+          // opacity:0 frame. Change only the isolated export document.
+          const results = document.getElementById('provenance-results');
+          results.style.animation = 'none';
+          results.style.opacity = '1';
+          results.style.transform = 'none';
+        },
         windowWidth: element.scrollWidth,
         windowHeight: element.scrollHeight,
       });
@@ -50,7 +59,7 @@ export default function ReportExport() {
       pdf.setTextColor(0, 212, 255);
       pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Code Provenance Report', 40, 50);
+      pdf.text('Artifact Assurance Report', 40, 50);
 
       pdf.setTextColor(107, 122, 153);
       pdf.setFontSize(10);
@@ -121,6 +130,7 @@ export default function ReportExport() {
 
   return (
     <button
+      data-html2canvas-ignore="true"
       onClick={handleExport}
       disabled={status === 'loading'}
       className={[

@@ -118,9 +118,23 @@ Artifacts ────────┘          │             │
 ```bash
 git clone https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard.git
 cd MCP-Trust-Scoreboard
-cp .env.example .env
-docker compose up --build
+python3 scripts/configure_local.py
+docker compose config --format json | python3 scripts/validate_deployment.py
+docker compose up --build -d --wait
 ```
+
+Fresh installations need Python 3.11+ and Docker Engine with Compose v2+.
+The generator creates a private `.env` with random local credentials and refuses
+to overwrite an existing file. **For an existing installation, retain its database
+credentials and volumes**; replace only placeholder API tokens with a new random
+token. Changing `POSTGRES_PASSWORD` does not change an initialized database's password.
+See [upgrade, backup and rollback](docs/ALPHA_ACCEPTANCE.md#installation-and-data).
+
+All published ports bind to loopback; PostgreSQL/Redis have no host ports. The
+four legacy workspaces are unauthenticated local demonstrations. Do not expose
+them through a public proxy, tunnel, or nonlocal port override. Only the modular
+API supports scoped authentication; remote deployment needs an intentional
+override, trusted TLS proxy and security review. This is not enterprise readiness.
 
 The Compose stack preserves the existing Postgres/Redis volume names and
 environment aliases. Redis is retained for legacy compatibility only; the
@@ -190,6 +204,11 @@ python -m compileall -q src tests
 for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-provenance/frontend app4-mcp-scorecard/frontend; do (cd "$d" && npm ci && npm run build); done
 docker compose config
 ```
+
+Run [full runtime/browser/security acceptance](docs/ALPHA_ACCEPTANCE.md) before
+considering a release. Those gates include real PostgreSQL, installed containers,
+browser downloads, backup/restore and container SBOM/scans. Release remains blocked
+until mandatory checks and maintainer review pass; green unit tests alone are insufficient.
 
 The test suite uses disposable SQLite databases only as a fast contract test;
 production and Compose configuration target PostgreSQL. Tests cover provider

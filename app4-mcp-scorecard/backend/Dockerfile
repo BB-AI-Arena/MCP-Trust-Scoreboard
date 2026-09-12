@@ -2,10 +2,12 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY app4-mcp-scorecard/backend/requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY app4-mcp-scorecard/backend /app/app4-mcp-scorecard/backend
+COPY shared /app/shared
+WORKDIR /app/app4-mcp-scorecard/backend
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1

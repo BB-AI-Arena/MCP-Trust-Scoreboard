@@ -1,0 +1,9 @@
+FROM postgres:15-alpine
+# Preserve PostgreSQL major/data paths. Use Alpine's maintained privilege-drop
+# utility with the same user+command interface used by the upstream entrypoint.
+# This removes the obsolete statically-linked Go runtime bundled in gosu.
+RUN apk upgrade --no-cache && apk add --no-cache su-exec \
+    && rm /usr/local/bin/gosu /usr/local/bin/su-exec
+# Keep removal and replacement distinct so image consumers see the old binary's
+# whiteout, not merely a changed symlink at a formerly executable path.
+RUN ln -s /sbin/su-exec /usr/local/bin/gosu && ln -s /sbin/su-exec /usr/local/bin/su-exec

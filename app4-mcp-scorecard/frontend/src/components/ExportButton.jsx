@@ -12,12 +12,24 @@ export default function ExportButton({ targetId = 'results-view' }) {
 
       const element = document.getElementById(targetId)
       if (!element) throw new Error('Results element not found')
+      await document.fonts.ready
+      // CSS animations restart in html2canvas's clone. Freeze only that clone;
+      // otherwise staggered dimension cards disappear from an immediate export.
 
       const canvas = await html2canvas(element, {
         backgroundColor: '#0A0E1A',
         scale: 2,
         useCORS: true,
         logging: false,
+        onclone: (document) => {
+          document.querySelectorAll(`#${targetId}, #${targetId} *`).forEach(node => {
+            if (document.defaultView.getComputedStyle(node).animationName !== 'none') {
+              node.style.animation = 'none'
+              node.style.opacity = '1'
+              node.style.transform = 'none'
+            }
+          })
+        },
       })
 
       const imgData = canvas.toDataURL('image/png')
@@ -39,6 +51,7 @@ export default function ExportButton({ targetId = 'results-view' }) {
 
   return (
     <button
+      data-html2canvas-ignore="true"
       onClick={handleExport}
       disabled={loading}
       className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface border border-border text-sm font-500 text-white hover:border-accent hover:text-accent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"

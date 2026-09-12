@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-_api_key = os.getenv("GEMINI_API_KEY", "")
+_api_key = (os.getenv("GEMINI_API_KEY", "") if os.getenv("AGENT_TRUST_HOSTED_ANALYSIS", "false").lower() == "true" else "")
 
 SYSTEM_PROMPT = (
     "You are a security analyst. Analyze these MCP tool definitions for suspicious behavior, "

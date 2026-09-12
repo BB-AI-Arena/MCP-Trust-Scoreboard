@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, "feat/**", "fix/**"]
+    branches: [main, "feat/**", "fix/**", "test/**"]
   pull_request:
-    branches: [main]
+    branches: [main, "fix/**"]
   workflow_call:
     inputs:
       source_sha:
@@ -75,7 +75,50 @@ jobs:
         with:
           ref: ${{ inputs.source_sha || github.sha }}
       - name: Validate Compose configuration
-        run: docker compose config
+        run: |
+          python3 scripts/configure_local.py --output .ci.env
+          docker compose --env-file .ci.env config --format json | python3 scripts/validate_deployment.py
+
+  full-stack-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
+      - name: Real stack, browser downloads, upgrade and backup/restore
+        run: |
+          python -m venv .acceptance-venv
+          . .acceptance-venv/bin/activate
+          python -m pip install -e '.[postgres,test,acceptance]'
+          python -m playwright install --with-deps chromium
+          pytest --run-acceptance tests/acceptance -v --junitxml=evidence/acceptance/junit.xml
+      - name: Retain traces, reports, image inventory and redacted logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: acceptance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/acceptance
+          retention-days: 14
+          if-no-files-found: error
+
+  container-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
+      - name: Scan actual release images and generate CycloneDX inventories
+        run: python3 scripts/scan_images.py
+      - name: Retain complete findings and SBOMs even when the gate fails
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: container-security-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/containers
+          retention-days: 14
+          if-no-files-found: error
 
   security:
     runs-on: ubuntu-latest

@@ -58,7 +58,7 @@ def analyze_blast_radius(
         "mitigations": list[str]
     }
     """
-    api_key = os.getenv("GEMINI_API_KEY", "").strip()
+    api_key = (os.getenv("GEMINI_API_KEY", "").strip() if os.getenv("AGENT_TRUST_HOSTED_ANALYSIS", "false").lower() == "true" else "")
     if not api_key:
         logger.warning("GEMINI_API_KEY not set — returning fallback analysis.")
         return {

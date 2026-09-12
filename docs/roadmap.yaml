@@ -1,7 +1,17 @@
 version: 1
 product: Agent Trust Platform
 release_state: blocked
-active_branch: fix/runtime-postgres-release-gates
+active_branch: test/alpha-release-acceptance
+base_branch: fix/runtime-postgres-release-gates
+dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/15
+acceptance_gates:
+  legacy_browser_and_downloads: implemented_in_review
+  container_recreation_upgrade_restore: implemented_in_review
+  deployment_boundaries: local_only_in_review
+  container_scan_sbom: blocked_findings
+  maintainer_approval: pending
+  deployed: false
+  published: false
 feature_ui_work: paused
 merged_foundation_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/12
 items:
@@ -34,5 +44,7 @@ items:
   - id: ATP-D1
     target: 2.0.0-rc.1
     title: Release and recovery gates
-    status: planned
+    status: blocked
+    alpha_gate_slice: true
+    remaining: [container_findings, maintainer_review, exact_source_release_gates]
     depends_on: [ATP-C1]

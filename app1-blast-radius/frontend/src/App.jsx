@@ -222,7 +222,7 @@ export default function App() {
       }
 
       const data = await response.json()
-      setAnalysisData(data)
+      setAnalysisData({ ...data, agent_name: formData.agent_name })
       setState('results')
     } catch (err) {
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
