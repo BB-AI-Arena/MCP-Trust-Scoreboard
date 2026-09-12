@@ -1,24 +1,116 @@
-# Agent Trust Platform
+<div align="center">
 
-Agent Trust Platform is a vendor-neutral security assessment and monitoring
-platform for AI agents. It is currently a single-tenant, local/self-hosted
-alpha. The project keeps the original repository URL and four working legacy
-workspaces while introducing a namespaced migration API.
+<img src="https://img.shields.io/badge/Proposed-2.0.0--alpha.1-00D4FF?style=for-the-badge&labelColor=0A0E1A" alt="proposed application version">
+<a href="https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/workflows/ci.yml"><img src="https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
+<img src="https://img.shields.io/badge/Python-3.10%2B-3572A5?style=for-the-badge&logo=python&logoColor=white&labelColor=0A0E1A" alt="Python 3.10 or newer">
+<img src="https://img.shields.io/badge/React-Vite-61DAFB?style=for-the-badge&logo=react&logoColor=white&labelColor=0A0E1A" alt="React and Vite">
+<img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white&labelColor=0A0E1A" alt="Docker Compose">
+
+<br/>
+
+<img src="https://img.shields.io/badge/Deployment-Local_%7C_Self--hosted-00FF9C?style=flat-square&labelColor=0A0E1A" alt="local or self-hosted deployment">
+<img src="https://img.shields.io/badge/Storage-PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white&labelColor=0A0E1A" alt="PostgreSQL storage">
+<img src="https://img.shields.io/badge/Assessment-Rules--first-FFB800?style=flat-square&labelColor=0A0E1A" alt="rules-first assessment">
+<img src="https://img.shields.io/badge/PRs-Welcome-00FF9C?style=flat-square&labelColor=0A0E1A" alt="pull requests welcome">
+
+<br/><br/>
+
+# 🛡️ Agent Trust Platform
+
+### Vendor-neutral security assessment and monitoring for AI agents
+
+Permission reach · Connector trust · Behavior signals · Artifact assurance
+
+Single-tenant, local/self-hosted alpha software for understanding what agents
+can access, what they actually do, and what evidence supports trust decisions.
+
+<br/>
+
+[**Explore the workspaces ↓**](#four-workspaces) &nbsp;·&nbsp;
+[**Quick start →**](#quick-start) &nbsp;·&nbsp;
+[**Technical plan →**](docs/TECHNICAL_PLAN.md)
+
+</div>
+
+---
+
+## Make agent access reviewable
+
+AI agents are becoming capable of reading sensitive data, invoking tools, and
+crossing service boundaries. Agent Trust Platform gives security and platform
+teams one local-first place to inspect that access, test trust assumptions, and
+retain the evidence behind an assessment.
+
+| Before deployment | During operation | During review |
+| --- | --- | --- |
+| Understand declared permissions, integrations, and connector risk. | Compare observed activity with an agent’s expected behavior. | Preserve findings, evidence, artifact signals, and deterministic decisions. |
+
+The product is designed for teams that need a practical security workbench
+before they are ready to send sensitive agent data to a shared SaaS service.
+It runs on a single-tenant local or self-hosted deployment, starts with
+rules-only analysis, and makes optional provider use explicit.
 
 ## Four workspaces
 
-| Workspace | Question | Existing local flow |
+| | Workspace | Security question | Capability today |
+| --- | --- | --- | --- |
+| 🔵 | **Tool and Connector Trust** | What should be trusted before an agent connects? | Manifest scorecard, domain checks, permission signals |
+| 🟣 | **Agent Access / Blast Radius** | What can an agent reach under declared permissions? | Interactive permission graph and attack paths |
+| 🟢 | **Behavior Monitoring** | Is observed activity outside its baseline? | Baseline metrics, anomaly detection, event contract |
+| 🟠 | **Code and Artifact Assurance** | What evidence supports an artifact decision? | Static security checks and clearly labeled provenance signals |
+
+### Capabilities at a glance
+
+| Capability | Available in this alpha | Boundary |
 | --- | --- | --- |
-| Tool and Connector Trust | What should be trusted before an agent connects? | MCP manifest scorecard |
-| Agent Access / Blast Radius | What can an agent reach under declared permissions? | Permission graph |
-| Behavior Monitoring | Is observed activity outside its baseline? | Metric ingestion and anomaly detection |
-| Code and Artifact Assurance | What security evidence exists for an artifact? | Static checks and provenance signals |
+| Rules-first assessment | Yes | Deterministic findings run without API keys. |
+| Agent access mapping | Yes | Current graph inputs are declared permissions and integrations; observed authorization is a roadmap item. |
+| Durable state and jobs | Yes | PostgreSQL is the durable target; Redis remains a legacy compatibility cache. |
+| Provider adapters | Yes | Optional Gemini, OpenAI-compatible, and AbuseIPDB adapters expose explicit unavailable states. |
+| Evidence model | Foundation | Versioned evidence fields exist; broader collector coverage is in the next milestone. |
+| Live MCP/OpenAPI discovery | Planned | No submitted tool or operation is executed by default. |
+| Inline enforcement | Planned for 2.1 | This alpha assesses and observes; it does not quarantine or block requests. |
 
 The existing React/D3/Recharts visualizations and FastAPI routes remain
 available on ports 5173–5176. They are compatibility demonstrations: seeded
 behavior data, heuristic attribution, and optional provider output are labeled
 as such. A heuristic is not proof of authorship, and a signed build is not
 proof that code is safe.
+
+## Built for security and platform teams
+
+- **Security engineering** gets a repeatable way to review agent reach,
+  connector exposure, findings, and evidence without depending on a hosted
+  control plane.
+- **Platform engineering** gets a versioned API, PostgreSQL-backed records,
+  fenced jobs, scoped capabilities, and compatibility routes for incremental
+  adoption.
+- **Application and agent owners** get a visual assessment workflow that turns
+  a permission list into understandable paths, risks, and mitigations.
+
+The product’s core promise is deliberately concrete: make access and trust
+assumptions visible, preserve uncertainty instead of inventing confidence, and
+keep deterministic policy decisions separate from optional model analysis.
+
+## Why this architecture
+
+```text
+Declared access ──┐
+Observed events ───┼──> Evidence ──> Assessment ──> Reviewable findings
+Artifacts ────────┘          │             │
+                             └──> Graph / behavior / assurance views
+```
+
+- **Vendor-neutral:** adapters declare whether they assess, inventory,
+  observe, or enforce; no closed-product integration is implied by a name.
+- **Local-first:** loopback defaults, scoped bearer auth, redaction controls,
+  bounded requests, and explicit hosted-data opt-in are part of the baseline.
+- **Operationally durable:** PostgreSQL stores records and the job ledger;
+  leases, fencing, idempotency, and bounded retries make recovery behavior
+  visible and testable.
+- **Honest by design:** claimed, verified, observed, unavailable, and unknown
+  states remain distinct. Confidence is not presented as a calibrated
+  probability.
 
 ## Quick start
 
