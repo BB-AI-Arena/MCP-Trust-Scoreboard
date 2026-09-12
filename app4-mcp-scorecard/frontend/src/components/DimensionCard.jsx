@@ -94,6 +94,7 @@ export default function DimensionCard({ dimension, data, index }) {
       <div className="h-1.5 bg-surface rounded-full overflow-hidden">
         <div
           ref={barRef}
+          data-report-width={`${data.score}%`}
           className={`h-full rounded-full ${getBarColor(data.score)}`}
           style={{ width: '0%' }}
         />

@@ -11,7 +11,7 @@ from acceptance_stack import AcceptanceStack
 
 @pytest.fixture(scope="session")
 def stack():
-    instance = AcceptanceStack(os.getenv("ACCEPTANCE_EVIDENCE", "evidence/acceptance"))
+    instance = AcceptanceStack(os.getenv("ACCEPTANCE_EVIDENCE", "evidence/acceptance"), delayed_pg_init=True)
     try:
         instance.build()
         instance.start()

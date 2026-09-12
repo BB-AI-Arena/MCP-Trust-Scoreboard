@@ -23,10 +23,16 @@ export default function ExportButton({ targetId = 'results-view' }) {
         logging: false,
         onclone: (document) => {
           document.querySelectorAll(`#${targetId}, #${targetId} *`).forEach(node => {
+            node.style.transition = 'none'
             if (document.defaultView.getComputedStyle(node).animationName !== 'none') {
               node.style.animation = 'none'
               node.style.opacity = '1'
               node.style.transform = 'none'
+            }
+            if (node.dataset.reportWidth) node.style.width = node.dataset.reportWidth
+            if (node.dataset.reportOffset) {
+              node.style.strokeDashoffset = node.dataset.reportOffset
+              node.setAttribute('stroke-dashoffset', node.dataset.reportOffset)
             }
           })
         },

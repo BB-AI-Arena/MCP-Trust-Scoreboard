@@ -99,6 +99,11 @@ def test_connector_manifest_results_report(browser_page, stack):
     assert response.value.status == 200
     assert "not configured" in json.dumps(response.value.json())
     page.locator("#results-view").wait_for()
+    result = response.value.json()
+    ring = page.locator("circle[data-report-offset]")
+    circumference = float(ring.get_attribute("stroke-dasharray"))
+    assert float(ring.get_attribute("data-report-offset")) == pytest.approx(circumference * (1 - result["overall_score"] / 100))
+    assert page.locator("[data-report-width]").count() == len(result["dimensions"])
     report(page, folder, "Export PDF", "#results-view", ["Trust Rating", "Overall Score", "not configured"])
 
 

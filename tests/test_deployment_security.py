@@ -22,6 +22,7 @@ def test_real_compose_is_loopback_without_database_publication(compose_config):
     validate(compose_config)
     assert not compose_config["services"]["postgres"].get("ports")
     assert not compose_config["services"]["redis"].get("ports")
+    assert "-h 127.0.0.1" in compose_config["services"]["postgres"]["healthcheck"]["test"][1]
     for service in compose_config["services"].values():
         assert all(p["host_ip"] == "127.0.0.1" for p in service.get("ports", []))
 

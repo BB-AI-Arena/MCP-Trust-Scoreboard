@@ -4,6 +4,7 @@ release_state: blocked
 active_branch: test/alpha-release-acceptance
 base_branch: fix/runtime-postgres-release-gates
 dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/15
+acceptance_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/16
 acceptance_gates:
   legacy_browser_and_downloads: implemented_in_review
   container_recreation_upgrade_restore: implemented_in_review

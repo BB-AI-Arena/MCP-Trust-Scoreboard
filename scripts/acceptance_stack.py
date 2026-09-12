@@ -22,7 +22,7 @@ def run(args, *, timeout=120, check=True, **kwargs):
 
 
 class AcceptanceStack:
-    def __init__(self, evidence):
+    def __init__(self, evidence, *, delayed_pg_init=False):
         self.project = "atp-acceptance-" + uuid.uuid4().hex[:12]
         self.evidence = Path(evidence).resolve()
         self.evidence.mkdir(parents=True, exist_ok=True)
@@ -35,6 +35,8 @@ class AcceptanceStack:
         raw = run(["docker", "compose", "--env-file", str(self.directory / ".env"), "-f", str(ROOT / "docker-compose.yml"), "config", "--format", "json"], env=self.env)
         config = json.loads(raw.stdout)
         config["name"] = self.project
+        if delayed_pg_init:
+            config["services"]["postgres"]["volumes"].append({"type": "bind", "source": str(ROOT / "tests/acceptance/fixtures/slow-init.sql"), "target": "/docker-entrypoint-initdb.d/acceptance.sql", "read_only": True})
         for name, service in config["services"].items():
             if "build" in service:
                 service["image"] = f"{self.project}-{name}:test"

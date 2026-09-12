@@ -34,6 +34,8 @@ or editable source installation; test tools live only on the runner.
 `AcceptanceStack` resolves the **root Compose file** using fresh generated dummy
 credentials, then gives resources unique `atp-acceptance-*` names and ephemeral
 loopback ports. Healthcheck frequency and CPU/memory limits are test-only overrides.
+A read-only initialization SQL fixture delays the temporary PostgreSQL server;
+the real health check must wait for final TCP readiness, avoiding premature workers.
 Real API, Nginx, worker, PostgreSQL and Redis services are used. No HTTP route
 interception replaces them. Provider keys are absent and hosted analysis disabled;
 unit/contracts separately simulate optional-provider errors. Live hosted providers
@@ -115,6 +117,9 @@ image, and included in the image scanner's CycloneDX output. Both OS and applica
 packages are scanned. No checksum manifest is represented as an SBOM.
 
 The scanner is official Trivy 0.74.0 pinned by image digest in `scan_images.py`.
+Method references: [Trivy image scanning](https://trivy.dev/docs/latest/guide/target/container_image/),
+[Playwright containers](https://playwright.dev/python/docs/docker), and
+[pip vendoring policy](https://pip.pypa.io/en/latest/development/vendoring-policy/).
 Only its database download has network access; image archives are processed
 offline in a bounded container with **no Docker socket or host credentials**.
 Record scanner version/digest, database UpdatedAt/DownloadedAt (max age 48 hours),
