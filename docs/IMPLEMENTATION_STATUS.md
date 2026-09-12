@@ -62,6 +62,41 @@ scripts/windows_acceptance.py` and `git diff --check` passed. No production code
 gate or assertion threshold changed for this harness repair.
 All changes are in review, not merged/approved/published. No GitHub operations failed.
 
+## Verified implementation-head handoff
+
+Implementation ending SHA **`1a5eefa8bdf7d3d9ee2c15156270ec9bc90c64bf`**;
+subsequent handoff-only documentation commits do not change the implementation.
+[Push CI 34680187103](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34680187103)
+and PR CI **34680189468** passed all ten existing jobs. This includes the real
+PostgreSQL/runtime suite (**19 tests, zero failures/skips**, retained JUnit), four
+frontend builds, full-stack/browser/report/persistence acceptance, deployment
+checks, secret protections, dependency scans and container evidence generation.
+[Windows push 34680187120](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34680187120)
+and PR Windows **34680189435** passed. Downloaded artifact **10293223676**:
+Windows Server 2022 x64 build **20348**, runner **20260907.297.1**, **eight native
+tests**, full foreground pipeline; **10 offline events recovered**, replay count
+**exactly one** in PostgreSQL, **five accepted findings / six receiver attempts**,
+**zero blocking actions**. Sensor executable SHA-256:
+`3c22332a69841751a1ee091410a4a13df3df88dbd53b2d3eb8d422a0481c9171`.
+
+Downloaded container artifact **10293112740**: **41 checksums verified**, source
+matches the implementation head, **13 service identities / 12 distinct images**,
+scans completed with dependency findings still present. Raw reports and CycloneDX
+SBOMs retained; findings remain accepted/informational, not described as clean.
+Runtime artifact **10293478318** and dependency artifact **10293957572** are retained
+on the same run. Actual final branch/PR head and its CI readback are also recorded
+on [PR #23](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/23); no inherited
+pass or prior SHA is substituted for that final check.
+
+Rechecked dependency stack: #15/#16/#17/#19/#21 still OPEN; base remains PR #21,
+not main. [Issue #22](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/22)
+and its dedicated Project item remain In review. Platform **2.0.0-alpha.1 remains
+unreleased**. No merge, deployment, tag, publication, credential change or operator
+database/volume operation occurred. Backup/rollback: preserve additive migration
+005 and records, stop sensor ingestion and reconcile pending endpoint jobs before
+rolling code back; do not delete data/volumes. Metadata paths/SIDs remain sensitive;
+private ACLs, scoped roots and retention/reconciliation are operator responsibilities.
+
 Known limitations: polling misses short-lived activity; no file-writer association,
 DNS/UDP, payloads, source-code read proof, complete inventory, learned baseline,
 production signing/updater, validated dedicated-account SCM deployment or enforcement.

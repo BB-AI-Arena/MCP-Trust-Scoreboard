@@ -17,6 +17,20 @@ Exact final-source evidence is linked in PR #23; do not infer it from this earli
 snapshot. Windows 10/11, ARM64 and other service-account configurations are not yet
 validated. Cross-compilation alone is not a Windows-support claim.
 
+Latest verified implementation source **1a5eefa8bdf7d3d9ee2c15156270ec9bc90c64bf**:
+[Windows run 34680187120](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34680187120)
+(artifact **10293223676**) and PR run 34680189435 passed **eight native tests**
+and the foreground scenario on the same Windows build/image. Ten offline events
+recovered; exactly one persisted replay record; five findings accepted after six
+webhook attempts; zero blocking actions. Binary SHA-256:
+`3c22332a69841751a1ee091410a4a13df3df88dbd53b2d3eb8d422a0481c9171`.
+All ten existing CI jobs also passed (34680187103 / 34680189468).
+An earlier run 34679870733 failed a replay-count assertion using moving offset
+pages. The repaired harness verifies multiplicity in a single PostgreSQL snapshot;
+a regression deliberately inserts a true duplicate and confirms it is not hidden.
+Raw failure evidence remains retained. Subsequent documentation-only heads and
+their exact CI results are recorded on PR #23.
+
 The acceptance harness uses real Toolhelp, IP Helper, file identities, DPAPI,
 registry/OS inventory, API, worker and disposable PostgreSQL. Cursor discovery uses
 a benign helper at a fixture installation path, not an installed commercial IDE.
