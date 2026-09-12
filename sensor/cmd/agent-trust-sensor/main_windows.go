@@ -25,18 +25,17 @@ func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, stat
 	status <- svc.Status{State: svc.StartPending, WaitHint: 30000}
 	// Ephemeral StartService input, never ImagePath/process arguments or config.
 	// Only an explicit operator start enrolls. Recovery never reenrolls.
-	if len(args) < 5 || args[1] != "service" || args[2] != "--config" || args[4] != "--name" {
-		return false, 4
-	}
-	if len(args) > 5 {
-		bootstrap := args[len(args)-1]
-		if strings.HasPrefix(bootstrap, "-") || len(bootstrap) < 32 {
-			return false, 4
+	var bootstrap string
+	for _, arg := range args {
+		if regexp.MustCompile(`^[A-Za-z0-9]{32,}$`).MatchString(arg) {
+			bootstrap = arg
+			break
 		}
+	}
+	if bootstrap != "" {
 		if err := sensor.Enroll(s.config, bootstrap); err != nil {
 			return false, 3
 		}
-		args[len(args)-1] = ""
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
