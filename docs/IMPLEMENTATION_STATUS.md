@@ -7,6 +7,7 @@ Updated: 2026-09-11
 - Repository: `BB-AI-Arena/MCP-Trust-Scoreboard`
 - Starting SHA: `c501d2a5b5e374a98f3e8c9f7ef570a6d36621b2`
 - Feature implementation ending SHA: `ee0134a77d9e1f373efafb01044e13ce1abc23ac` (`feat: establish vendor-neutral agent trust platform core`)
+- Current synchronized handoff SHA: `aa09ef7440325843a203623ae37cb72ca8d443a9`
 - Branch: `feat/agent-trust-platform-v2-alpha1`
 - Proposed application version: `2.0.0-alpha.1` (`2.0.0a1` Python metadata)
 - Release state: unreleased; no tag, package, image, or GitHub release published
@@ -68,6 +69,8 @@ for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-pr
 - `scripts/prepare_release.py` validation: passed against the final exact
   SHA and generated only `/tmp/agent-trust-release-manifest-final.json`; no
   tag or publication occurred.
+- Remote PR checks: Python, Compose, and all four frontend builds passed;
+  security failed on the known frontend audit vulnerabilities.
 
 License check: no `LICENSE` file exists in the checkout, while the historical
 README declared MIT. This branch flags the discrepancy and does not relicense
