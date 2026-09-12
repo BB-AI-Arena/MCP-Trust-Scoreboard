@@ -1,9 +1,38 @@
-# Agent Trust Platform
+<div align="center">
 
-Agent Trust Platform is a vendor-neutral security assessment and monitoring
-platform for AI agents. It is currently a single-tenant, local/self-hosted
-alpha. The project keeps the original repository URL and four working legacy
-workspaces while introducing a namespaced migration API.
+<img src="https://img.shields.io/badge/Proposed-2.0.0--alpha.1-00D4FF?style=for-the-badge&labelColor=0A0E1A" alt="proposed application version">
+<a href="https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/workflows/ci.yml"><img src="https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
+<img src="https://img.shields.io/badge/Python-3.10%2B-3572A5?style=for-the-badge&logo=python&logoColor=white&labelColor=0A0E1A" alt="Python 3.10 or newer">
+<img src="https://img.shields.io/badge/React-Vite-61DAFB?style=for-the-badge&logo=react&logoColor=white&labelColor=0A0E1A" alt="React and Vite">
+<img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white&labelColor=0A0E1A" alt="Docker Compose">
+
+<br/>
+
+<img src="https://img.shields.io/badge/Deployment-Local_%7C_Self--hosted-00FF9C?style=flat-square&labelColor=0A0E1A" alt="local or self-hosted deployment">
+<img src="https://img.shields.io/badge/Storage-PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white&labelColor=0A0E1A" alt="PostgreSQL storage">
+<img src="https://img.shields.io/badge/Assessment-Rules--first-FFB800?style=flat-square&labelColor=0A0E1A" alt="rules-first assessment">
+<img src="https://img.shields.io/badge/PRs-Welcome-00FF9C?style=flat-square&labelColor=0A0E1A" alt="pull requests welcome">
+
+<br/><br/>
+
+# 🛡️ Agent Trust Platform
+
+### Vendor-neutral security assessment and monitoring for AI agents
+
+Permission reach · Connector trust · Behavior signals · Artifact assurance
+
+Single-tenant, local/self-hosted alpha software for understanding what agents
+can access, what they actually do, and what evidence supports trust decisions.
+
+<br/>
+
+[**Explore the workspaces ↓**](#four-workspaces) &nbsp;·&nbsp;
+[**Quick start →**](#quick-start) &nbsp;·&nbsp;
+[**Technical plan →**](docs/TECHNICAL_PLAN.md)
+
+</div>
+
+---
 
 ## Four workspaces
 
