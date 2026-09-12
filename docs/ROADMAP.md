@@ -12,7 +12,7 @@ Stable IDs are used for issues, board items, commits, and handoffs.
 | ATP-C1 | 2.0.0-beta.1 | Durable behavior events and baselines | Auth, duplicates, late data, warm-up tests | Planned |
 | ATP-C2 | 2.0.0-beta.1 | Graph/artifact views and Python/JS SDKs | Multi-edge/cycle and telemetry mapping tests | Planned |
 | ATP-D1 | 2.0.0-rc.1 | Recovery, upgrade, compatibility, packaging, release prep | Fresh/upgrade/rollback/end-to-end gates | Alpha subset in review; dependency risk accepted, hardening deferred |
-| ATP-B3 | 2.0.0-alpha.1 | Connector framework, JSON evidence source, webhook finding destination | Authenticated durable end-to-end path with local receiver and retries | In progress |
+| ATP-B3 | 2.0.0-alpha.1 | Connector framework, JSON evidence source, webhook finding destination | Authenticated durable end-to-end path with local receiver and retries | Implemented for review (#18); live vendor validation not claimed |
 | ATP-E1 | 2.0.0 | Human-reviewed stable release | Maintainer review after D; no automatic release | Planned |
 | ATP-F1 | 2.1.0 | Optional inline enforcement and expiring approvals | Denied calls never reach upstream; replay-proof approvals | Planned |
 

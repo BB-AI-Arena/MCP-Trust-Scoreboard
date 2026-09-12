@@ -166,6 +166,8 @@ GET/POST /api/v1/agents              GET/POST /api/v1/connections
 GET/POST /api/v1/events              GET/POST /api/v1/findings
 GET/POST /api/v1/graphs               GET/POST /api/v1/assessments
 GET  /api/v1/jobs/{job_id}
+GET  /api/v1/connectors              GET /api/v1/evidence
+POST /api/v1/connectors/generic-json/events
 ```
 
 Assessment submission returns `202 Accepted` and a durable job ID. Jobs are
@@ -174,6 +176,12 @@ PostgreSQL `FOR UPDATE SKIP LOCKED`; lease tokens fence stale workers. Clients
 must provide idempotency keys for retried submissions. The API uses bounded
 pagination (`limit` 1–100), structured errors, bearer authentication, and
 scoped capabilities (`read`, `write`, `assess`).
+
+The [reference connector path](docs/CONNECTORS.md) accepts authenticated JSON,
+persists normalized evidence and rule findings, and delivers findings to an
+explicitly configured webhook through durable retryable jobs. Evidence sources,
+finding destinations and response authority are separate: delivery is not
+enforcement. Tested with real local HTTP/TLS endpoints, not live vendor services.
 
 ## Architecture
 

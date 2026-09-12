@@ -178,6 +178,12 @@ services:
     restart: unless-stopped
     command: ["agent-trust-worker"]
     environment:
+      AGENT_TRUST_WEBHOOK_URL: ${AGENT_TRUST_WEBHOOK_URL:-}
+      AGENT_TRUST_WEBHOOK_BEARER_TOKEN: ${AGENT_TRUST_WEBHOOK_BEARER_TOKEN:-}
+      AGENT_TRUST_WEBHOOK_ALLOWED_HOSTS: ${AGENT_TRUST_WEBHOOK_ALLOWED_HOSTS:-}
+      AGENT_TRUST_WEBHOOK_ALLOWED_CIDRS: ${AGENT_TRUST_WEBHOOK_ALLOWED_CIDRS:-}
+      AGENT_TRUST_WEBHOOK_ALLOW_HTTP: ${AGENT_TRUST_WEBHOOK_ALLOW_HTTP:-false}
+      AGENT_TRUST_WEBHOOK_TIMEOUT: ${AGENT_TRUST_WEBHOOK_TIMEOUT:-5}
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-koi}:${POSTGRES_PASSWORD:?Retain existing credentials or run scripts/configure_local.py for a fresh install}@postgres:5432/${POSTGRES_DB:-koi_security}
       AGENT_TRUST_API_TOKEN: ${AGENT_TRUST_API_TOKEN:?Run python3 scripts/configure_local.py first}
       AGENT_TRUST_AUTH_MODE: ${AGENT_TRUST_AUTH_MODE:-token}

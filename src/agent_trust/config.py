@@ -19,6 +19,12 @@ class Settings:
     provider_timeout_seconds: float = 10.0
     max_request_bytes: int = 2_000_000
     retention_days: int = 30
+    webhook_url: str = ""
+    webhook_token: str = ""
+    webhook_allowed_hosts: tuple[str, ...] = ()
+    webhook_allowed_cidrs: tuple[str, ...] = ()
+    webhook_allow_http: bool = False
+    webhook_timeout_seconds: float = 5.0
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -39,6 +45,12 @@ class Settings:
             provider_timeout_seconds=float(os.getenv("AGENT_TRUST_PROVIDER_TIMEOUT", defaults.provider_timeout_seconds)),
             max_request_bytes=int(os.getenv("AGENT_TRUST_MAX_REQUEST_BYTES", defaults.max_request_bytes)),
             retention_days=int(os.getenv("AGENT_TRUST_RETENTION_DAYS", defaults.retention_days)),
+            webhook_url=os.getenv("AGENT_TRUST_WEBHOOK_URL", "").strip(),
+            webhook_token=os.getenv("AGENT_TRUST_WEBHOOK_BEARER_TOKEN", "").strip(),
+            webhook_allowed_hosts=tuple(x.strip().lower() for x in os.getenv("AGENT_TRUST_WEBHOOK_ALLOWED_HOSTS", "").split(",") if x.strip()),
+            webhook_allowed_cidrs=tuple(x.strip() for x in os.getenv("AGENT_TRUST_WEBHOOK_ALLOWED_CIDRS", "").split(",") if x.strip()),
+            webhook_allow_http=os.getenv("AGENT_TRUST_WEBHOOK_ALLOW_HTTP", "false").lower() in {"true","1"},
+            webhook_timeout_seconds=float(os.getenv("AGENT_TRUST_WEBHOOK_TIMEOUT", defaults.webhook_timeout_seconds)),
         )
 
     def validate(self) -> None:
@@ -52,3 +64,5 @@ class Settings:
             raise ValueError("hosted analysis cannot be enabled with disabled API authentication")
         if self.max_request_bytes <= 0 or self.provider_timeout_seconds <= 0:
             raise ValueError("request size and provider timeout must be positive")
+        if not 0 < self.webhook_timeout_seconds <= 10:
+            raise ValueError("webhook timeout must be greater than zero and at most ten seconds")
