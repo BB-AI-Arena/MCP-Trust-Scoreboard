@@ -94,13 +94,15 @@ public static class AtpScmStart {
     var m=OpenSCManager(null,null,0xF003F); if(m==IntPtr.Zero) throw new Win32Exception();
     try {
       var s=OpenService(m,name,0x0010); if(s==IntPtr.Zero) throw new Win32Exception();
-      IntPtr text=IntPtr.Zero, argv=IntPtr.Zero;
+      IntPtr serviceText=IntPtr.Zero, text=IntPtr.Zero, argv=IntPtr.Zero;
       try {
+        serviceText=Marshal.StringToHGlobalUni(name);
         text=Marshal.StringToHGlobalUni(arg);
-        argv=Marshal.AllocHGlobal(IntPtr.Size);
-        Marshal.WriteIntPtr(argv,text);
-        if(!StartService(s,1,argv)) throw new Win32Exception();
-      } finally { if(argv!=IntPtr.Zero) Marshal.FreeHGlobal(argv); if(text!=IntPtr.Zero) Marshal.FreeHGlobal(text); CloseServiceHandle(s); }
+        argv=Marshal.AllocHGlobal(IntPtr.Size*2);
+        Marshal.WriteIntPtr(argv,0,serviceText);
+        Marshal.WriteIntPtr(argv,IntPtr.Size,text);
+        if(!StartService(s,2,argv)) throw new Win32Exception();
+      } finally { if(argv!=IntPtr.Zero) Marshal.FreeHGlobal(argv); if(text!=IntPtr.Zero) Marshal.FreeHGlobal(text); if(serviceText!=IntPtr.Zero) Marshal.FreeHGlobal(serviceText); CloseServiceHandle(s); }
     } finally { CloseServiceHandle(m); }
   }
 }
