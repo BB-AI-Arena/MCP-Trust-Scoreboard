@@ -43,6 +43,12 @@ class ServiceAcceptance:
             self.call('Install',extra=['-Source',str(executable),'-Config',str(config)],private=bootstrap,expected_failure=True)
             assert json.loads(before)['acls']==json.loads(self.call('Inspect'))['acls']
         except BaseException:
+            # Preserve bounded service diagnostics before cleanup removes only
+            # the SCM registration/executable. Never copy private credentials.
+            self.evidence.mkdir(parents=True, exist_ok=True)
+            for name in ('status.json','service-startup.error','service-args.json','counters.json'):
+                p=self.data/name
+                if p.exists(): (self.evidence/name).write_bytes(p.read_bytes())
             self.cleanup();raise
 
     def ps(self, script, *args):
