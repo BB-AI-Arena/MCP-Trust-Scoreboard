@@ -2,8 +2,9 @@
 from .falcon_source import CrowdStrikeSource
 from .json_source import GenericJSONSource
 from .webhook import WebhookDestination
+from .endpoint_source import WindowsEndpointSource
 
-SOURCES = {'generic-json':GenericJSONSource, 'crowdstrike-falcon':CrowdStrikeSource}
+SOURCES = {'generic-json':GenericJSONSource, 'crowdstrike-falcon':CrowdStrikeSource, 'windows-endpoint':WindowsEndpointSource}
 DESTINATIONS = {'webhook':WebhookDestination}
 
 

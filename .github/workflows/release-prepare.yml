@@ -36,7 +36,7 @@ jobs:
     with:
       source_sha: ${{ inputs.source_sha }}
   prepare:
-    needs: [validate, gates]
+    needs: [validate, gates, windows-gates]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -54,3 +54,8 @@ jobs:
         run: |
           sed -n '1,220p' "docs/releases/$RELEASE_VERSION.md"
           python3 -c 'import json; d=json.load(open("release-manifest.json")); print(d["version"], d["source_sha"], len(d["files"]), "files hashed")'
+  windows-gates:
+    needs: validate
+    uses: ./.github/workflows/windows-sensor.yml
+    with:
+      source_sha: ${{ inputs.source_sha }}

@@ -25,25 +25,30 @@ def complete_ingestion(ledger, job):
     source = job['payload'].get('source')
     if source not in SOURCES:
         raise ValueError('unregistered_evidence_source')
-    if source == 'generic-json':
+    if source == 'windows-endpoint':
+        evidence, findings, provider = {}, [], 'endpoint-rules'
+    elif source == 'generic-json':
         evidence, findings, provider = generic_records(job)
     else:
         evidence, findings, provider = SOURCES[source].records(job['payload'], job['id'])
-    result = {'evidence_id':evidence['id'], 'finding_ids':[f['id'] for f in findings],
+    result = {'evidence_id':'evidence-'+job['id'], 'finding_ids':[f['id'] for f in findings],
               'delivery_jobs':len(findings), 'provider':provider}
 
     def persist(connection, completed):
-        for kind, record in [('evidence',evidence)] + [('findings', f) for f in findings]:
+        local_evidence, local_findings = evidence, findings
+        if source == 'windows-endpoint':
+            local_evidence, local_findings, _ = SOURCES[source].records(job['payload'],job['id'],connection)
+        for kind, record in [('evidence',local_evidence)] + [('findings', f) for f in local_findings]:
             connection.execute(_insert(connection, records).values(id=record['id'],
                 workspace_id=job['workspace_id'], kind=kind, payload=json.dumps(record),
                 created_at=completed['created_at'], updated_at=completed['updated_at']))
         delivery_ids = []
-        for finding in findings:
+        for finding in local_findings:
             delivery = ledger.enqueue('finding_delivery', job['workspace_id'],
                 {'destination_id':'webhook','finding':finding},
                 idempotency_key='webhook:' + finding['id'], connection=connection)
             delivery_ids.append(delivery['id'])
-        return {'delivery_job_ids':delivery_ids}
+        return {'delivery_job_ids':delivery_ids,'finding_ids':[f['id'] for f in local_findings], 'delivery_jobs':len(local_findings)}
 
     return ledger.complete(job['id'], job['lease_token'], result, persist=persist)
 

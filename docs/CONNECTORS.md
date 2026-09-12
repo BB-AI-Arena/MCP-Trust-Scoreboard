@@ -10,6 +10,11 @@ command. Source/destination dispatch is registered; no response adapter is enabl
 Its additive migration 004 stores private collector checkpoints. The reference
 generic JSON behavior below remains unchanged (it does not use those checkpoints).
 
+The [Windows endpoint source](endpoint/WINDOWS.md) adds strict `endpoint-1` telemetry
+and device-scoped enrollment/revocation, not generic freeform content or the shared
+collector token. It reuses this worker/outbox and reports observe-only capabilities.
+Migration 005 holds private endpoint state. No response adapter is enabled.
+
 The generic JSON evidence source and webhook finding destination implement:
 
 ```text

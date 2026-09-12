@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add Windows Endpoint Sensor v0.1 observe-only source: native Go collectors,
+  persistent bounded spool, device enrollment/revocation, strict events and
+  PostgreSQL correlation through the existing finding/webhook path. Dedicated
+  Windows acceptance records real-versus-synthetic coverage; no enforcement.
+
 - Read-only CrowdStrike Falcon source: OAuth/Hosts/Alerts client, bounded sync-once,
   transactional checkpoints (migration 004), vendor evidence/finding revisions,
   explicit agent mappings and existing webhook delivery; local TLS/PostgreSQL

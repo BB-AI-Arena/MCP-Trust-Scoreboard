@@ -34,6 +34,9 @@ class ResponseAdapter(Protocol):
 
 
 DESCRIPTORS = [
+    {'id':'windows-endpoint','role':'evidence_source','schema_versions':['endpoint-1'],
+     'capabilities':['typed_endpoint_ingest','observe_only'], 'enforce':False,
+     'validation':'Windows CI required; per-collector coverage reported independently'},
     {'id':'generic-json','role':'evidence_source','schema_versions':['1'],
      'capabilities':['ingest'], 'enforce':False},
     {'id':'webhook','role':'finding_destination','schema_versions':['1'],

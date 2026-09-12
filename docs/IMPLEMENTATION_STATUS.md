@@ -1,4 +1,37 @@
-# Implementation status — read-only CrowdStrike source
+# Implementation status — Windows endpoint vertical slice (issue #22)
+
+Starting SHA `9aa41c1bdbd3c81c6bdf4ba5f33bf1035d18de43`. Rechecked GitHub and clean
+checkout: default main; #15/#16/#17/#19/#21 OPEN with unchanged heads; fetched safely.
+Branch `feat/windows-endpoint-sensor`, dependent base `feat/crowdstrike-evidence-source`
+(PR #21). No merging, deployment, publication, tags, credential changes or operator
+database/volume access. Platform stays unreleased **2.0.0-alpha.1**; sensor 0.1.0.
+Accepted dependency CVEs remain informational; scans/SBOMs/secret gates preserved.
+
+Implemented native Go Windows runtime/SCM handler, Toolhelp/TCP/registry/scoped
+file metadata and AI/MCP discovery, DPAPI identity, bounded persistent spool,
+device enrollment/revocation and typed API. Existing PostgreSQL worker transaction
+persists evidence, bounded explainable correlations, findings and webhook jobs.
+Migration 005 adds one private endpoint table; 001–004 unchanged. See
+[endpoint/WINDOWS.md](endpoint/WINDOWS.md) for setup, privacy, limits and rollback.
+
+Baseline `.venv/bin/pytest -o addopts= -q -ra`: **93 passed / 32 gated skips**, 25.61s.
+Initial endpoint `.venv/bin/pytest tests/test_endpoint.py -v --tb=short`: **10 passed**.
+Initial `.venv/bin/pytest --run-integration tests/integration/test_endpoint_runtime.py -v --tb=short`:
+**1 passed**, 10.35s, real PostgreSQL concurrent idempotency/correlation and local TLS
+receiver/retry. Existing generic connector tests passed (21). Go 1.26.8 portable
+spool/privacy/transport tests: **4 passed**. Windows x64 executable/tests cross-compile.
+Full local `.venv/bin/pytest -o addopts= -q -ra`: **103 passed / 33 gated skips**, 27.25s.
+`.venv/bin/pytest --run-integration tests/integration -v --tb=short --junitxml=evidence/endpoint-runtime/junit.xml`:
+**19 passed**, 207.06s, zero skips; existing 18 retained. Compileall/diff checks passed.
+Cross-compilation is NOT Windows validation: actual Windows workflow and final-head
+CI readback pending. No feature completeness or Windows-build claim yet.
+
+Known limitations: polling misses short-lived activity; no file-writer association,
+DNS/UDP, payloads, source-code read proof, complete inventory, learned baseline,
+production signing/updater, validated dedicated-account SCM deployment or enforcement.
+Issue #22 remains In progress until reviewed executable evidence; not Done.
+
+## Prior slice history — read-only CrowdStrike source
 
 ## Scope, source and review state
 

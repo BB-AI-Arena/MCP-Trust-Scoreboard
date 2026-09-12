@@ -51,6 +51,22 @@ connector_checkpoints = Table(
     Column("updated_at", String(40), nullable=False),
 )
 
+endpoints = Table(
+    'agent_trust_endpoints', metadata,
+    Column('id', String(128), primary_key=True),
+    Column('workspace_id', String(128), nullable=False, index=True),
+    Column('sensor_instance_id', String(128)),
+    Column('state', String(24), nullable=False),
+    Column('bootstrap_hash', String(64)),
+    Column('bootstrap_until', String(40)),
+    Column('token_hash', String(64)),
+    Column('policy', Text, nullable=False),
+    Column('health', Text, nullable=False),
+    Column('correlation', Text, nullable=False),
+    Column('last_seen', String(40)),
+    Column('created_at', String(40), nullable=False),
+)
+
 
 def make_engine(database_url: str):
     """Create an engine without opening a connection until it is used."""

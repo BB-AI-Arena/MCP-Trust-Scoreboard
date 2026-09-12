@@ -2,9 +2,11 @@ version: 1
 product: Agent Trust Platform
 release_state: awaiting_gates_and_maintainer_review
 dependency_policy: accepted_for_development_alpha_hardening_deferred
-active_branch: feat/crowdstrike-evidence-source
-base_branch: feat/json-webhook-connectors
-dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/19
+active_branch: feat/windows-endpoint-sensor
+base_branch: feat/crowdstrike-evidence-source
+dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/21
+endpoint_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/22
+windows_acceptance: pending
 falcon_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/20
 falcon_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/21
 connector_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/18
@@ -49,10 +51,11 @@ items:
     status: planned
     depends_on: [ATP-A2, ATP-A3]
   - id: ATP-C1
-    target: 2.0.0-beta.1
-    title: Durable behavior monitoring and SDKs
-    status: planned
-    depends_on: [ATP-B1]
+    target: 2.0.0-alpha.1
+    title: Windows Endpoint Sensor v0.1 observe-only vertical slice
+    status: in_progress
+    broader_baselines: planned
+    depends_on: [ATP-B4]
   - id: ATP-D1
     target: 2.0.0-rc.1
     title: Release and recovery gates
