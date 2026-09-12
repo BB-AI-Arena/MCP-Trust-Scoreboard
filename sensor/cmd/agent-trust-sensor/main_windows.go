@@ -21,6 +21,14 @@ import (
 
 type service struct{ config sensor.Config }
 
+func (s *service) failure(err error) {
+	if err == nil {
+		return
+	}
+	// Bounded diagnostic contains only a fixed error class/message; never tokens.
+	_ = os.WriteFile(filepath.Join(s.config.DataDir, "service-startup.error"), []byte(err.Error()), 0600)
+}
+
 func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, status chan<- svc.Status) (bool, uint32) {
 	status <- svc.Status{State: svc.StartPending, WaitHint: 30000}
 	// Ephemeral StartService input, never ImagePath/process arguments or config.
@@ -34,6 +42,7 @@ func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, stat
 	}
 	if bootstrap != "" {
 		if err := sensor.Enroll(s.config, bootstrap); err != nil {
+			s.failure(err)
 			return false, 3
 		}
 	}
@@ -46,6 +55,7 @@ func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, stat
 		select {
 		case err := <-done:
 			if err != nil {
+				s.failure(err)
 				return false, 1
 			}
 			return false, 0

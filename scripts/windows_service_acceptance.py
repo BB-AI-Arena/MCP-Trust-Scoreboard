@@ -64,6 +64,8 @@ class ServiceAcceptance:
             # context, so never include private-command output in failure logs.
             if private:
                 detail=(r.stderr or r.stdout).replace(private,'<redacted>')
+                error_path=self.data/'service-startup.error'
+                if error_path.exists(): detail += ' startup='+error_path.read_text(errors='replace')
                 raise AssertionError('SCM enrollment/install failed: '+detail[-2000:])
             raise AssertionError('SCM '+action+' failed: '+r.stderr[-2000:])
         return r.stdout
