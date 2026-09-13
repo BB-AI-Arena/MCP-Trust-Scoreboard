@@ -56,6 +56,7 @@ export default function ScoreRing({ score }) {
         {/* Progress */}
         <circle
           ref={circleRef}
+          data-report-offset={CIRCUMFERENCE * (1 - score / 100)}
           cx={SIZE / 2}
           cy={SIZE / 2}
           r={RADIUS}

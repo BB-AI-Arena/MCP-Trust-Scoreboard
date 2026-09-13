@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Add actual thirteen-service Compose/Chromium acceptance, PDF content/layout
+  evidence, installed-runtime recreation, old-schema upgrade and separate backup
+  restore gates. Preserve all existing unit/PostgreSQL checks.
+- Repair legacy image contexts, same-origin Nginx routing, mixed-worker async
+  handling, atomic Redis publication, behavior API mapping and report capture.
+- Keep services loopback-only, remove published database/cache ports, generate
+  private fresh-install credentials and require hosted-provider opt-in. Remove
+  external font requests; no cosmetic redesign or new product integrations.
+- Generate real CycloneDX inventories and scan built OS/application images in CI;
+  retain complete evidence. Unresolved HIGH/CRITICAL findings block release.
+
 - Fix slotted `Settings.from_env()` defaults; install Uvicorn at runtime and
   preserve the `postgresql://` environment alias with psycopg.
 - Apply serialized packaged PostgreSQL migrations; scope job idempotency to

@@ -1,162 +1,222 @@
 # Implementation status
 
-Updated: 2026-09-11 (America/Chicago). New features and UI work are paused.
+Updated 2026-09-11 America/Chicago (2026-09-12 UTC). Alpha acceptance slice;
+new product features, integrations and cosmetic UI work remain paused.
 
-## Current handoff
+## Final verified handoff
 
-- Repository: `BB-AI-Arena/MCP-Trust-Scoreboard`.
-- Starting main SHA: `31887614cf49dc93c31994945e107ab8339ca3ff` (clean checkout).
-- Ending implementation SHA: `7ad048a77f05b6faff22e4e8d5bcdc0e39d4df53`.
-  Subsequent handoff-only commits do not change the tested implementation.
-- Remotely validated handoff SHA: `5b175af1f94246bea604d5abf2b2ea3510c1eb9b`.
-- Branch: `fix/runtime-postgres-release-gates`, based on `main`.
-- **PR #12 is already merged**, at `19628da7e01603f6a35285048a86e2d7e7f9de7b`
-  on 2026-09-12 00:19:57 UTC. Prior text saying it was open was stale.
-  README/license PRs #13/#14 are also merged. Their appearance and MIT terms
-  are unchanged by this repair.
-- Proposed application version remains `2.0.0-alpha.1` (`2.0.0a1` Python).
-- **Release remains blocked.** Local checks, remote CI, and exact-SHA manual
-  preparation pass; review and broader release acceptance remain gates. Phase A
-  and later milestones are not complete. Nothing was merged or published in
-  this repair run; no tags, GitHub release, packages, or images were published.
+**Implemented for review; alpha release still blocked, not approved or published.**
+Ending tested implementation SHA: `74e340cfb7abec9ceb7a67ba6669e1cb0cfc9928`.
+Any subsequent handoff-only commit records these results without changing runtime,
+tests or CI; its SHA is available from this file's Git history/PR commit list.
 
-## Actually repaired
+- `ACCEPTANCE_EVIDENCE=evidence/acceptance-74e340c .venv/bin/pytest --run-integration --run-acceptance -o addopts= -q tests --junitxml=evidence/acceptance-74e340c/junit.xml`:
+  **71 passed, zero skipped, 199.05s** (44 unit/contracts + 13 PostgreSQL + 14 full-stack).
+- `python3 scripts/scan_images.py --output evidence/containers-74e340c`:
+  **failed the unchanged vulnerability gate**, not scanner startup/cleanup. All
+  13 service-image identities covered; identical image IDs may be deduplicated.
+  Seven Python services have 53 high/3 critical package matches each. Four frontend
+  services, PostgreSQL and Redis have zero reported findings. Details below.
+- [Exact-source push CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670064621):
+  **nine jobs passed; only container-security failed** on the findings. Runner
+  reports independently show 44 unit, 13 integration and 14 acceptance passes.
+  Scanner runs as UID/GID 1001:1001, with no cache permission failure.
+- [PR CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670066157)
+  has the same nine-pass/one-fail outcome. Its tested source is GitHub's synthetic
+  PR merge commit `6c680c7c7fddd8cfe72b9760e5e39a901f918d95`, **not a repository merge**.
+  Push CI and local evidence test the exact implementation SHA above.
+- Downloaded/read back push artifacts `acceptance-34670064621-1` (ID 10290462883)
+  and `container-security-34670064621-1` (ID 10290417991). JUnit confirms 14 tests,
+  zero failures/errors/skips; the scan inventory confirms clean source `74e340c`.
+  All 41 CI evidence-file checksums verified. Artifacts expire after 14 days.
+- CI scanner database updated `2026-09-12T01:00:32.340244017Z`, downloaded
+  `2026-09-12T03:21:05.413331002Z`; scan time `2026-09-12T03:21:08.759783+00:00`.
+  CI scan-summary SHA-256 `d1f1523e3a5ecc8a53931a065529055ff41be7c6fbca73ec714615935eda2d75`;
+  checksums.json SHA-256 `fe59d330a5fb3cfdb90948d7f1f80c2c4efcd034370770a892574d171a617ca3`.
+- Local scan-summary SHA-256 `4b2e5f54537dc5a8b34a9b9507904c74375be11781fe5ff1ceca934d2e46b82a`;
+  local checksums.json SHA-256 `db3f4161c0efb5da042562b5255809375aca112bc29cef065485b07772a4c53c`.
+  All 44 local evidence-file checksums verified. Image IDs/digests, versions,
+  exact scanner commands and complete CycloneDX inventories are inside each bundle.
+- Visually inspected extracted report pages: blast graph/legend/mitigations,
+  artifact shell-injection finding, ZIP treemap/file summary with **Unknown** model
+  signals and unclipped values, and all six connector dimensions/correct score ring.
+  These supplement automated PDF structural/content/layout checks, not replace them.
+- Final local resource check: no `atp-acceptance-*` containers or volumes remain.
+  No operator resources were removed. Main/PR #15 unchanged; no merge/publication.
+  No failed or pending GitHub mutations; review and release findings remain open.
+  Manual release preparation was not dispatched at this blocked SHA: its full-CI
+  dependency must pass first. No protected approval gate is claimed.
 
-- `Settings.from_env()` now uses concrete dataclass-instance defaults rather
-  than slotted class descriptors. Tests cover unset/minimal/explicit/invalid
-  environments; missing API tokens still fail closed.
-- Uvicorn is a required runtime dependency. The built image runs its unchanged
-  CMD, `agent-trust-api`, and `agent-trust-worker` without test extras.
-  Legacy `postgresql://` URLs select the packaged psycopg driver.
-- Packaged SQL migrations run transactionally under a PostgreSQL advisory
-  lock, including simultaneous API/worker startup. Migration 002 makes
-  idempotency workspace-scoped; 003 repairs old assessment projections from
-  existing durable jobs while retaining original results/other record metadata.
-- Enqueue/projection and terminal job/result/projection writes are atomic.
-  Concurrent equal keys return one original job without resetting its result.
-  Expired workers are fenced, including after waiting on row locks. Worker
-  deaths consume bounded attempts; retry backoff is capped.
-- Readiness actually queries PostgreSQL and returns 503 during an outage.
-- jsPDF 4.2.1, Vite 6.4.3, and patched transitive lockfile resolutions remove
-  all reported npm advisories across four apps. No UI/source design changes,
-  suppressed advisories, audit exceptions, or lowered thresholds.
-- CI adds actual Docker/PostgreSQL tests and PDF export API tests. Manual
-  release preparation runs full exact-SHA CI before source checksums; its
-  script refuses dirty/mismatched sources and records `release_ready: false`.
-  Existing checkout Action SHA was verified against its official v4.2.2 tag.
+Checksum verification after downloading the push CI container artifact:
 
-## Baseline and development failures (not final results)
+```bash
+cd evidence/ci-source-74e340c/container-security-34670064621-1
+jq -r 'to_entries[] | "\(.value)  \(.key)"' checksums.json | sha256sum -c -
+```
 
-- `Settings.from_env()` failed with `member_descriptor ... strip`.
-- The prior locally built platform image failed to start: Uvicorn was absent.
-- Existing `.venv/bin/pytest -q` passed 16 tests despite these startup defects.
-- Each frontend initially reported 11 advisories: 2 low, 4 moderate, 4 high,
-  1 critical. The inherited CI security job failed at that audit.
-- Initial new tests exposed harness issues (internal-network port publishing,
-  log capture, restart address changes, a bad PNG fixture CRC) and PostgreSQL
-  driver semantics (literal SQL percent formatting and INSERT rowcount).
-  These were corrected and the full integration suite rerun successfully;
-  the earlier failed/interrupted runs are not counted as acceptance evidence.
+## Source and release state
 
-## Final local verification
+- Starting SHA: `cbab41409d98fade11c2ccee316b7bebc1fab182`, clean checkout.
+- GitHub rechecked: [PR #15](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/15)
+  is **OPEN**, not merged, and still has that head. Its base is main.
+- Branch: [test/alpha-release-acceptance](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/tree/test/alpha-release-acceptance),
+  [PR #16](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/16), base
+  `fix/runtime-postgres-release-gates`, **not main**. Initial implementation SHA
+  `a911f422cf75f672346a0a70d407a16c7105b39a`; final tested SHA is `74e340cfb7abec9ceb7a67ba6669e1cb0cfc9928`.
+  Main remains `31887614cf49dc93c31994945e107ab8339ca3ff`.
+- PR #12 is already merged at `19628da7e01603f6a35285048a86e2d7e7f9de7b`;
+  README/license PRs #13/#14 are also merged. MIT/license/badges/history preserved.
+- Proposed `2.0.0-alpha.1` / Python `2.0.0a1` remains **unreleased and blocked**.
+  No tags/releases existed on inspection. No merge, deployment, tag, release,
+  package, image or attestation publication in this slice.
+- Code implementation, CI success, maintainer approval, deployment and release
+  publication are separate states. Passing runtime tests is not release approval.
 
-Commands run from the repository unless a frontend directory is specified:
+## Actual changes
+
+- Real thirteen-service Compose/Chromium acceptance with unique resources and
+  private dummy configuration: four workspaces, submissions, validation, real
+  backend outages, demo/experimental labels, graphs, ZIP results and PDF downloads.
+- Repair backend Docker contexts/shared helper placement and worker paths; await
+  artifact analysis in the compatibility worker. Atomically publish legacy Redis
+  initial status/queue item to avoid overwriting a fast result. Preserve keys/TTL.
+- PostgreSQL health waits for the final TCP listener, not the temporary Unix
+  socket initialization server. A slow-init SQL fixture reproduces this startup
+  window, which caused an intermittent worker connection-refused exit.
+- Same-origin Nginx routes; actual behavior response/path mapping instead of hidden
+  synthetic frontend success on outages. Preserve labeled backend demo examples.
+- Adapt nested artifact findings/risk fields; show client-submitted snippet without
+  new server retention. Freeze export-clone animations to prevent missing/dim PDF
+  panels and omit export controls. No screen redesign or new workspace feature.
+- Manual PDF inspection also caught Unknown files counted as 100% AI-generated
+  and clipped summary values. Preserve unknown authorship, label model signals
+  experimental, and relax only the export clone's truncated text boxes.
+- Loopback publication; no host PostgreSQL/Redis ports. Private random fresh-install
+  credentials, required explicit database password/API token, placeholder rejection
+  and deployment preflight. Legacy `SECRET_KEY` does not authenticate legacy routes.
+- Require hosted-provider opt-in even with legacy keys. Remove remote font requests;
+  browser acceptance asserts all requests are local. Live hosted providers untested.
+- Patch Nginx/Alpine packages and Python build tooling. Replace PostgreSQL's obsolete
+  Go privilege helper with Alpine su-exec, preserving PG15 entrypoint/data paths.
+- Actual image scans and CycloneDX OS/application inventories; frontend npm build
+  dependency closure SBOMs. Record source/image IDs, scanner/digest/database age,
+  commands/findings/checksums. Any HIGH/CRITICAL (including unfixed) fails unchanged.
+- CI retains complete non-sensitive findings/SBOMs and browser evidence for 14 days.
+  Existing gates remain; exact-SHA release preparation depends on the new gates.
+
+## Measured checks
+
+Commands from the checkout unless a frontend directory is specified. The final
+verified section above supersedes development results below; dirty builds are not
+exact release artifacts.
 
 | Command | Result |
 | --- | --- |
-| `.venv/bin/python -m pip install -e '.[postgres,test]' pip-audit` | Installed local test/audit environment |
-| `.venv/bin/pytest -o addopts= -q -ra` | **29 passed**, 13 integration tests explicitly skipped in this fast run |
-| `.venv/bin/pytest --run-integration tests/integration -v --tb=short -x` | **13 passed**, zero skipped, 129.35s |
-| `.venv/bin/python -m compileall -q src tests` | Passed |
+| `.venv/bin/pytest -o addopts= -q -ra` | 44 passed; 27 explicit integration/acceptance skips, separately executed |
+| `ACCEPTANCE_EVIDENCE=evidence/acceptance-b542a0a .venv/bin/pytest --run-integration --run-acceptance -o addopts= -q tests --junitxml=evidence/acceptance-b542a0a/junit.xml` | **71 passed**, zero skips, 182.37s on `b542a0af18720df17718b57870f8d83e509d04b1` before the final unknown-authorship/export and CI-owner fixes |
+| `ACCEPTANCE_EVIDENCE=evidence/acceptance-unknown-report .venv/bin/pytest --run-acceptance tests/acceptance -v --tb=short` | 14 passed, zero skips, 72.35s; unknown-authorship regression and visually inspected unclipped report |
+| `.venv/bin/pytest --run-integration tests/integration -v --tb=short` | 13 passed, zero skipped, 108.06s |
+| `ACCEPTANCE_EVIDENCE=evidence/acceptance-final-repairs .venv/bin/pytest --run-acceptance tests/acceptance -v --tb=short` | 14 passed, zero skipped, 70.56s, including delayed init and final report fixes; dirty development source retained |
+| `.venv/bin/python -m compileall -q src tests scripts` | Passed |
 | `.venv/bin/python -m pip check` | Passed |
-| `.venv/bin/python -m pip_audit` | No known third-party vulnerabilities; local unpublished editable project not auditable on PyPI |
-| `npm ci --ignore-scripts && npm audit --audit-level=high` in each of the four frontend directories | Passed, **0 vulnerabilities in each** |
-| `node --test ../../tests/frontend/pdf-export.test.cjs && npm run build` in each frontend | Passed, 1 PDF API test per app and all four production builds |
-| `docker compose config --quiet` | Passed (configuration validation, not a full legacy runtime test) |
-| `git diff --check` and existing committed credential-pattern check | Passed |
-| Workflow YAML parsed with system Python/PyYAML | Passed syntax parsing; remote Actions remains authoritative |
-| `.venv/bin/python scripts/prepare_release.py --version 2.0.0-alpha.1 --sha 7ad048a77f05b6faff22e4e8d5bcdc0e39d4df53 --output <temporary-directory>/manifest.json` | Passed exact clean-source validation; local unapproved checksums only |
+| `.venv/bin/python -m pip_audit` | No known third-party vulnerabilities; unpublished editable project itself cannot be audited on PyPI |
+| `npm ci --ignore-scripts && npm audit --audit-level=high && node --test ../../tests/frontend/pdf-export.test.cjs && npm run build` in all four frontends | All passed; zero npm advisories, real jsPDF API checks and four builds |
+| `python3 scripts/scan_images.py --output evidence/containers-a911f42` | **Failed policy gate** on clean `a911f42`; full findings, image IDs and CycloneDX/checksums retained |
+| `python3 scripts/scan_images.py --output evidence/containers-os-update` | **Failed policy gate** after apt upgrade; 56 HIGH/CRITICAL matches per Python image, no exceptions |
+| `python3 scripts/scan_images.py --output evidence/containers-b542a0a` | **Failed policy gate** on clean `b542a0a`; same findings; all 44 evidence-file checksums verified using the checksum command above in that evidence directory |
+| `git diff --check` | Passed |
 
-Warnings remain visible: Starlette/TestClient deprecations, Recharts 2 end of
-maintenance notice, and large-bundle warnings for behavior/artifact frontends.
-No warnings were suppressed or size thresholds relaxed. The frontend check
-tests the real PDF library API, not a browser download-dialog flow.
+Starlette deprecations, Recharts maintenance warning and bundle-size warnings
+remain. No tests removed, thresholds reduced or warnings suppressed. Earlier
+browser failures caught real blank PDFs and routing/result defects. Harness
+corrections included wrong button labels, native alert handling and 502 vs 504
+gateway status. Failed development runs are not counted as passing acceptance.
+Clean-source `a911f42` local acceptance failed during startup (14 setup errors)
+before the TCP health repair; its passing remote run did not invalidate that race.
 
-### Real end-to-end evidence
+Runtime: 401 without token → authenticated 202 → real rules-only worker → persisted
+job/assessment result. Force-recreating API/worker/PostgreSQL retains result and
+attempt count through unique named test volumes. Installed site-packages runtime
+has no pytest/Playwright. `pg_dump -Fc` / `pg_restore --exit-on-error` into a separate
+disposable database retains results. Upgrade original 001 → 003 twice, preserving
+completed/unrelated records and repairing projections. Original integration tests
+still cover restarts, killed workers, fencing, concurrent claims and atomicity.
 
-The test builds the actual platform wheel/image, starts PostgreSQL 15 plus API
-and worker with only the two required environment values, submits an
-authenticated assessment (202), and sees a real rules-only worker result in
-both the durable job and assessment listing. It restarts all three containers,
-retrieves the same result, and resubmits the same key without changing terminal
-state. No Redis service, hosted key, or submitted-code execution is used.
+All four legacy engines run in one real Redis compatibility worker. Browser tests
+exercise graph circles/edges, charts/timeline, ZIP treemap and actual downloaded
+PDFs with findings/limitations. Page images are reviewed as well as structurally
+checked. Behavior has no report export or submission form: those are unsupported,
+not invented coverage. Optional external-provider errors are mocked only in
+contracts; full-stack application services are real, with hosted providers disabled.
 
-Additional PostgreSQL cases exercise old-schema upgrade, concurrent migrations,
-six simultaneous equal keys, separate workspaces, seven independent claims
-past a held row lock, atomic rollback fault injection, a killed worker process,
-lease expiry/recovery/attempt limits, lock-wait expiry, retry backoff, and no
-open claim transaction during analysis. Auth tests cover 401/403/404 boundaries.
-The internal **test** network is isolated; this is not certification of the
-production stack's egress controls.
+## Risks, migration and remaining gates
 
-## Migration, rollback, and remaining risks
+**Release remains blocked.** Trivy 0.74.0 reports **56 HIGH/CRITICAL package matches
+in each of seven Python service images** (53 high, 3 critical). Of these, 54 are
+Debian OS matches with no fixed version listed, including perl-base critical
+CVE-2026-13221, CVE-2026-42496 and CVE-2026-8376. Two Python matches originate in
+pip's bundled dependency SBOM: msgpack 1.1.2 (GHSA-6v7p-g79w-8964, fixed 1.2.1)
+and setuptools 70.3.0 (CVE-2025-47273, fixed 78.1.1), despite installed setuptools
+84.0.0. Updating top-level tooling does not update pip's vendored contents/SBOM.
+No false-positive exception, metadata deletion, downgrade or blanket ignore is
+applied. Root dependency audit success does not cover these image findings.
 
-No user database, deployment, or volume was modified. Only test-created
-containers, private networks and unique image tags were removed; their dummy
-data is intentionally disposable. Existing volumes and database/environment
-names remain unchanged. No legacy Redis data is imported or recovered.
+Four frontend images, derived PostgreSQL and Redis scan with zero findings in the
+measured runs. Frontend SBOM component counts: 269 (blast), 264 (behavior), 294
+(artifact), 231 (connector), including npm build dependency closures. PostgreSQL
+has 47 and Redis 20. Database UpdatedAt: `2026-09-12T01:00:32.340244017Z`;
+os-update download: `2026-09-12T03:09:32.411087404Z`. Full image identities,
+scanner digest, commands and file SHA-256 checksums are in CI/local evidence.
+Maintainer review and broader alpha hardening remain open; future phases incomplete.
 
-Before deployment, stop modular writers, take a PostgreSQL backup and test a
-restore separately. Startup requires DDL privileges and applies migrations
-001–003. Do not mix old/new workers. Old code assumes global idempotency and
-has the fixed startup/result defects; prefer a forward fix. If reverting,
-preserve current data, restore the pre-upgrade backup into a separate database,
-and reconcile new results before switching. Never delete/reset volumes.
-See [RUNTIME_VALIDATION.md](RUNTIME_VALIDATION.md) for commands and constraints.
+Working: local rules-only authenticated PostgreSQL assessment lifecycle, legacy
+flows/visualizations/reports where present, installed startup/recreation/upgrade/
+restore. Demo: seeded behavior and legacy heuristic scoring. Experimental:
+stylistic authorship guesses, never verified authorship or an approval gate.
+Untested/unsupported: live hosted providers, remote deployments, other browsers,
+architectures/Desktop/remote Docker, shared SaaS, production egress/retention
+certification, SDKs, MCP/OpenAPI collectors and enforcement. No enterprise claim.
 
-Working and tested here: rules-only authenticated durable assessment lifecycle,
-workspace/scoped access, real PostgreSQL startup/migration/recovery, legacy
-route contracts, four frontend builds, PDF library exports.
-Still demo/experimental: seeded behavior, stylistic artifact-origin guesses.
-Still unsupported/unverified: MCP/OpenAPI collectors, real behavior baselines/
-SDKs, inline enforcement, live hosted providers, proprietary integrations,
-shared SaaS isolation, production egress/retention hardening. Only assessment
-jobs are implemented; unsupported kinds retry/fail, not successful engines.
-PostgreSQL 15/Linux Docker was tested; Desktop/remote Docker and other database
-majors were not. No container vulnerability scan, SBOM generation, full legacy
-Compose/browser acceptance, or live-user backup/restore was performed.
-Those release-wide gaps are not replaced by a green checksum manifest.
+No operator deployment/database/volume changed. Only exact test-owned resources
+were removed and their disposable dummy data discarded; no global cleanup.
+Existing names/aliases/Redis TTL remain, no new schema beyond 003. Preserve existing
+database passwords; changing environment values does not rotate initialized PG.
+No Redis-history import or expired-result recovery. Stop writers, back up/test
+restore separately, upgrade and verify results. Rollback preserves current data,
+restores the old backup separately and reconciles later results before switching;
+never restore over live data/delete user volumes. Runnable commands and constraints:
+[ALPHA_ACCEPTANCE.md](ALPHA_ACCEPTANCE.md), [RUNTIME_VALIDATION.md](RUNTIME_VALIDATION.md).
 
-## GitHub tracking and next task
+## Tracking and next task
 
-- Merged foundation: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/12
-- Phase A epic (reopened because acceptance is incomplete):
-  https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/11
-- Related open work: [ATP-A2 #2](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/2),
-  [ATP-A3 #3](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/3),
-  [ATP-D1 #8](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/8).
-- Existing private project: https://github.com/users/BB-AI-Arena/projects/1
-  PR #12 is Done; the epic is Blocked rather than implicitly complete.
-- Repair PR: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/15
-  **Open / In review**, head `fix/runtime-postgres-release-gates`, base `main`.
-  Branch: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/tree/fix/runtime-postgres-release-gates
-- `git push -u origin fix/runtime-postgres-release-gates`: passed; remote head
-  and PR base/head were read back. Main remains at the starting SHA. Related
-  issue comments, reopened epic, and board mutations were also read back.
-- [Push CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34667430426)
-  and [PR CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34667466073):
-  **all eight jobs passed** at `5b175af1f94246bea604d5abf2b2ea3510c1eb9b`.
-  The remote runtime job independently reports **13 passed**, no skips.
-- `gh workflow run release-prepare.yml --repo BB-AI-Arena/MCP-Trust-Scoreboard --ref fix/runtime-postgres-release-gates -f version=2.0.0-alpha.1 -f source_sha=5b175af1f94246bea604d5abf2b2ea3510c1eb9b`:
-  [manual preparation](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34667511352)
-  **passed**, including exact-SHA validation, all eight reusable CI jobs and
-  checksum preparation. The manifest was generated locally on that runner;
-  it is not a published release, SBOM, uploaded artifact, or approval.
-- No failed/pending GitHub mutations, permission requests, or access-scope
-  changes. PR review is pending. Handoff-only tip commits can retrigger CI;
-  current results are visible on the PR without rewriting the exact tested SHA
-  recorded above. No merge/publication was requested by these workflows.
+Reuse [ATP-A3 #3](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/3),
+[ATP-D1 #8](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/8),
+[ATP-A2 #2](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/2),
+[epic #11](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/11).
+Private project: https://github.com/users/BB-AI-Arena/projects/1.
+Implementation awaiting acceptance stays In review; release/epic Blocked.
+Push/PR creation and issue #3/#8 updates succeeded and were read back. PR #16 is
+in the private project, Workflow **In review**, Phase A, Area Release, P0, target
+alpha. Epic #11 and ATP-D1 remain Blocked; no duplicate issues/projects.
+[Initial PR CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34669486730)
+at clean `a911f42`: **nine jobs passed, container-security failed**. Acceptance
+and scan artifacts verified present (IDs 10290941392 and 10290077354), retained
+14 days. Later repairs require their own exact-source validation; the initial run
+did not test later repairs. No failed GitHub mutations or access escalations.
 
-Next dependency-ready task: review this runtime repair with its passing CI, then
-complete ATP-A3's full legacy runtime/browser acceptance and ATP-D1's
-container-scan/SBOM/release gates. Keep new features/UI work paused.
+[Second PR CI](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34669756761)
+on `b542a0a`: eight jobs passed; acceptance build failed on an Alpine CDN TLS
+error, and scanner teardown failed on root-owned cache permissions (its findings
+also failed the vulnerability policy). Evidence was retained. Remediation: at
+most three package-update retries, **no TLS/stale-repository bypass**, and scanner
+containers run with the invoking UID/GID. The final CI above verified those repairs.
+
+Clean `b542a0a` local scanner evidence: database downloaded
+`2026-09-12T03:13:23.190054656Z`; scan-summary SHA-256
+`bb24ceefc69c2a03ecea283d0a90d6ce3242f455caefb00f507ea73a8ad296df`;
+checksums.json SHA-256 `097b5c5980cd0a7a13ac8ba63697792161def4fbd77ec3d6436b2f0648446ef1`.
+
+Next: resolve reported container blockers without exceptions, rerun exact-source
+gates and review dependent PRs. **After release gates**, the next product milestone
+is a vendor-neutral connector framework and one cross-vendor end-to-end integration.
+It is not implemented in this slice.

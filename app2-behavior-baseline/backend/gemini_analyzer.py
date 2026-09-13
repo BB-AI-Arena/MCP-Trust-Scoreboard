@@ -25,7 +25,7 @@ def _setup_gemini() -> bool:
     if _GEMINI_CONFIGURED:
         return _genai is not None
 
-    api_key = os.getenv("GEMINI_API_KEY", "").strip()
+    api_key = (os.getenv("GEMINI_API_KEY", "").strip() if os.getenv("AGENT_TRUST_HOSTED_ANALYSIS", "false").lower() == "true" else "")
     if not api_key:
         _GEMINI_CONFIGURED = True
         return False

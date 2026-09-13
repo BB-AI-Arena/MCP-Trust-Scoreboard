@@ -46,6 +46,8 @@ class Settings:
             raise ValueError("AGENT_TRUST_AUTH_MODE must be token or disabled")
         if self.auth_mode == "token" and not self.api_token:
             raise ValueError("AGENT_TRUST_API_TOKEN is required when token authentication is enabled")
+        if self.api_token.lower() in {"change-me-local-token", "change-me", "changeme", "local-only-secret", "password"}:
+            raise ValueError("AGENT_TRUST_API_TOKEN must not be an example or placeholder")
         if self.auth_mode == "disabled" and self.hosted_analysis_opt_in:
             raise ValueError("hosted analysis cannot be enabled with disabled API authentication")
         if self.max_request_bytes <= 0 or self.provider_timeout_seconds <= 0:

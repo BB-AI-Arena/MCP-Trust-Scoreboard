@@ -50,13 +50,16 @@ def enqueue_job(app: str, payload: dict) -> str:
     r = _get_redis()
     if r is None:
         return f"sync:{job_id}"  # caller should fall back to sync processing
-    r.rpush(QUEUE_KEY, json.dumps(job))
-    # Write a 'queued' status immediately so polling works right away
-    r.setex(
+    # Publish the initial status and queue item atomically. A fast worker must
+    # never complete before a later 'queued' write overwrites its result.
+    pipe = r.pipeline(transaction=True)
+    pipe.setex(
         f"koi:scan:result:{job_id}",
         RESULT_TTL,
         json.dumps({"job_id": job_id, "status": "queued", "result": None}),
     )
+    pipe.rpush(QUEUE_KEY, json.dumps(job))
+    pipe.execute()
     return job_id
 
 

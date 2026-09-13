@@ -21,3 +21,26 @@ def test_rules_provider_is_local_and_deterministic():
 def test_missing_gemini_key_is_unavailable_not_success():
     with pytest.raises(ProviderUnavailable):
         GeminiAnalysisProvider(api_key="").analyze(AnalysisRequest("agent-1", "content", "2026-01"))
+
+
+@pytest.mark.parametrize("failure", ["timeout", "http", "schema"])
+def test_optional_endpoint_failure_is_not_synthetic_success(monkeypatch, failure):
+    import httpx
+    from agent_trust.providers.base import ProviderError
+    from agent_trust.providers.openai_compatible import OpenAICompatibleAnalysisProvider
+    calls = []
+    def external_fixture(url, **kwargs):
+        calls.append(url)
+        assert kwargs["follow_redirects"] is False
+        if failure == "timeout":
+            raise httpx.ReadTimeout("fixture timeout")
+        return httpx.Response(503 if failure == "http" else 200,
+            json={"choices": [{"message": {"content": '{"findings": "invalid"}'}}]}, request=httpx.Request("POST", url))
+    monkeypatch.setattr(httpx, "post", external_fixture)
+    provider = OpenAICompatibleAnalysisProvider("https://provider.example.invalid/v1", "fixture-model", hosted=True)
+    with pytest.raises(ProviderUnavailable, match="opt-in"):
+        provider.analyze(AnalysisRequest("fixture", "content", "2026-01"))
+    assert calls == []
+    with pytest.raises(ProviderError):
+        provider.analyze(AnalysisRequest("fixture", "content", "2026-01", hosted_data_allowed=True))
+    assert len(calls) == 1  # Mocked optional provider only; no fallback network call.

@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ABUSEIPDB_API_KEY: str = os.getenv("ABUSEIPDB_API_KEY", "")
+ABUSEIPDB_API_KEY: str = (os.getenv("ABUSEIPDB_API_KEY", "") if os.getenv("AGENT_TRUST_HOSTED_ANALYSIS", "false").lower() == "true" else "")
 ABUSEIPDB_ENDPOINT = "https://api.abuseipdb.com/api/v2/check"
 CONFIDENCE_THRESHOLD = 25  # flag if abuse confidence % exceeds this
 

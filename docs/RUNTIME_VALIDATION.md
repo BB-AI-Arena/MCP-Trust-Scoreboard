@@ -2,6 +2,8 @@
 
 This is a regression gate, not new product functionality. See
 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for actual results and SHAs.
+The continuation adds [full Compose/browser and image acceptance](ALPHA_ACCEPTANCE.md)
+without replacing any of the tests below.
 
 ## Run the gates
 
@@ -89,9 +91,9 @@ resources: inspect their exact IDs before removing them; never prune globally.
    database and reconcile post-backup results before changing the configured
    database. Do not drop tables, restore over live data, or delete volumes.
 
-Old legacy Redis keys/services are untouched. Expired Redis results cannot be
-recovered. These tests do not migrate legacy Redis history or prove full legacy
-Compose compatibility, hosted-provider compatibility, production egress safety,
+Legacy Redis key names and TTLs are unchanged. Expired Redis results cannot be
+recovered. These original integration tests do not migrate legacy Redis history
+or prove hosted-provider compatibility, production egress safety,
 retention enforcement, or release-wide security readiness.
 
 ## Release remains a separate decision
@@ -100,6 +102,7 @@ Manual release preparation runs exact-SHA validation and the full CI before
 generating source checksums. The script refuses dirty/mismatched sources and
 explicitly records `release_ready: false`. No publishing job was added. SBOM,
 container scanning, complete legacy runtime/browser acceptance, and maintainer
-release review remain gates; passing this regression slice is not a stable
+release review remain gates. The continuation now implements scans/SBOM and full
+stack acceptance, but container findings still block release; passing tests is not a stable
 release certification. Never weaken audit thresholds or suppress findings to
 make preparation succeed.

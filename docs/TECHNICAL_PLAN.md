@@ -116,3 +116,41 @@ enforcement. Those are roadmap gates, not documentation-only checkboxes.
   publishes. Checksums are not an SBOM, a review, or a production-readiness claim.
 
 Runtime test details and safe upgrade procedure: [RUNTIME_VALIDATION.md](RUNTIME_VALIDATION.md).
+
+## Alpha acceptance continuation (ATP-A3 / ATP-D1)
+
+PR #15 remains open at `cbab41409d98fade11c2ccee316b7bebc1fab182` on
+inspection. Work branches from that head, with a dependent PR targeting
+`fix/runtime-postgres-release-gates`, not main. Product development stays paused.
+
+1. Build the actual root Compose services, replacing only test resource names,
+   resource limits and loopback host ports. Generate a fresh private configuration;
+   never inherit operator credentials or volumes. Retain errors/traces/screenshots.
+2. Repair confirmed routing, response-mapping, queue and export defects; test
+   real browser submissions, rendered graphs, absence/error paths and downloaded
+   PDFs. Preserve service contracts and existing unit/PostgreSQL tests. Behavior
+   has no report-export feature; explicitly report that gap rather than add one.
+3. Prove installed API/worker operation, container recreation with preserved
+   disposable volumes, migrations 001 to 003 (twice), and separate backup restore.
+4. Bind legacy interfaces to loopback, unpublish database/cache ports, generate
+   random fresh-install credentials, reject placeholder platform tokens, require
+   hosted opt-in even for legacy providers, and remove remote font requests.
+   A Compose validator is a preflight guard, not an authentication/TLS proxy.
+5. Scan every built image plus Redis, retaining all severities and real CycloneDX
+   inventories. Include npm's installed build dependency closure in each frontend
+   image (a conservative superset of bundled JavaScript, not exact bundle tracing).
+   Upgrade patched base packages/build tooling. Replace PostgreSQL's bundled Go
+   privilege helper with maintained Alpine su-exec while retaining PG15 entrypoint,
+   UID and volume paths; fresh/recreation/backup/upgrade tests must pass.
+6. CI adds acceptance and container-security as failing gates, preserves existing
+   jobs, retains non-sensitive evidence even on failure, uses pinned Actions and
+   read-only permissions. HIGH/CRITICAL findings, including unfixed findings, block
+   release; no ignores, blanket exceptions or scanner-metadata deletion.
+
+No schema migration beyond 003 in this slice. Legacy Redis stays a TTL-only
+compatibility queue, never the durable result store. Rules-only checks and mocked
+provider contracts do not verify live integrations. Linux amd64 Docker/Chromium
+is the acceptance target; other platforms/browsers require separate validation.
+Code completion, CI success, review, deployment and publication are distinct.
+After release gates, the next product slice is a vendor-neutral connector
+framework and one cross-vendor end-to-end integration; it is not implemented here.
