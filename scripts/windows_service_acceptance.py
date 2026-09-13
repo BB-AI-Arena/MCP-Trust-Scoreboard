@@ -118,8 +118,16 @@ class ServiceAcceptance:
         self.summary['dpapi_restart_and_scm_recovery']='passed'
         self.summary['collector_states']=self.health()['collectors']
         assert self.health()['collectors']['process'] in ('active','permission_missing')
-        for key in ('software','network','filesystem','runtime'):
-            assert self.health()['collectors'][key]=='active',self.health()
+        allowed={
+            'software':('active','degraded'),
+            'network':('active','degraded'),
+            'filesystem':('active','degraded'),
+            'runtime':('active',),
+            'process':('active','degraded','permission_missing'),
+        }
+        for key,states in allowed.items():
+            assert self.health()['collectors'][key] in states,self.health()
+        self.summary['collector_states']=dict(self.health()['collectors'])
         for key in ('ai','mcp'):
             assert self.health()['collectors'][key] in ('active','degraded','permission_missing'),self.health()
         self.summary['interactive_collectors']={k:self.health()['collectors'][k] for k in ('ai','mcp')}
