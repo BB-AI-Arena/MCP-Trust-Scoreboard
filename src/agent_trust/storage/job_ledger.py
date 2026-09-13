@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import uuid
+from contextlib import nullcontext
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -60,7 +61,7 @@ class JobLedger:
     def __init__(self, engine):
         self.engine = engine
 
-    def enqueue(self, kind: str, workspace_id: str, payload: dict[str, Any], *, idempotency_key: str | None = None, max_attempts: int = 3) -> dict[str, Any]:
+    def enqueue(self, kind: str, workspace_id: str, payload: dict[str, Any], *, idempotency_key: str | None = None, max_attempts: int = 3, connection=None) -> dict[str, Any]:
         if max_attempts < 1:
             raise ValueError("max_attempts must be positive")
         now = _now().isoformat()
@@ -69,7 +70,7 @@ class JobLedger:
                       max_attempts=max_attempts, available_at=now, lease_until=None,
                       lease_token=None, result=None, error=None,
                       idempotency_key=idempotency_key or None, created_at=now, updated_at=now)
-        with self.engine.begin() as connection:
+        with (self.engine.begin() if connection is None else nullcontext(connection)) as connection:
             statement = _insert(connection, jobs).values(**values).on_conflict_do_nothing(
                 index_elements=[jobs.c.workspace_id, jobs.c.idempotency_key],
             ).returning(jobs)
@@ -125,7 +126,12 @@ class JobLedger:
             _sync_assessment(connection, job)
         return job
 
-    def complete(self, job_id: str, lease_token: str, result: dict[str, Any]) -> bool:
+    def complete(self, job_id: str, lease_token: str, result: dict[str, Any], *, persist=None) -> bool:
+        """Atomically persist result and optional local writes under the lease fence.
+
+        persist(connection, decoded_job) must perform database writes ONLY. Never
+        hold this transaction across a connector/provider/network operation.
+        """
         with self.engine.begin() as connection:
             current = connection.execute(select(jobs).where(
                 jobs.c.id == job_id, jobs.c.status == "running", jobs.c.lease_token == lease_token,
@@ -142,6 +148,12 @@ class JobLedger:
                      lease_until=None, lease_token=None, updated_at=now).returning(jobs)).first()
             if row is None:
                 return False
+            if persist is not None:
+                extra = persist(connection, _decode(row))
+                if extra:
+                    result = {**result, **extra}
+                    row = connection.execute(update(jobs).where(jobs.c.id == job_id).values(
+                        result=json.dumps(result)).returning(jobs)).one()
             _sync_assessment(connection, _decode(row))
         return True
 

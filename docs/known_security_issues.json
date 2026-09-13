@@ -1,13 +1,13 @@
 {
   "policy": "Accepted for development/alpha; hardening deferred.",
-  "source_sha": "6f9cdb8d8aac35b5647288200ecff16f31183fab",
-  "scanned_at": "2026-09-12T03:30:00.197989+00:00",
+  "source_sha": "5fb6f0a9d5c7fd89a406afb95f1ede05de1c6406",
+  "scanned_at": "2026-09-12T04:03:49.405735+00:00",
   "scanner_image": "aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
   "database": {
     "Version": 2,
     "NextUpdate": "2026-09-13T01:00:32.340243877Z",
     "UpdatedAt": "2026-09-12T01:00:32.340244017Z",
-    "DownloadedAt": "2026-09-12T03:29:58.44332221Z"
+    "DownloadedAt": "2026-09-12T04:03:47.415591064Z"
   },
   "images": [
     {
@@ -15,8 +15,8 @@
       "services": [
         {
           "service": "api-baseline",
-          "image": "atp-acceptance-a8e5e071668b-api-baseline:test",
-          "id": "sha256:007bbc8d343cd6c97c1d8b8f3ada14148131a66cdb1f13f57549811c9188a8a0",
+          "image": "atp-acceptance-c962e1565e46-api-baseline:test",
+          "id": "sha256:2427560a14a49e5832c2589fa2a2853c66a369f4fe62466b8daff66f5b88ba32",
           "repo_digests": []
         }
       ]
@@ -26,8 +26,8 @@
       "services": [
         {
           "service": "api-blast",
-          "image": "atp-acceptance-a8e5e071668b-api-blast:test",
-          "id": "sha256:26e979df419f133932bcd99fbf8ebcb406a1492882c3d49a8b4c0ba4ac8f7bb5",
+          "image": "atp-acceptance-c962e1565e46-api-blast:test",
+          "id": "sha256:401a90734499573ea9b3f7babb438758964cd0d8dcad33ba2f88d2e61a8d9d22",
           "repo_digests": []
         }
       ]
@@ -37,14 +37,14 @@
       "services": [
         {
           "service": "api-platform",
-          "image": "atp-acceptance-a8e5e071668b-api-platform:test",
-          "id": "sha256:d405f4eaf6421e9ce12ab83d415d775479bd627b44d163745dcf71179cfe488b",
+          "image": "atp-acceptance-c962e1565e46-api-platform:test",
+          "id": "sha256:4ed27a16cef24eeef4249346db88714f36f3116daeba8bd6a4040d7b99bcaaea",
           "repo_digests": []
         },
         {
           "service": "worker-platform",
-          "image": "atp-acceptance-a8e5e071668b-worker-platform:test",
-          "id": "sha256:d405f4eaf6421e9ce12ab83d415d775479bd627b44d163745dcf71179cfe488b",
+          "image": "atp-acceptance-c962e1565e46-worker-platform:test",
+          "id": "sha256:4ed27a16cef24eeef4249346db88714f36f3116daeba8bd6a4040d7b99bcaaea",
           "repo_digests": []
         }
       ]
@@ -54,8 +54,8 @@
       "services": [
         {
           "service": "api-provenance",
-          "image": "atp-acceptance-a8e5e071668b-api-provenance:test",
-          "id": "sha256:1870141ab4d1a722dcdcd1995f324bf35f965cdb4e801bf2da6b178444a5f8bf",
+          "image": "atp-acceptance-c962e1565e46-api-provenance:test",
+          "id": "sha256:a3a5976cfd2877453fdca4e459c041dd37bc231665703080fb60e008970d4275",
           "repo_digests": []
         }
       ]
@@ -65,8 +65,8 @@
       "services": [
         {
           "service": "api-scorecard",
-          "image": "atp-acceptance-a8e5e071668b-api-scorecard:test",
-          "id": "sha256:e717e02094a246f808159fb49a9cccd6d845be73fd30b090b3ac55e7dd4ba5be",
+          "image": "atp-acceptance-c962e1565e46-api-scorecard:test",
+          "id": "sha256:931c144bc07645886deddbe6618bebec7514a5730a27399fa9fb64a6b63cec54",
           "repo_digests": []
         }
       ]
@@ -76,8 +76,8 @@
       "services": [
         {
           "service": "frontend-baseline",
-          "image": "atp-acceptance-a8e5e071668b-frontend-baseline:test",
-          "id": "sha256:e92e1bb4772dde07f00766dd4c6b9eb9c5fa5ec17c28dc800f437462b19d9541",
+          "image": "atp-acceptance-c962e1565e46-frontend-baseline:test",
+          "id": "sha256:60e71aacd30b35f37bd4ab0113e75cb30eeb8d2bddc07554ddb2792e3a0e268a",
           "repo_digests": []
         }
       ]
@@ -87,8 +87,8 @@
       "services": [
         {
           "service": "frontend-blast",
-          "image": "atp-acceptance-a8e5e071668b-frontend-blast:test",
-          "id": "sha256:00c25096ed8e2e7c611ba2156e0c52a1b4b52b2ac5bae93108b79ad1bf295afa",
+          "image": "atp-acceptance-c962e1565e46-frontend-blast:test",
+          "id": "sha256:297087f0d8e1d0e5d00930e533a6210c172d32e518f35c98b78abac7df9d1e15",
           "repo_digests": []
         }
       ]
@@ -98,8 +98,8 @@
       "services": [
         {
           "service": "frontend-provenance",
-          "image": "atp-acceptance-a8e5e071668b-frontend-provenance:test",
-          "id": "sha256:bc75697460f91998823edecd49cc3998ac1d456c03e7a629927847c368cf62ea",
+          "image": "atp-acceptance-c962e1565e46-frontend-provenance:test",
+          "id": "sha256:6e0756516da8bc48eb959f116ca068e62cc9e625171a156413f79d0c8968ac31",
           "repo_digests": []
         }
       ]
@@ -109,8 +109,8 @@
       "services": [
         {
           "service": "frontend-scorecard",
-          "image": "atp-acceptance-a8e5e071668b-frontend-scorecard:test",
-          "id": "sha256:6c87f5ea2ef21a99eafb2b47872d558ff08fccbdf43c897b32de9565860bf329",
+          "image": "atp-acceptance-c962e1565e46-frontend-scorecard:test",
+          "id": "sha256:d82b68469958f18d504196c5dfd5befb0e792e5c90e5dedbd0f2f8c56cae38ca",
           "repo_digests": []
         }
       ]
@@ -120,8 +120,8 @@
       "services": [
         {
           "service": "postgres",
-          "image": "atp-acceptance-a8e5e071668b-postgres:test",
-          "id": "sha256:b649e45f44dcb90c7db8a677178de63382346ac1329eb3717d7cc27cd10da983",
+          "image": "atp-acceptance-c962e1565e46-postgres:test",
+          "id": "sha256:51de0ac08e21eb3cac34973d0ff7c48143e8bd546a73f362358d15fc6592b5d9",
           "repo_digests": []
         }
       ]
@@ -144,13 +144,17 @@
       "services": [
         {
           "service": "worker",
-          "image": "atp-acceptance-a8e5e071668b-worker:test",
-          "id": "sha256:26f2d96ab3c3e54d6ff02b518e2b71939f82d6071043a2a8cac95525dcc58900",
+          "image": "atp-acceptance-c962e1565e46-worker:test",
+          "id": "sha256:922057d97d46f9fc83c9f7508228494f32e5f40042ba84199415babee5b654fa",
           "repo_digests": []
         }
       ]
     }
   ],
+  "ci_run": 34671947014,
+  "artifact_id": 10291645171,
+  "artifact_name": "container-security-34671947014-1",
+  "verified_checksums": 41,
   "findings": [
     {
       "advisory": "CVE-2011-3374",
@@ -167,7 +171,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -185,7 +189,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -203,7 +207,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -221,7 +225,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -239,7 +243,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -257,7 +261,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -275,7 +279,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -293,7 +297,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -311,7 +315,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -329,7 +333,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -347,7 +351,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -365,7 +369,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -383,7 +387,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -401,7 +405,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -419,7 +423,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -437,7 +441,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -455,7 +459,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -473,7 +477,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -491,7 +495,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -509,7 +513,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -527,7 +531,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -545,7 +549,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -563,7 +567,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -581,7 +585,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -599,7 +603,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -617,7 +621,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -635,7 +639,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -653,7 +657,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -671,7 +675,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -689,7 +693,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -707,7 +711,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -725,7 +729,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -743,7 +747,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -761,7 +765,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -779,7 +783,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -797,7 +801,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -815,7 +819,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -833,7 +837,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -851,7 +855,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -869,7 +873,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -887,7 +891,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -905,7 +909,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -923,7 +927,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -941,7 +945,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -959,7 +963,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -977,7 +981,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -995,7 +999,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1013,7 +1017,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1031,7 +1035,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1049,7 +1053,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1067,7 +1071,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1085,7 +1089,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1103,7 +1107,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1121,7 +1125,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1139,7 +1143,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1157,7 +1161,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1175,7 +1179,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1193,7 +1197,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1211,7 +1215,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1229,7 +1233,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1247,7 +1251,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1265,7 +1269,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1283,7 +1287,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1301,7 +1305,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1319,7 +1323,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1337,7 +1341,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1355,7 +1359,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1373,7 +1377,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1391,7 +1395,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1409,7 +1413,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1427,7 +1431,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1445,7 +1449,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1463,7 +1467,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1481,7 +1485,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1499,7 +1503,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1517,7 +1521,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1535,7 +1539,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1553,7 +1557,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1571,7 +1575,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1589,7 +1593,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1607,7 +1611,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1625,7 +1629,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1643,7 +1647,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1661,7 +1665,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1679,7 +1683,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1697,7 +1701,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1715,7 +1719,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1733,7 +1737,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1751,7 +1755,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1769,7 +1773,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1787,7 +1791,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1805,7 +1809,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1823,7 +1827,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1841,7 +1845,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1859,7 +1863,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1877,7 +1881,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1895,7 +1899,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1913,7 +1917,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1931,7 +1935,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1949,7 +1953,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1967,7 +1971,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -1985,7 +1989,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2003,7 +2007,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2021,7 +2025,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2039,7 +2043,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2057,7 +2061,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2075,7 +2079,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2093,7 +2097,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2111,7 +2115,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2129,7 +2133,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2147,7 +2151,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2165,7 +2169,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2183,7 +2187,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2201,7 +2205,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2219,7 +2223,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2237,7 +2241,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2255,7 +2259,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2273,7 +2277,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2291,7 +2295,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2309,7 +2313,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2327,7 +2331,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2345,7 +2349,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2363,7 +2367,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2381,7 +2385,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2399,7 +2403,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2417,7 +2421,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2435,7 +2439,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2453,7 +2457,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2471,7 +2475,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2489,7 +2493,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2507,7 +2511,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2525,7 +2529,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2543,7 +2547,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2561,7 +2565,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2579,7 +2583,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2597,7 +2601,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2615,7 +2619,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2633,7 +2637,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2651,7 +2655,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2669,7 +2673,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2687,7 +2691,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2705,7 +2709,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2723,7 +2727,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2741,7 +2745,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2759,7 +2763,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2777,7 +2781,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2795,7 +2799,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2813,7 +2817,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2831,7 +2835,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2849,7 +2853,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2867,7 +2871,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2885,7 +2889,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2903,7 +2907,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2921,7 +2925,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2939,7 +2943,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2957,7 +2961,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2975,7 +2979,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -2993,7 +2997,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3011,7 +3015,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3029,7 +3033,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3047,7 +3051,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3065,7 +3069,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3083,7 +3087,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3101,7 +3105,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3119,7 +3123,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3137,7 +3141,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3155,7 +3159,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3173,7 +3177,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3191,7 +3195,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3209,7 +3213,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3227,7 +3231,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3245,7 +3249,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3263,7 +3267,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3281,7 +3285,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3299,7 +3303,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3317,7 +3321,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3335,7 +3339,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3353,7 +3357,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3371,7 +3375,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3389,7 +3393,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     },
     {
@@ -3407,7 +3411,7 @@
         "I5",
         "I12"
       ],
-      "scan_date": "2026-09-12T03:30:00.197989+00:00",
+      "scan_date": "2026-09-12T04:03:49.405735+00:00",
       "status": "Accepted for development/alpha; hardening deferred."
     }
   ]

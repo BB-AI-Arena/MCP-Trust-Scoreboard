@@ -5,7 +5,11 @@
 - Apply owner-authorized development/alpha dependency-risk acceptance. Keep raw
   scans/SBOMs and a complete known-issues register; findings are informational,
   scanner execution failures remain blocking. No automatic merge/publication.
-- Resume connector-framework/reference-path work; defer image hardening.
+- Add separate connector source/destination/response contracts and a real generic
+  JSON → normalized evidence → finding → webhook reference path. Raw content is
+  discarded before durable enqueue; retries/receipts use the PostgreSQL ledger.
+  Local HTTP/TLS fixtures verify delivery and recovery; no live vendor or response
+  enforcement claim. Defer image hardening.
 
 - Add actual thirteen-service Compose/Chromium acceptance, PDF content/layout
   evidence, installed-runtime recreation, old-schema upgrade and separate backup

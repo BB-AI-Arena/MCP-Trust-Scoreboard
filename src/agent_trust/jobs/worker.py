@@ -10,13 +10,22 @@ from agent_trust.providers.base import AnalysisRequest
 from agent_trust.providers.rules import RulesOnlyAnalysisProvider
 from agent_trust.storage.database import create_schema, make_engine
 from agent_trust.storage.job_ledger import JobLedger
+from agent_trust.adapters.connectors.pipeline import complete_ingestion, deliver_finding
 
 
-def process_one(ledger: JobLedger, worker_id: str) -> bool:
+def process_one(ledger: JobLedger, worker_id: str, settings: Settings | None = None) -> bool:
     job = ledger.claim(worker_id)
     if not job:
         return False
     try:
+        if job["kind"] == "connector_ingest":
+            if not complete_ingestion(ledger, job):
+                raise RuntimeError("job lease lost before evidence persistence")
+            return True
+        if job["kind"] == "finding_delivery":
+            if not deliver_finding(ledger, job, settings or Settings.from_env()):
+                raise RuntimeError("job lease lost after destination acknowledgment")
+            return True
         if job["kind"] != "assessment":
             raise ValueError(f"unsupported job kind: {job['kind']}")
         payload = job["payload"]
@@ -37,6 +46,6 @@ def run() -> None:
     ledger = JobLedger(engine)
     worker_id = os.getenv("AGENT_TRUST_WORKER_ID", "worker")
     while True:
-        if not process_one(ledger, worker_id):
+        if not process_one(ledger, worker_id, settings):
             ledger.recover_abandoned()
             time.sleep(1)

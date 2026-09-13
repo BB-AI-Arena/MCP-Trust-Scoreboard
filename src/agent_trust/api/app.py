@@ -24,6 +24,8 @@ from agent_trust.providers.rules import RulesOnlyAnalysisProvider
 from agent_trust.storage.database import create_schema, make_engine
 from agent_trust.storage.job_ledger import JobLedger
 from agent_trust.storage.repository import RecordRepository
+from agent_trust.adapters.connectors.base import DESCRIPTORS, SourceContext
+from agent_trust.adapters.connectors.json_source import EvidenceEnvelope, GenericJSONSource
 
 
 class RecordRequest(BaseModel):
@@ -118,6 +120,27 @@ def create_app(settings: Settings | None = None, engine=None) -> FastAPI:
     def submit_assessment(request: AssessmentRequest, context: AuthContext = Depends(assess)) -> dict[str, Any]:
         job = ledger.enqueue("assessment", context.workspace_id, {"subject_id": request.subject_id, "profile": request.profile, "content": request.content}, idempotency_key=request.idempotency_key)
         return {"job_id": job["id"], "status": job["status"], "accepted": True}
+
+    @app.get("/api/v1/connectors", tags=["connectors"])
+    def connectors(_: AuthContext = Depends(read)):
+        return {"schema_version":"1", "adapters":DESCRIPTORS, "response_adapters":[],
+                "delivery_semantics":"at-least-once; destination must deduplicate delivery_id"}
+
+    @app.post("/api/v1/connectors/generic-json/events", status_code=202, tags=["connectors"])
+    def ingest_evidence(request: EvidenceEnvelope, context: AuthContext = Depends(write)):
+        normalized = GenericJSONSource().normalize(request, SourceContext(context.workspace_id, context.subject))
+        identity = ":".join((context.subject, request.event_id))
+        # Prefix keeps this connector's idempotency keys separate from legacy
+        # assessment callers. Ownership always comes from authenticated context.
+        key = "connector-json:" + hashlib.sha256(identity.encode()).hexdigest()
+        job = ledger.enqueue("connector_ingest", context.workspace_id, normalized, idempotency_key=key)
+        if job["payload"].get("input_digest") != normalized["input_digest"]:
+            raise HTTPException(status_code=409, detail={"code":"event_id_conflict", "message":"event ID already used with different content"})
+        return {"job_id":job["id"], "status":job["status"], "accepted":True}
+
+    @app.get("/api/v1/evidence", tags=["connectors"])
+    def list_evidence(limit: int = Query(default=50, ge=1, le=100), offset: int = Query(default=0, ge=0), context: AuthContext = Depends(read)):
+        return list_records("evidence", context, limit, offset)
 
     @app.get("/api/v1/assessments", tags=["assessments"])
     def list_assessments(limit: int = Query(default=50, ge=1, le=100), offset: int = Query(default=0, ge=0), context: AuthContext = Depends(read)):

@@ -135,6 +135,16 @@ and unfixed findings. Status: "Accepted for development/alpha; hardening deferre
 No ignore files, hidden findings or clean-scan claim. Scanner execution, stale DB,
 missing inventory and invalid reports still fail. See [known issues](KNOWN_SECURITY_ISSUES.md).
 
+Refresh the accepted-risk register from a downloaded, complete artifact without
+altering its raw reports. Supply the actual run/artifact identity (the generator
+verifies all checksums and records those identities rather than a fixed old run):
+
+```bash
+python3 scripts/record_security_findings.py --evidence evidence/connector-ci-containers --run-id 34671947014 --artifact-id 10291645171
+```
+
+This records findings; it does not remediate them or approve publication.
+
 CI keeps existing Python, PostgreSQL, four frontend, Compose and audit jobs and
 adds `full-stack-acceptance` / `container-security`. Pinned upload-artifact retains
 non-sensitive evidence for 14 days even on failure. Download it before expiry
