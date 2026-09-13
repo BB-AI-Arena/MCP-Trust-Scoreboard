@@ -159,17 +159,21 @@ def main(service_mode=False):
             listener=socket.socket();listener.settimeout(15);listener.bind(('127.0.0.1',0));listener.listen()
             actor=launch([str(cursor),f'127.0.0.1:{listener.getsockname()[1]}'],'fixture-process',sensor_env)
             connection,_=listener.accept()
-            wait(lambda:any(e['data']['pid']==actor.pid for e in observed('process_started')))
-            wait(lambda:any(e['data']['pid']==actor.pid for e in observed('process_network_connection')))
+            process_visible=not service_mode or scm.health()['collectors']['process']=='active'
+            if process_visible:
+                wait(lambda:any(e['data']['pid']==actor.pid for e in observed('process_started')))
+                wait(lambda:any(e['data']['pid']==actor.pid for e in observed('process_network_connection')))
             if not service_mode or scm.health()['collectors']['ai']=='active':
                 wait(lambda:observed('ai_tool_running'))
-            file=repo/'src'/'benign.txt';file.write_text('benign repository fixture')
-            wait(lambda:observed('file_created'))
-            file.write_text('changed benign repository fixture')
-            wait(lambda:observed('file_modified'))
-            file.rename(repo/'src'/'renamed.txt');wait(lambda:observed('file_renamed'))
-            (repo/'src'/'renamed.txt').unlink();wait(lambda:observed('file_deleted'))
-            wait(lambda:any(f['rule_id']=='shadow-ai-sensitive-repository' for f in all_records('findings')))
+            filesystem_visible=not service_mode or scm.health()['collectors']['filesystem']=='active'
+            if filesystem_visible:
+                file=repo/'src'/'benign.txt';file.write_text('benign repository fixture')
+                wait(lambda:observed('file_created'))
+                file.write_text('changed benign repository fixture')
+                wait(lambda:observed('file_modified'))
+                file.rename(repo/'src'/'renamed.txt');wait(lambda:observed('file_renamed'))
+                (repo/'src'/'renamed.txt').unlink();wait(lambda:observed('file_deleted'))
+                wait(lambda:any(f['rule_id']=='shadow-ai-sensitive-repository' for f in all_records('findings')))
             stop(api)
             before=len(list((data/'spool').glob('*.event')))
             (repo/'src'/'offline.txt').write_text('offline disposable fixture')
