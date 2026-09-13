@@ -81,7 +81,7 @@ INSERT INTO legacy_fixture VALUES (1,'preserve unrelated records');
             "from agent_trust.config import Settings; from agent_trust.storage.database import make_engine,create_schema; create_schema(make_engine(Settings.from_env().database_url))")
     def sql(query):
         return stack.compose("exec", "-T", "postgres", "psql", "-U", "koi", "-d", "upgrade_fixture", "-Atc", query).stdout.strip()
-    assert sql("SELECT count(*) FROM agent_trust_migrations") == "4"
+    assert sql("SELECT count(*) FROM agent_trust_migrations") == "5"
     assert json.loads(sql("SELECT result FROM agent_trust_jobs WHERE id='old-complete'")) == {"preserved": True}
     projection = json.loads(sql("SELECT payload FROM agent_trust_records WHERE id='old-complete'"))
     assert projection["status"] == "complete" and projection["result"] == {"preserved": True}

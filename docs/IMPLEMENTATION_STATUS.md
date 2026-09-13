@@ -1,4 +1,111 @@
-# Implementation status — read-only CrowdStrike source
+# Implementation status — Windows endpoint vertical slice (issue #22)
+
+Starting SHA `9aa41c1bdbd3c81c6bdf4ba5f33bf1035d18de43`. Rechecked GitHub and clean
+checkout: default main; #15/#16/#17/#19/#21 OPEN with unchanged heads; fetched safely.
+Branch `feat/windows-endpoint-sensor`, dependent base `feat/crowdstrike-evidence-source`
+(PR #21). No merging, deployment, publication, tags, credential changes or operator
+database/volume access. Platform stays unreleased **2.0.0-alpha.1**; sensor 0.1.0.
+Accepted dependency CVEs remain informational; scans/SBOMs/secret gates preserved.
+
+Implemented native Go Windows runtime/SCM handler, Toolhelp/TCP/registry/scoped
+file metadata and AI/MCP discovery, DPAPI identity, bounded persistent spool,
+device enrollment/revocation and typed API. Existing PostgreSQL worker transaction
+persists evidence, bounded explainable correlations, findings and webhook jobs.
+Migration 005 adds one private endpoint table; 001–004 unchanged. See
+[endpoint/WINDOWS.md](endpoint/WINDOWS.md) for setup, privacy, limits and rollback.
+
+Baseline `.venv/bin/pytest -o addopts= -q -ra`: **93 passed / 32 gated skips**, 25.61s.
+Initial endpoint `.venv/bin/pytest tests/test_endpoint.py -v --tb=short`: **10 passed**.
+Initial `.venv/bin/pytest --run-integration tests/integration/test_endpoint_runtime.py -v --tb=short`:
+**1 passed**, 10.35s, real PostgreSQL concurrent idempotency/correlation and local TLS
+receiver/retry. Existing generic connector tests passed (21). Go 1.26.8 portable
+spool/privacy/transport tests: **4 passed**. Windows x64 executable/tests cross-compile.
+Full local `.venv/bin/pytest -o addopts= -q -ra`: **103 passed / 33 gated skips**, 27.25s.
+`.venv/bin/pytest --run-integration tests/integration -v --tb=short --junitxml=evidence/endpoint-runtime/junit.xml`:
+**19 passed**, 207.06s, zero skips; existing 18 retained. Compileall/diff checks passed.
+Initial implementation commit **bebcaa09d8705befa83b6fa84923276591f8b2de** is pushed in
+[PR #23](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/23), base PR #21.
+[Existing CI 34679332603](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34679332603)
+passed all ten jobs. [Windows CI 34679332513](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34679332513)
+and its PR run 34679354524 passed. Downloaded artifact **10293057019** confirms:
+Windows Server 2022 x64 build **20348**, runner **20260907.297.1**; six native tests,
+real foreground enrollment/process/TCP/file/registry/OS collection and full pipeline;
+six offline events recovered, identical replay deduplicated, five findings accepted
+in six receiver attempts, zero blocking actions. Discovery and behavioral test
+fixtures remain explicitly synthetic, not live Cursor/MCP/vendor validation.
+Executable checksum and exact commands: [endpoint/WINDOWS.md](endpoint/WINDOWS.md).
+
+Follow-up adds nonempty-directory/remote-hash guards, stronger TLS/scope tests and
+safer Windows harness cleanup/helper timing. Final ending head and its separate
+CI result must be read back on PR #23; earlier passing runs are not substituted.
+The final contract clarification labels polling lifecycle observations and adds
+server-derived AI approval status; older unlabeled spool records retain canonical
+replay compatibility. Dedicated tests cover both, without changing migration 005.
+Clarification verification: `.venv/bin/pytest -o addopts= -q -ra` **104 passed / 33
+gated skips**, 28.78s; focused real PostgreSQL endpoint test **1 passed**, 11.03s;
+Go portable tests **5 passed**, Windows executable cross-build and compileall/diff
+checks passed. Pre-clarification head `b94f8f628d534fe6bca12eebb10b94296bd7ff2d`
+passed all ten CI jobs (34679626574/34679628953) and the Windows workflow
+(34679626578/34679628965). Final-head readback is recorded separately on PR #23.
+Head `8dc316da700a8a1512f3d0f563fb47e57fcc629f` passed the ten-job CI run
+34679870729 and Windows PR run 34679873211, but Windows push run **34679870733
+failed** its replay-count assertion. Logs show telemetry arriving between offset
+pages: that live listing cannot serve as an exact cardinality snapshot. The harness
+now counts persisted events in one PostgreSQL statement, retaining multiplicity
+(not deduplicating away real duplicate records). A regression oracle test injects
+a genuine duplicate and verifies it remains visible across more than two pages.
+The raw failed-run logs remain retained. A new final-head Windows run is required;
+the passing sibling run does not erase this failure.
+Snapshot-check repair: `.venv/bin/pytest -o addopts= -q -ra` **105 passed / 33
+explicitly gated skips**, 30.54s; `.venv/bin/python -m compileall -q src tests
+scripts/windows_acceptance.py` and `git diff --check` passed. No production code,
+gate or assertion threshold changed for this harness repair.
+All changes are in review, not merged/approved/published. No GitHub operations failed.
+
+## Verified implementation-head handoff
+
+Implementation ending SHA **`1a5eefa8bdf7d3d9ee2c15156270ec9bc90c64bf`**;
+subsequent handoff-only documentation commits do not change the implementation.
+[Push CI 34680187103](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34680187103)
+and PR CI **34680189468** passed all ten existing jobs. This includes the real
+PostgreSQL/runtime suite (**19 tests, zero failures/skips**, retained JUnit), four
+frontend builds, full-stack/browser/report/persistence acceptance, deployment
+checks, secret protections, dependency scans and container evidence generation.
+[Windows push 34680187120](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34680187120)
+and PR Windows **34680189435** passed. Downloaded artifact **10293223676**:
+Windows Server 2022 x64 build **20348**, runner **20260907.297.1**, **eight native
+tests**, full foreground pipeline; **10 offline events recovered**, replay count
+**exactly one** in PostgreSQL, **five accepted findings / six receiver attempts**,
+**zero blocking actions**. Sensor executable SHA-256:
+`3c22332a69841751a1ee091410a4a13df3df88dbd53b2d3eb8d422a0481c9171`.
+
+Downloaded container artifact **10293112740**: **41 checksums verified**, source
+matches the implementation head, **13 service identities / 12 distinct images**,
+scans completed with dependency findings still present. Raw reports and CycloneDX
+SBOMs retained; findings remain accepted/informational, not described as clean.
+Runtime artifact **10293478318** and dependency artifact **10293957572** are retained
+on the same run. Actual final branch/PR head and its CI readback are also recorded
+on [PR #23](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/23); no inherited
+pass or prior SHA is substituted for that final check.
+
+Rechecked dependency stack: #15/#16/#17/#19/#21 still OPEN; base remains PR #21,
+not main. [Issue #22](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/22)
+and its dedicated Project item remain In review. Platform **2.0.0-alpha.1 remains
+unreleased**. No merge, deployment, tag, publication, credential change or operator
+database/volume operation occurred. Backup/rollback: preserve additive migration
+005 and records, stop sensor ingestion and reconcile pending endpoint jobs before
+rolling code back; do not delete data/volumes. Metadata paths/SIDs remain sensitive;
+private ACLs, scoped roots and retention/reconciliation are operator responsibilities.
+
+Known limitations: polling misses short-lived activity; no file-writer association,
+DNS/UDP, payloads, source-code read proof, complete inventory, learned baseline,
+production signing/updater, validated dedicated-account SCM deployment or enforcement.
+Issue #22 and [the private Project](https://github.com/users/BB-AI-Arena/projects/1)
+remain In review, not Done. Next concrete follow-up: dedicated least-privilege SCM
+account enrollment/start/recovery acceptance and a Windows client-OS test matrix;
+not dependency hardening or prevention.
+
+## Prior slice history — read-only CrowdStrike source
 
 ## Scope, source and review state
 

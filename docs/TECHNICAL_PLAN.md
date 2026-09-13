@@ -6,6 +6,15 @@ vendor-neutral local/self-hosted product without deleting its useful flows.
 
 ## Scope and decisions
 
+Owner-selected ATP-C1 / issue #22 now implements the Windows observe-only endpoint
+vertical slice on PR #21. Go user-mode sensor → strict per-device ingestion →
+existing PostgreSQL evidence/correlation/job/outbox path. Migration 005 adds private
+device enrollment/health/policy state; 001–004 remain intact. No kernel driver or
+response adapter. Real Windows CI is required, not inferred from Linux fixtures.
+Decision, scope, privacy and acceptance: [endpoint/ARCHITECTURE.md](endpoint/ARCHITECTURE.md)
+and [endpoint/WINDOWS.md](endpoint/WINDOWS.md). This owner priority supersedes the
+older runtime-only pause; other planned C-phase capabilities are not marked done.
+
 Owner override (development/alpha): known third-party dependency CVEs are accepted
 and hardening deferred. Scans/raw findings/SBOMs remain; findings do not block
 development, reviewed merges or approved alpha preparation/publication. Scanner

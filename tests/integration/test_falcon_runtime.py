@@ -200,4 +200,4 @@ def test_upgrade_003_to_004_preserves_preexisting_records(pg_engine):
     assert RecordRepository(pg_engine).get('agents','preexisting-agent','workspace')['marker']=='preserve'
     with pg_engine.connect() as c:
         assert c.execute(select(connector_checkpoints)).first() is None
-        assert c.execute(text('SELECT count(*) FROM agent_trust_migrations')).scalar()==4
+        assert c.execute(text('SELECT count(*) FROM agent_trust_migrations')).scalar()==5

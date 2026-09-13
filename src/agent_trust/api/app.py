@@ -51,10 +51,26 @@ def create_app(settings: Settings | None = None, engine=None) -> FastAPI:
     app.state.settings = settings
     app.state.repository = repository
     app.state.ledger = ledger
+    from fastapi.exceptions import RequestValidationError
+    from fastapi.exception_handlers import request_validation_exception_handler
+
+    @app.exception_handler(RequestValidationError)
+    async def safe_endpoint_validation(request, exc):
+        if request.url.path.startswith('/api/v1/endpoints'):
+            # Validation errors must not echo bootstrap secrets or device data.
+            return JSONResponse(status_code=422,content={'detail':{'code':'invalid_endpoint_request'}})
+        return await request_validation_exception_handler(request, exc)
     app.add_middleware(CORSMiddleware, allow_origins=list(settings.allowed_origins), allow_credentials=False, allow_methods=["GET", "POST"], allow_headers=["Authorization", "Content-Type", "Idempotency-Key"])
 
     @app.middleware("http")
     async def request_size_limit(request, call_next):
+        if request.url.path.startswith('/api/v1/endpoints'):
+            body = bytearray()
+            async for chunk in request.stream():
+                if len(body)+len(chunk)>settings.max_request_bytes:
+                    return JSONResponse(status_code=413,content={'detail':{'code':'request_too_large'}})
+                body.extend(chunk)
+            request._body = bytes(body)
         content_length = request.headers.get("content-length")
         if content_length and content_length.isdigit() and int(content_length) > settings.max_request_bytes:
             return JSONResponse(status_code=413, content={"detail": {"code": "request_too_large", "message": "request exceeds configured size limit"}})
@@ -63,6 +79,8 @@ def create_app(settings: Settings | None = None, engine=None) -> FastAPI:
     read = context_dependency(settings, "read")
     write = context_dependency(settings, "write")
     assess = context_dependency(settings, "assess")
+    from agent_trust.api.endpoints import endpoint_router
+    app.include_router(endpoint_router(settings, engine))
 
     @app.get("/health", tags=["system"])
     def health() -> dict[str, str]:
