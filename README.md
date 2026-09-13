@@ -103,9 +103,9 @@ docker compose config --format json | python3 scripts/validate_deployment.py
 docker compose up --build -d --wait
 ```
 
-After startup, open **http://localhost:5176** for the MCP assessment dashboard
-(the existing UI calls it **MCP Trust Scorecard**). The stack also starts the
-three companion workspaces, platform API, workers and storage listed below.
+After startup, open **http://localhost:5176** for the MCP assessment dashboard.
+The stack also starts the three companion workspaces, platform API, workers and
+storage listed below.
 
 Fresh installations need Python 3.11+ and Docker Engine with Compose v2+.
 The generator creates a private `.env` with random local credentials and refuses

@@ -8,26 +8,15 @@ function WarningIcon() {
   )
 }
 
-function CheckIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 flex-shrink-0">
-      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-    </svg>
-  )
-}
-
 export default function FlagsPanel({ flags }) {
   const hasFlags = flags && flags.length > 0
 
   return (
     <div className="bg-card card-border rounded-xl p-5">
-      <h3 className="text-sm font-600 text-white mb-3 tracking-wide uppercase">Security Flags</h3>
+      <h3 className="text-sm font-600 text-white mb-3 tracking-wide uppercase">Risk Findings</h3>
 
       {!hasFlags ? (
-        <div className="flex items-center gap-2 text-success">
-          <CheckIcon />
-          <span className="text-sm font-500">No flags detected — manifest passed all checks</span>
-        </div>
+        <p className="text-sm text-muted">No risk findings were returned for the submitted manifest.</p>
       ) : (
         <div className="flex flex-wrap gap-2">
           {flags.map((flag, i) => (
