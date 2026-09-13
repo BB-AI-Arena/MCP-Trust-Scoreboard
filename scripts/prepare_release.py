@@ -27,6 +27,8 @@ def main() -> None:
         raise SystemExit(f"VERSION mismatch: expected {args.version}, found {actual_version}")
     if actual_sha != args.sha:
         raise SystemExit(f"SHA mismatch: expected {args.sha}, found {actual_sha}")
+    if git("status", "--porcelain", "--untracked-files=normal"):
+        raise SystemExit("Release evidence requires a clean checkout of the exact source SHA")
     files = []
     for name in git("ls-files").splitlines():
         path = root / name
@@ -37,6 +39,8 @@ def main() -> None:
         "source_sha": actual_sha,
         "published": False,
         "tag_created": False,
+        "release_ready": False,
+        "validation": "Source checksums only; required CI and maintainer release review are separate gates.",
         "migration_notes": "docs/TECHNICAL_PLAN.md",
         "dependency_inventory": ["pyproject.toml", "app1-blast-radius/frontend/package-lock.json", "app2-behavior-baseline/frontend/package-lock.json", "app3-code-provenance/frontend/package-lock.json", "app4-mcp-scorecard/frontend/package-lock.json"],
         "sbom": "not generated until the maintainer-approved release job",

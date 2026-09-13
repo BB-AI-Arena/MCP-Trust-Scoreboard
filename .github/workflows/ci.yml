@@ -2,9 +2,15 @@ name: CI
 
 on:
   push:
-    branches: [main, "feat/**"]
+    branches: [main, "feat/**", "fix/**"]
   pull_request:
     branches: [main]
+  workflow_call:
+    inputs:
+      source_sha:
+        description: Exact source to validate during manual release preparation
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -14,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
       - name: Install and test
         shell: bash
         run: |
@@ -32,6 +40,21 @@ jobs:
             test "$(node -p "require('./$f').version")" = "2.0.0-alpha.1"
           done
 
+  runtime-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
+      - name: Test installed container and real PostgreSQL recovery
+        run: |
+          python -m venv .runtime-venv
+          . .runtime-venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[postgres,test]'
+          pytest --run-integration tests/integration -v
+
   frontend:
     runs-on: ubuntu-latest
     strategy:
@@ -39,14 +62,18 @@ jobs:
         app: [app1-blast-radius/frontend, app2-behavior-baseline/frontend, app3-code-provenance/frontend, app4-mcp-scorecard/frontend]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
       - name: Build frontend
         working-directory: ${{ matrix.app }}
-        run: npm ci && npm run build
+        run: npm ci && node --test ../../tests/frontend/pdf-export.test.cjs && npm run build
 
   compose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
       - name: Validate Compose configuration
         run: docker compose config
 
@@ -54,6 +81,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
       - name: Check committed files for common credential formats
         run: |
           if git grep -n -E 'AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{20,}|-----BEGIN (RSA |EC )?PRIVATE KEY-----'; then
@@ -69,6 +98,8 @@ jobs:
           pip-audit
       - name: Audit frontend dependencies
         run: |
+          audit_status=0
           for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-provenance/frontend app4-mcp-scorecard/frontend; do
-            (cd "$d" && npm ci --ignore-scripts && npm audit --audit-level=high)
+            (cd "$d" && npm ci --ignore-scripts && npm audit --audit-level=high) || audit_status=1
           done
+          exit "$audit_status"
