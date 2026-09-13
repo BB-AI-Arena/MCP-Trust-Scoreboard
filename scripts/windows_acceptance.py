@@ -146,10 +146,11 @@ def main(service_mode=False):
                 # A virtual service account may not see interactive-user
                 # profiles. Require truthful collector state, and only require
                 # fixture evidence when that collector is active.
-                wait(lambda:scm.health().get('collectors',{}).get('ai') in ('active','degraded','permission_missing'))
-                wait(lambda:scm.health().get('collectors',{}).get('mcp') in ('active','degraded','permission_missing'))
-                if scm.health()['collectors']['ai']=='active': wait(lambda:observed('ai_tool_discovered'))
-                if scm.health()['collectors']['mcp']=='active': wait(lambda:observed('mcp_configuration_discovered'))
+                collector_states=scm.health().get('collectors',{})
+                assert collector_states.get('ai') in ('active','degraded','permission_missing'), collector_states
+                assert collector_states.get('mcp') in ('active','degraded','permission_missing'), collector_states
+                if collector_states['ai']=='active': wait(lambda:observed('ai_tool_discovered'))
+                if collector_states['mcp']=='active': wait(lambda:observed('mcp_configuration_discovered'))
             else:
                 wait(lambda:observed('ai_tool_discovered'))
                 wait(lambda:observed('mcp_configuration_discovered'))
