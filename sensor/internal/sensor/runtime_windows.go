@@ -195,6 +195,9 @@ func (m *Manager) discovery() error {
 	if e != nil {
 		m.states["ai"] = "degraded"
 	}
+	if e == nil && len(m.Config.ProfileRoots) > 0 && len(d.Tools) == 0 && len(m.Identity.Policy.CustomTools) == 0 {
+		m.states["ai"] = "degraded"
+	}
 	m.tools = d.Tools
 	for _, t := range d.Tools {
 		key := t.ID + ":" + t.Path
@@ -212,6 +215,9 @@ func (m *Manager) discovery() error {
 	}
 	m.states["mcp"] = "active"
 	if discoveryError != nil {
+		m.states["mcp"] = "degraded"
+	}
+	if discoveryError == nil && len(m.Config.ProfileRoots) > 0 && len(d.Configs) == 0 && len(m.Identity.Policy.MCPPaths) == 0 {
 		m.states["mcp"] = "degraded"
 	}
 	if len(m.Config.ProfileRoots) == 0 && len(m.Identity.Policy.MCPPaths) == 0 {
