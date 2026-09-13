@@ -50,7 +50,7 @@ It must never be pointed at an operator database. Evidence is retained by the
 `Windows endpoint sensor` workflow, including logs on failure.
 
 Service-account acceptance now passes with documented visibility limits; see
-[the current evidence](../STACK_RECONCILIATION.md#windows-evidence-and-limits).
+[the current evidence](../STACK_RECONCILIATION.md#windows-acceptance-on-feature-merged-main).
 Signed installer/updater, literal reboot verification, short-lived ETW telemetry,
 DNS/UDP/file-writer attribution, complete inventory, learned baselines, YARA rules,
 CVE matching, DLP and enforcement are not completed capabilities.

@@ -1,13 +1,16 @@
 # Windows service acceptance follow-up
 
-Starting source: e8e09f1868834a13b233817bccb0e188448fedc5 (open PR #23).
-Branch: feat/windows-service-acceptance; base: feat/windows-endpoint-sensor.
-Windows execution passed at implementation head
+Historical starting source: e8e09f1868834a13b233817bccb0e188448fedc5 (PR #23).
+PR #23/#24 and their prerequisites are now merged. Actual-main release preparation
+passed; source-bound evidence is in [the reconciliation report](../STACK_RECONCILIATION.md#windows-acceptance-on-feature-merged-main).
+Historical branch: feat/windows-service-acceptance; base: feat/windows-endpoint-sensor.
+Windows execution initially passed at implementation head
 `e814ba207d243b5e0ac10e784fbf0ec102f7e205` in
 [run 34738201185](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34738201185).
-See [the authoritative reconciliation](../STACK_RECONCILIATION.md#windows-evidence-and-limits)
-for exact test-merge SHA, binary hash, spool counts and actual collector states.
-This clears the historical SCM enrollment blocker, not merged-main validation.
+See [the authoritative reconciliation](../STACK_RECONCILIATION.md#windows-acceptance-on-feature-merged-main)
+for exact source, binary hash, spool counts and actual collector states.
+The historical SCM enrollment blocker and feature-main validation are both complete;
+the later status-only documentation merge is separately revalidated.
 
 The development installer is `scripts/windows_service.ps1`. It creates a unique
 virtual account `NT SERVICE\<service name>` through SCM, sets automatic startup,

@@ -1,17 +1,23 @@
 version: 1
 product: Agent Trust Platform
-release_state: awaiting_stack_merge_and_merged_main_validation
+release_state: ready_for_maintainer_publication_review
+validated_feature_main_sha: 14378a27e96c7c8f5451f4698820f696a4e8c2c1
+feature_main_validation: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34740514148
+documentation_merge_revalidation: required_before_final_handoff
+closed_issues: [1, 2, 3, 11, 18, 20, 22]
+remaining_issues: [5, 6, 7, 8, 9, 10]
 authoritative_status: docs/STACK_RECONCILIATION.md
 project_status: 'GitHub Project status unverified: active authentication lacks read:project.'
 dependency_policy: accepted_for_development_alpha_hardening_deferred
-active_branch: feat/windows-service-acceptance
-base_branch: feat/windows-endpoint-sensor
-dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/23
+active_branch: main
+historical_service_branch: feat/windows-service-acceptance
+historical_service_base_branch: feat/windows-endpoint-sensor
+stack_merged: [15, 16, 17, 19, 21, 23, 24]
 endpoint_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/22
 endpoint_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/23
 endpoint_service_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/24
-windows_acceptance: server_2022_foreground_and_scm_passed_implementation_tree
-windows_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34738201185
+windows_acceptance: server_2022_foreground_and_scm_passed_actual_feature_main
+windows_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34740514148
 endpoint_initial_sha: bebcaa09d8705befa83b6fa84923276591f8b2de
 falcon_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/20
 falcon_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/21
@@ -24,32 +30,32 @@ historical_falcon_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/action
 historical_acceptance_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670064621
 historical_gate_outcome: nine_jobs_passed_container_security_failed_under_superseded_policy
 acceptance_gates:
-  legacy_browser_and_downloads: implemented_in_review
-  container_recreation_upgrade_restore: implemented_in_review
-  deployment_boundaries: local_only_in_review
+  legacy_browser_and_downloads: passed_on_feature_main
+  container_recreation_upgrade_restore: passed_on_feature_main
+  deployment_boundaries: local_only_validated
   container_scan_sbom: execution_required_findings_informational
-  maintainer_approval: pending
+  maintainer_approval: implementation_merged_publication_separate
   deployed: false
   published: false
-feature_work: stopped_reconciliation_only
+feature_work: stopped_merged_main_validation_only
 ui_work: paused
 merged_foundation_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/12
 items:
   - id: ATP-A1
     target: 2.0.0-alpha.1
     title: Neutral namespace and provider contracts
-    status: in_review
+    status: completed
     depends_on: []
   - id: ATP-A2
     target: 2.0.0-alpha.1
     title: Durable PostgreSQL records and job ledger
-    status: in_review
+    status: completed
     repair_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/15
     depends_on: [ATP-A1]
   - id: ATP-A3
     target: 2.0.0-alpha.1
     title: Legacy compatibility and truthful local product surface
-    status: in_review
+    status: completed
     depends_on: [ATP-A1]
   - id: ATP-B1
     target: 2.0.0-alpha.2
@@ -66,7 +72,7 @@ items:
     # #22 retains C1; #5's baseline/SDK work moves to C2.
     target: 2.0.0-alpha.1
     title: Windows Endpoint Sensor v0.1 observe-only vertical slice
-    status: in_review
+    status: completed
     broader_baselines: planned
     depends_on: [ATP-B4]
   - id: ATP-C2
@@ -88,9 +94,9 @@ items:
   - id: ATP-D1
     target: 2.0.0-rc.1
     title: Release and recovery gates
-    status: in_review
+    status: alpha_complete_future_operations_open
     alpha_gate_slice: true
-    remaining: [maintainer_review_and_stack_merge, merged_main_validation, future_production_operations]
+    remaining: [separate_publication_approval, future_production_operations]
     depends_on: [ATP-C1]
   - id: ATP-E1
     target: 2.0.0-beta.1
@@ -106,11 +112,11 @@ items:
   - id: ATP-B3
     target: 2.0.0-alpha.1
     title: Connector contracts and JSON-to-webhook reference path
-    status: in_review
+    status: completed
     depends_on: [ATP-A2]
   - id: ATP-B4
     target: 2.0.0-alpha.1
     title: Read-only CrowdStrike host and alert evidence source
-    status: in_review
+    status: completed
     live_validation: pending
     depends_on: [ATP-B3]

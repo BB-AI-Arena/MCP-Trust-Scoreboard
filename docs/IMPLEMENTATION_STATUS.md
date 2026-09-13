@@ -1,16 +1,24 @@
 # Implementation status
 
-## Current reconciliation — 2026-09-13
+## Merged-main acceptance — 2026-09-13
 
-The authoritative current heads, CI, migration/issue matrix, merge order and
-actual-main validation instructions are in [STACK_RECONCILIATION.md](STACK_RECONCILIATION.md).
-PR #24's implementation head `e814ba207d243b5e0ac10e784fbf0ec102f7e205` passes
-platform, portable Go, native Windows, foreground and real SCM acceptance.
-[Windows run 34738201185](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34738201185)
-clears the service enrollment blocker; the report distinguishes test-merge source,
-foreground fixture coverage and degraded service-account collector visibility.
-New feature development is stopped. No PR merged, issue closed or release published.
-**NOT READY FOR PUBLICATION — awaiting maintainer merge and merged-main validation.**
+All seven PRs #15 → #16 → #17 → #19 → #21 → #23 → #24 are normally merged.
+Feature-merged main: `14378a27e96c7c8f5451f4698820f696a4e8c2c1`.
+[Release preparation 34740514148](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34740514148)
+passed all 14 jobs on that actual main SHA: complete platform, native/foreground/
+SCM Windows and final evidence preparation. Retained JUnit: 19 PostgreSQL and
+14 browser/full-stack tests, zero failures/skips. Local clean-main unit/contracts:
+105 passed; supplemental combined migration-retention audit passed.
+
+Authoritative merge SHAs, Windows binary/spool/collector evidence, migrations,
+issue dispositions, failure history and limits:
+[STACK_RECONCILIATION.md](STACK_RECONCILIATION.md). Issues #1/#2/#3/#11/#18/#20/#22
+closed only after successful merged-main validation; #5/#6/#7/#8/#9/#10 stay open.
+**READY FOR MAINTAINER REVIEW FOR 2.0.0-alpha.1 PUBLICATION** on that evidence.
+The owner-authorized status-documentation merge receives another exact-main
+release-preparation run before final handoff; its final SHA/run is recorded on
+the documentation PR and issue #8, not misattributed to the frozen evidence above.
+New feature development is stopped. Nothing released, tagged, published or deployed.
 GitHub Project status unverified: active authentication lacks read:project.
 
 ## Historical Windows endpoint vertical-slice handoffs

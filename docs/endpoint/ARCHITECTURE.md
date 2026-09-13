@@ -1,7 +1,9 @@
 # Windows Endpoint Sensor v0.1 — implementation decision
 
 Issue #22 / ATP-C1. Observe-only, unreleased alpha; no response adapter.
-Branch from PR #21 (`9aa41c1bdbd3c81c6bdf4ba5f33bf1035d18de43`), which remains open.
+Originally branched from PR #21 (`9aa41c1bdbd3c81c6bdf4ba5f33bf1035d18de43`).
+The complete stack is now merged; actual-main acceptance is recorded in
+[STACK_RECONCILIATION.md](../STACK_RECONCILIATION.md).
 
 ## Language and runtime
 

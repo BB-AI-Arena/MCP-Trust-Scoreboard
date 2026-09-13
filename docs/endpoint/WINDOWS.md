@@ -5,11 +5,11 @@ Observe-only, **not production-hardened**, not an EDR replacement. Sensor versio
 
 ## Validation boundary
 
-Current Server 2022 foreground and virtual-account SCM acceptance passes on
-PR #24. [Authoritative reconciliation](../STACK_RECONCILIATION.md#windows-evidence-and-limits)
-records run 34738201185, exact source/tree/binary hash, nine native tests, spool
+Current Server 2022 foreground and virtual-account SCM acceptance passes on actual
+feature-merged main. [Authoritative reconciliation](../STACK_RECONCILIATION.md#windows-acceptance-on-feature-merged-main)
+records run 34740514148, exact main source/binary hash, nine native tests, spool
 counts and degraded service collector states. The following earlier #23 results
-are historical; they do not supersede that result or validate actual merged main.
+are historical and do not supersede the merged-main evidence.
 
 The dedicated `Windows endpoint sensor` workflow targets **windows-2022 x64**.
 Verified initial source `bebcaa09d8705befa83b6fa84923276591f8b2de`: **Windows Server
