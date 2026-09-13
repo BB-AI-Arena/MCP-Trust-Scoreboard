@@ -1,117 +1,97 @@
-<div align="center">
+# MCP Trust Scoreboard
 
-<img src="https://img.shields.io/badge/Proposed-2.0.0--alpha.1-00D4FF?style=for-the-badge&labelColor=0A0E1A" alt="proposed application version">
-<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-00FF9C?style=for-the-badge&labelColor=0A0E1A" alt="MIT license"></a>
-<a href="https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/workflows/ci.yml"><img src="https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
-<img src="https://img.shields.io/badge/Python-3.10%2B-3572A5?style=for-the-badge&logo=python&logoColor=white&labelColor=0A0E1A" alt="Python 3.10 or newer">
-<img src="https://img.shields.io/badge/React-Vite-61DAFB?style=for-the-badge&logo=react&logoColor=white&labelColor=0A0E1A" alt="React and Vite">
-<img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white&labelColor=0A0E1A" alt="Docker Compose">
+### Open-source MCP Security Dashboard for the Model Context Protocol
 
-<br/>
+MCP Trust Scoreboard helps developers and security teams assess Model Context
+Protocol (MCP) servers, MCP tools, MCP permissions, identity, network references
+and trust evidence. Its MCP trust score supports MCP security review within
+Agent Trust Platform, which extends evidence and correlation across AI agents,
+endpoints, repositories, cloud resource declarations and existing security tools.
 
-<img src="https://img.shields.io/badge/Deployment-Local_%7C_Self--hosted-00FF9C?style=flat-square&labelColor=0A0E1A" alt="local or self-hosted deployment">
-<img src="https://img.shields.io/badge/Storage-PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white&labelColor=0A0E1A" alt="PostgreSQL storage">
-<img src="https://img.shields.io/badge/Assessment-Rules--first-FFB800?style=flat-square&labelColor=0A0E1A" alt="rules-first assessment">
-<img src="https://img.shields.io/badge/PRs-Welcome-00FF9C?style=flat-square&labelColor=0A0E1A" alt="pull requests welcome">
+**MCP Trust Scoreboard is the MCP Security Dashboard from Agent Trust Platform.**
 
-<br/><br/>
+[**MCP Security Overview**](#secure-the-connection-between-ai-agents-and-tools) ·
+[**Quick Start**](#quick-start) ·
+[**MCP Trust Score**](#mcp-trust-score) ·
+[**Architecture**](#architecture) ·
+[**Roadmap**](docs/ROADMAP.md)
 
-# 🛡️ Agent Trust Platform
+[![Alpha candidate: 2.0.0-alpha.1](https://img.shields.io/badge/Alpha_candidate-2.0.0--alpha.1-00D4FF)](#release-status)
+[![MIT license](https://img.shields.io/badge/License-MIT-00FF9C)](LICENSE)
+[![CI status](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/workflows/ci.yml)
+![Deployment: local or self-hosted](https://img.shields.io/badge/Deployment-Local_%7C_Self--hosted-00FF9C)
 
-### Vendor-neutral security assessment and monitoring for AI agents
+## Secure the connection between AI agents and tools
 
-Permission reach · Connector trust · Behavior signals · Artifact assurance
+MCP connects AI agents to tools and resources. Model Context Protocol security
+starts with making those connections reviewable: which MCP servers are configured,
+who claims to publish them, what tools they expose, which permissions they request,
+what resources those permissions could reach, and which destinations they reference.
+MCP server security also depends on the evidence supporting trust and any supported
+links to agents, endpoints and security findings.
 
-Single-tenant, local/self-hosted alpha software for understanding what agents
-can access, what they actually do, and what evidence supports trust decisions.
+Use the dashboard for MCP server assessment and MCP governance reviews: inspect
+submitted declarations, review risk findings and identify missing evidence before
+making an access decision. Configured access is a claim, independent verification
+needs supporting evidence, and observed activity requires telemetry. These are
+separate states; a declared permission is not evidence that a tool was used.
 
-<br/>
+## MCP trust score
 
-[**Explore the workspaces ↓**](#four-workspaces) &nbsp;·&nbsp;
-[**Quick start →**](#quick-start) &nbsp;·&nbsp;
-[**Technical plan →**](docs/TECHNICAL_PLAN.md)
+The scorecard presents a **Trust Score** from 0–100, six dimension explanations,
+**Risk Findings** (flags), and a downloadable PDF report. The existing
+[scoring implementation](app4-mcp-scorecard/backend/scorer.py) uses these dimensions:
 
-</div>
-
----
-
-## Make agent access reviewable
-
-AI agents are becoming capable of reading sensitive data, invoking tools, and
-crossing service boundaries. Agent Trust Platform gives security and platform
-teams one local-first place to inspect that access, test trust assumptions, and
-retain the evidence behind an assessment.
-
-| Before deployment | During operation | During review |
+| Dimension | Weight | Current assessment inputs |
 | --- | --- | --- |
-| Understand declared permissions, integrations, and connector risk. | Compare observed activity with an agent’s expected behavior. | Preserve findings, evidence, artifact signals, and deterministic decisions. |
+| Network | 25% | Domain references extracted from submitted JSON; resolution and AbuseIPDB results when configured, with missing-check notes. This does not observe network traffic. |
+| Permissions | 20% | Declared permission count relative to tool count, with a penalty from optional analysis or its fallback suspicion value. This does not verify effective authorization. |
+| Identity | 20% | Publisher/author/vendor name and declared identity or URL signals. A URL or submitted `verified` flag is not independent publisher verification. |
+| Transparency | 15% | Source/repository, license and audit fields. Submitted audit claims are not independently checked. |
+| Version | 10% | Version/history/changelog fields and declared undocumented permission changes. This is a metadata heuristic, not a comparison of collected snapshots. |
+| Community | 10% | Submitted publication date, install/download counts and CVE references. No registry or vulnerability feed is collected by this dimension. |
 
-The product is designed for teams that need a practical security workbench
-before they are ready to send sensitive agent data to a shared SaaS service.
-It runs on a single-tenant local or self-hosted deployment, starts with
-rules-only analysis, and makes optional provider use explicit.
+**Evidence and assessment limitations:** the legacy scorecard primarily evaluates
+supplied fields. Missing provider checks appear in notes/flags; fallback numbers
+can still affect the score. A high score, absent flags or an AI suspicion value
+does not establish security or a calibrated probability. Review the underlying
+evidence and unavailable checks alongside the score.
 
-## Four workspaces
+**Recommendations for review:** confirm publisher and audit claims, narrow
+unnecessary permissions, review referenced destinations and document version
+changes. These are review steps, not automated remediation.
 
-| | Workspace | Security question | Capability today |
-| --- | --- | --- | --- |
-| 🔵 | **Tool and Connector Trust** | What should be trusted before an agent connects? | Manifest scorecard, domain checks, permission signals |
-| 🟣 | **Agent Access / Blast Radius** | What can an agent reach under declared permissions? | Interactive permission graph and attack paths |
-| 🟢 | **Behavior Monitoring** | Is observed activity outside its baseline? | Baseline metrics, anomaly detection, event contract |
-| 🟠 | **Code and Artifact Assurance** | What evidence supports an artifact decision? | Static security checks and clearly labeled provenance signals |
+## MCP security capabilities
 
-### Capabilities at a glance
-
-| Capability | Available in this alpha | Boundary |
+| Capability | Status | What it means |
 | --- | --- | --- |
-| Rules-first assessment | Yes | Deterministic findings run without API keys. |
-| Agent access mapping | Yes | Current graph inputs are declared permissions and integrations; observed authorization is a roadmap item. |
-| Durable state and jobs | Yes | PostgreSQL is the durable target; Redis remains a legacy compatibility cache. |
-| Provider adapters | Yes | Optional Gemini, OpenAI-compatible, and AbuseIPDB adapters expose explicit unavailable states. |
-| Evidence model | Foundation | Versioned evidence fields exist; broader collector coverage is in the next milestone. |
-| Live MCP/OpenAPI discovery | Planned | No submitted tool or operation is executed by default. |
-| Inline enforcement | Planned for 2.1 | This alpha assesses and observes; it does not quarantine or block requests. |
+| MCP manifest assessment | Current | Upload a JSON object or fetch a JSON manifest URL for field-based analysis; no MCP handshake or tool execution. |
+| MCP config evidence | Current, scoped Windows sensor | Discover metadata from supported, explicitly scoped MCP JSON configurations. This does not enumerate tools over the protocol. |
+| MCP trust scoring | Current | Six weighted dimensions, overall score, explanations, flags and PDF export in the MCP dashboard. |
+| Permission analysis | Current | Manifest permission/tool-count heuristic; optional Gemini analysis requires configuration and hosted-analysis opt-in. |
+| Domain/network references | Current | Extract HTTP(S) host references from JSON; optional AbuseIPDB-backed checks. References do not establish actual connections. |
+| Identity/publisher signals | Current | Assess submitted names, URLs and identity claims; independent publisher verification is not supplied by the scorecard. |
+| Findings and evidence | Current, separate surfaces | Scorecard flags/report; platform API stores normalized evidence and findings from supported sources. Scorecard submissions are not automatically a unified platform evidence graph. |
+| Agent/resource context | Current, bounded | Declared-access graph, scoped endpoint correlations and explicit agent mappings for external findings. No complete observed MCP tool-use graph. |
 
-The existing React/D3/Recharts visualizations and FastAPI routes remain
-available on ports 5173–5176. They are compatibility demonstrations: seeded
-behavior data, heuristic attribution, and optional provider output are labeled
-as such. A heuristic is not proof of authorship, and a signed build is not
-proof that code is safe.
+### Current, planned and future
 
-## Built for security and platform teams
+- **CURRENT:** manifest/config/evidence-based analysis, the existing MCP trust score
+  and dashboard, plus available Agent Trust evidence correlation through the
+  platform API and supported connectors.
+- **PLANNED:** actual MCP stdio discovery, Streamable HTTP MCP discovery, OpenAPI
+  collection and a tested protocol compatibility matrix
+  ([ATP-B1](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/10)); expanded
+  verification, evidence snapshots and drift
+  ([ATP-B2](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/7)).
+- **FUTURE:** broader runtime MCP monitoring, an MCP Trust Registry concept, and
+  expanded policy/optional enforcement. The registry is a direction, not an
+  implemented service or committed release milestone. See the
+  [roadmap](docs/ROADMAP.md) for behavioral baselines/SDKs (ATP-C2), graph/artifact
+  views (ATP-E1), release operations (ATP-D1) and optional enforcement (ATP-F1).
 
-- **Security engineering** gets a repeatable way to review agent reach,
-  connector exposure, findings, and evidence without depending on a hosted
-  control plane.
-- **Platform engineering** gets a versioned API, PostgreSQL-backed records,
-  fenced jobs, scoped capabilities, and compatibility routes for incremental
-  adoption.
-- **Application and agent owners** get a visual assessment workflow that turns
-  a permission list into understandable paths, risks, and mitigations.
-
-The product’s core promise is deliberately concrete: make access and trust
-assumptions visible, preserve uncertainty instead of inventing confidence, and
-keep deterministic policy decisions separate from optional model analysis.
-
-## Why this architecture
-
-```text
-Declared access ──┐
-Observed events ───┼──> Evidence ──> Assessment ──> Reviewable findings
-Artifacts ────────┘          │             │
-                             └──> Graph / behavior / assurance views
-```
-
-- **Vendor-neutral:** adapters declare whether they assess, inventory,
-  observe, or enforce; no closed-product integration is implied by a name.
-- **Local-first:** loopback defaults, scoped bearer auth, redaction controls,
-  bounded requests, and explicit hosted-data opt-in are part of the baseline.
-- **Operationally durable:** PostgreSQL stores records and the job ledger;
-  leases, fencing, idempotency, and bounded retries make recovery behavior
-  visible and testable.
-- **Honest by design:** claimed, verified, observed, unavailable, and unknown
-  states remain distinct. Confidence is not presented as a calibrated
-  probability.
+There is no shipped live MCP protocol scanning. Scoped endpoint configuration
+discovery is not an implementation of ATP-B1.
 
 ## Quick start
 
@@ -122,6 +102,10 @@ python3 scripts/configure_local.py
 docker compose config --format json | python3 scripts/validate_deployment.py
 docker compose up --build -d --wait
 ```
+
+After startup, open **http://localhost:5176** for the MCP assessment dashboard
+(the existing UI calls it **MCP Trust Scorecard**). The stack also starts the
+three companion workspaces, platform API, workers and storage listed below.
 
 Fresh installations need Python 3.11+ and Docker Engine with Compose v2+.
 The generator creates a private `.env` with random local credentials and refuses
@@ -144,16 +128,159 @@ expired results.
 
 | Service | URL |
 | --- | --- |
-| Blast Radius Visualizer | http://localhost:5173 |
+| MCP Trust Scoreboard / MCP Security Dashboard | http://localhost:5176 |
+| Agent Access / Blast Radius | http://localhost:5173 |
 | Behavior Baseline Monitor | http://localhost:5174 |
 | Artifact Assurance | http://localhost:5175 |
-| Tool and Connector Trust | http://localhost:5176 |
 | Agent Trust Platform API | http://127.0.0.1:8080 |
 
 The platform API requires `AGENT_TRUST_API_TOKEN` and binds all records to the
 server-configured `AGENT_TRUST_WORKSPACE_ID`; submitted workspace fields are
 not trusted. Rules run without provider credentials. Hosted analysis requires
 both an explicitly configured provider and `AGENT_TRUST_HOSTED_ANALYSIS=true`.
+
+### Assess an MCP manifest
+
+1. Open **http://localhost:5176**. Save the illustrative JSON below as
+   `mcp-example.json`, or use your own assessment manifest.
+2. Drop the file into **Drop manifest JSON here** and select **Analyze MCP Server**.
+3. Review the overall score, six dimensions, flags and missing-provider notes;
+   use **Export PDF** to retain the report.
+
+```json
+{
+  "name": "example-local-docs",
+  "version": "0.1.0",
+  "publisher": {"name": "Example development team"},
+  "tools": [{"name": "read_docs", "description": "Read project documentation"}],
+  "permissions": ["files:read:docs"]
+}
+```
+
+This is illustrative input for the current field-based scorer, not a standard
+MCP protocol manifest or a client launch configuration. Uploading arbitrary
+`mcpServers`/`servers` configuration objects does not normalize them into this
+scorecard format. The URL field fetches JSON; it does not connect to an MCP
+transport endpoint.
+
+**No CrowdStrike account, Windows sensor, webhook destination or provider API key
+is required for this assessment.** Missing Gemini/domain intelligence is reported
+as unavailable/skipped in the result; loading animations are not proof that a
+provider ran. The Windows sensor, CrowdStrike and webhook setup linked below are
+optional integrations for additional platform evidence or finding delivery.
+
+## MCP security is only one part of Agent Trust
+
+Agent Trust Platform is the broader umbrella for AI agent security. It adds
+Windows endpoint evidence, Shadow AI context, process/network/file metadata,
+durable PostgreSQL evidence and jobs, a read-only CrowdStrike source, webhook
+finding delivery and bounded agent/resource correlation. Cloud resources in the
+access workspace are declarations; they are not proof of live cloud inventory.
+Broader security integrations remain future work.
+
+Agent Trust can correlate MCP and AI-agent context with endpoint security evidence
+from products such as CrowdStrike. External security platforms are complementary
+evidence sources. Explicit mappings and temporal co-presence do not establish
+that an AI agent caused an external finding or accessed a particular file.
+
+### Windows endpoint sensor — current
+
+The native Go Windows sensor supports per-device enrollment, DPAPI-protected
+credentials, process/TCP/file metadata, software/OS inventory, scoped AI/MCP
+configuration discovery and a persistent offline spool. Endpoint evidence and
+findings flow through the platform API/worker. Least-privilege Windows Service
+acceptance passed on Windows Server 2022 under a virtual service account,
+including enrollment, offline recovery and credential persistence.
+
+It is **observe-only**: no process/network blocking, quarantine, DLP enforcement
+or MCP tool execution. Service-account collector visibility can be degraded or
+permission-limited; foreground discovery does not prove service visibility.
+There is no Windows client certification claim and no macOS/Linux sensor yet.
+See [Windows setup and limits](docs/endpoint/WINDOWS.md),
+[service acceptance](docs/endpoint/SERVICE_ACCEPTANCE.md) and
+[metadata privacy](docs/endpoint/PRIVACY.md).
+
+### CrowdStrike — current read-only connector
+
+The [CrowdStrike Falcon connector](docs/connectors/CROWDSTRIKE.md) uses
+**Hosts READ** and **Alerts READ** for endpoint context and vendor-origin findings,
+with revision tracking and optional delivery through the existing webhook path.
+It is **read-only and fixture-tested**, including local TLS and real PostgreSQL
+pipeline tests. Live tenant/production validation remains pending. It performs
+**no containment, no RTR and no response execution**.
+
+## Architecture
+
+This is a conceptual evidence map. Dashed links describe assessment context and
+possible relationships, not observed execution or implemented protocol collection.
+Credentials are an access concern here; the diagram does not imply credential
+contents are collected. Endpoint/external evidence enters through separate sources.
+
+```mermaid
+flowchart TD
+  Agent[AI Agent] -. configured connection .-> MCP[MCP Server]
+  MCP -. declared .-> Tools[Tools]
+  MCP -. declared .-> Permissions[Permissions]
+  MCP -. configured .-> Credentials[Credentials]
+  MCP -. declared reach .-> Resources[Resources]
+  Tools -. assessment context .-> Evidence[Agent Trust Evidence]
+  Permissions -. assessment context .-> Evidence
+  Resources -. assessment context .-> Evidence
+  Sensor[Windows Endpoint Sensor] --> Evidence
+  Falcon[CrowdStrike read-only source] --> Evidence
+  Evidence --> Findings[Findings and trust review]
+```
+
+### MCP trust graph concept
+
+**Agent → MCP Server → Tool → Permission → Resource**, with links where supported
+to **Endpoint Evidence → External Security Finding**, is the review model.
+The current access graph uses declarations; endpoint correlations are bounded and
+external findings use explicit mappings. A unified graph with all these edges is
+planned, not an observed relationship map available today.
+
+The platform evidence model distinguishes `claimed`, `verified`, `observed`,
+`unavailable` and `not_applicable`. Configured access remains claimed unless
+appropriate verification or observation supports a stronger statement. Declared
+access must never be presented as actual use. See the
+[evidence model](src/agent_trust/domain/models.py) and
+[technical plan](docs/TECHNICAL_PLAN.md).
+
+### Runtime layout
+
+```mermaid
+flowchart LR
+  UI[Four legacy workspaces] --> Legacy[Compatibility FastAPI services]
+  Client[Authenticated local client] --> API[Agent Trust Platform API]
+  API --> PG[(PostgreSQL records + job ledger)]
+  Worker[Namespaced worker] --> PG
+  API --> Rules[Rules-only engine]
+  API -. opt-in .-> Providers[Configured provider adapters]
+```
+
+The namespaced package lives under `src/agent_trust/` with `api`, `domain`,
+`engines`, `adapters`, `providers`, `storage`, `security`, and `jobs` modules.
+Gemini and AbuseIPDB are optional adapters retained behind explicit
+interfaces. An OpenAI-compatible adapter supports configured hosted or local
+endpoints, but compatibility does not imply identical model behavior.
+
+## Four workspaces
+
+The four legacy workspaces and their existing routes remain available for
+compatibility. MCP is the primary repository entry point; the other workspaces
+extend the review context without completing the planned platform views.
+
+| Workspace | Security question | Capability today |
+| --- | --- | --- |
+| **MCP / Tool & Connector Trust** | What evidence supports a connection decision? | Manifest scorecard, domain references, permission signals and PDF report. |
+| **Agent Access / Blast Radius** | What could an agent reach under declared permissions? | Interactive declared-permission graph and attack paths; no observed authorization claim. |
+| **Behavior Monitoring** | Which supplied metrics differ from the current baseline? | Legacy baseline/anomaly demonstration and event contract; seeded data is labeled. Broader learned baselines and SDKs remain ATP-C2. |
+| **Code and Artifact Assurance** | What evidence supports an artifact decision? | Static checks and labeled heuristic/provider provenance signals; expanded evidence views remain ATP-E1. |
+
+The React/D3/Recharts views on ports 5173–5176 are local compatibility
+demonstrations. Heuristic attribution and optional provider output retain their
+limitations: a heuristic is not proof of authorship, and a signed build alone
+does not establish code security.
 
 ## Platform API
 
@@ -183,28 +310,19 @@ explicitly configured webhook through durable retryable jobs. Evidence sources,
 finding destinations and response authority are separate: delivery is not
 enforcement. Tested with real local HTTP/TLS endpoints, not live vendor services.
 
-The [read-only CrowdStrike Falcon source](docs/connectors/CROWDSTRIKE.md) adds an
-operator `agent-trust-falcon` command for host context and alert retrieval, revision
-tracking and delivery through that same path. Hosts/Alerts READ scopes only;
-fixture-tested, with live validation pending. No containment or response execution.
+## Release status
 
-## Architecture
+**Alpha candidate: 2.0.0-alpha.1 — ready for maintainer review for publication.**
+The implementation stack is merged and merged-main alpha validation passed.
+**No release has been published.**
 
-```mermaid
-flowchart LR
-  UI[Four legacy workspaces] --> Legacy[Compatibility FastAPI services]
-  Client[Authenticated local client] --> API[Agent Trust Platform API]
-  API --> PG[(PostgreSQL records + job ledger)]
-  Worker[Namespaced worker] --> PG
-  API --> Rules[Rules-only engine]
-  API -. opt-in .-> Providers[Configured provider adapters]
-```
-
-The namespaced package lives under `src/agent_trust/` with `api`, `domain`,
-`engines`, `adapters`, `providers`, `storage`, `security`, and `jobs` modules.
-Gemini and AbuseIPDB are optional adapters retained behind explicit
-interfaces. An OpenAI-compatible adapter supports configured hosted or local
-endpoints, but compatibility does not imply identical model behavior.
+[Release preparation on main `4465d69`](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34741080865)
+passed after the status-documentation merge. See
+[implementation status](docs/IMPLEMENTATION_STATUS.md) and
+[stack reconciliation](docs/STACK_RECONCILIATION.md) for the source-bound evidence
+and accepted limits. Publication remains a separate maintainer decision.
+Known dependency CVEs remain accepted/informational for alpha; hardening is
+deferred. This is not a production-hardening or enterprise-readiness claim.
 
 ## Development
 
@@ -238,12 +356,13 @@ gateway are later roadmap work.
 - URL collectors must use allowlists, TLS validation, bounded timeouts, and
   explicit scope for private targets; automatic cross-origin credential
   forwarding is not supported.
-- Unknown, unavailable, claimed, observed, and verified evidence are distinct
-  states. Confidence is not a calibrated probability.
+- `claimed`, `verified`, `observed`, `unavailable`, and `not_applicable`
+  evidence states remain distinct; missing information stays unknown. Confidence
+  is not a calibrated probability.
 - Demo seed data is available only in the legacy behavior workspace and is not
   a production telemetry source.
-- This release does not claim universal access, shared multi-tenant isolation,
-  automatic quarantine, or completed proprietary integrations.
+- This alpha candidate does not claim universal access, shared multi-tenant isolation,
+  automatic quarantine, or live vendor production validation.
 
 See [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md),
 [docs/ROADMAP.md](docs/ROADMAP.md), [docs/LOCAL_POC.md](docs/LOCAL_POC.md), and
