@@ -84,7 +84,15 @@ func Enroll(c Config, bootstrap string) error {
 		return err
 	}
 	if e := RestrictDirectory(c.DataDir); e != nil {
-		return e
+		// The elevated installer already applies a protected DACL. A virtual
+		// service account intentionally lacks WRITE_DAC, so it cannot rewrite
+		// that ACL during first-start enrollment. Foreground enrollment still
+		// fails closed if its caller cannot protect the directory itself.
+		identity := RuntimeIdentity()
+		sid, _ := identity["sid"].(string)
+		if !strings.HasPrefix(sid, "S-1-5-80-") {
+			return e
+		}
 	}
 	path := filepath.Join(c.DataDir, "identity.dpapi")
 	if _, e := os.Stat(path); e == nil {
