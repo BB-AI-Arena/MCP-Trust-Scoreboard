@@ -2,9 +2,10 @@
 
 Target: **2.0.0-alpha.1, unreleased, not production-hardened**. See
 [implementation status](IMPLEMENTATION_STATUS.md) for measured results and exact
-source. The complete open #15→#24 stack, current results and exact merged-main
-workflow are in [STACK_RECONCILIATION.md](STACK_RECONCILIATION.md). No branch is
-assumed merged; historical slice-specific counts below are not current-main evidence.
+source. The complete #15→#24 stack is now merged, with passing actual-main
+release preparation. Exact source/results and the post-documentation revalidation
+boundary are in [STACK_RECONCILIATION.md](STACK_RECONCILIATION.md). Historical
+slice-specific counts below are not substituted for that source-bound evidence.
 
 ## Reproduce the gates
 
