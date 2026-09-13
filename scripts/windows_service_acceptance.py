@@ -117,8 +117,11 @@ class ServiceAcceptance:
         self.summary['dpapi_restart_and_scm_recovery']='passed'
         self.summary['collector_states']=self.health()['collectors']
         assert self.health()['collectors']['process'] in ('active','permission_missing')
-        for key in ('ai','mcp','software','network','filesystem','runtime'):
+        for key in ('software','network','filesystem','runtime'):
             assert self.health()['collectors'][key]=='active',self.health()
+        for key in ('ai','mcp'):
+            assert self.health()['collectors'][key] in ('active','degraded','permission_missing'),self.health()
+        self.summary['interactive_collectors']={k:self.health()['collectors'][k] for k in ('ai','mcp')}
         # Explicitly inaccessible profile must yield degradation, not false active.
         denied=self.root/'unreadable-profile';denied.mkdir()
         self.ps("param($path) $acl=[Security.AccessControl.DirectorySecurity]::new(); $acl.SetAccessRuleProtection($true,$false); foreach($sid in @('S-1-5-18','S-1-5-32-544')) { $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new([Security.Principal.SecurityIdentifier]::new($sid),'FullControl','ContainerInherit,ObjectInherit','None','Allow')) }; Set-Acl -LiteralPath $path -AclObject $acl",str(denied))

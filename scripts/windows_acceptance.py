@@ -142,8 +142,17 @@ def main(service_mode=False):
                 return out
             def observed(kind):return [e for e in all_records('evidence') if e.get('event_type')==kind]
             wait(lambda:observed('endpoint_heartbeat'),150)
-            wait(lambda:observed('ai_tool_discovered'))
-            wait(lambda:observed('mcp_configuration_discovered'))
+            if service_mode:
+                # A virtual service account may not see interactive-user
+                # profiles. Require truthful collector state, and only require
+                # fixture evidence when that collector is active.
+                wait(lambda:scm.health().get('collectors',{}).get('ai') in ('active','degraded','permission_missing'))
+                wait(lambda:scm.health().get('collectors',{}).get('mcp') in ('active','degraded','permission_missing'))
+                if scm.health()['collectors']['ai']=='active': wait(lambda:observed('ai_tool_discovered'))
+                if scm.health()['collectors']['mcp']=='active': wait(lambda:observed('mcp_configuration_discovered'))
+            else:
+                wait(lambda:observed('ai_tool_discovered'))
+                wait(lambda:observed('mcp_configuration_discovered'))
             assert observed('software_inventory')
             if scm:scm.validate_lifecycle()
             listener=socket.socket();listener.settimeout(15);listener.bind(('127.0.0.1',0));listener.listen()
@@ -151,7 +160,8 @@ def main(service_mode=False):
             connection,_=listener.accept()
             wait(lambda:any(e['data']['pid']==actor.pid for e in observed('process_started')))
             wait(lambda:any(e['data']['pid']==actor.pid for e in observed('process_network_connection')))
-            wait(lambda:observed('ai_tool_running'))
+            if not service_mode or scm.health()['collectors']['ai']=='active':
+                wait(lambda:observed('ai_tool_running'))
             file=repo/'src'/'benign.txt';file.write_text('benign repository fixture')
             wait(lambda:observed('file_created'))
             file.write_text('changed benign repository fixture')
