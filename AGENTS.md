@@ -52,8 +52,18 @@
   secrets, MCP execution/discovery/transports, network collectors/SSRF, isolation,
   migrations, queues/concurrency/fencing, endpoint privileges, enforcement,
   protocol compatibility and major cross-cutting architecture. Require final
-  Astra review before merging these changes; ordinary low/medium-risk changes
-  need Terra review plus tests. Release-readiness judgment also belongs to Astra.
+  Astra review before merging these changes. Ordinary low/medium-risk changes
+  use Terra review/tests plus bounded Astra acceptance before owner handoff.
+  Release-readiness judgment also belongs to Astra.
+- Workers may report IMPLEMENTATION COMPLETE, never self-declare TASK ACCEPTED.
+  Before reporting any substantive repository task successfully completed to the
+  owner, obtain independent Astra acceptance of the actual diff/implementation
+  and verification evidence; worker summaries alone are not proof. Review depth
+  is proportional to risk, including concise read-only review for docs/copy.
+  High-risk work gets Astra before and after implementation. Failed acceptance
+  returns a targeted remediation assignment to Terra, followed by checks and
+  Astra review of the actual fix. Report the exact acceptance state and remaining
+  limitations; never describe REJECTED or BLOCKED work as successfully complete.
 - After one meaningful unexpected implementation failure, inspect deterministic
   evidence; fix directly if the cause is obvious, otherwise escalate reasoning
   or model quality. Do not burn repeated cheap attempts. Also escalate for
@@ -72,5 +82,5 @@
   impact without weakening required runtime, security or release gates.
 
 See [MODEL_ROUTING.md](docs/MODEL_ROUTING.md) for verified CLI commands, project
-trust requirements and routing limitations. Config defaults do not switch an
-already-running session or override an explicit user model choice.
+trust requirements, acceptance outcomes and routing limitations. Config defaults
+do not switch an already-running session or override an explicit user model choice.

@@ -15,17 +15,17 @@ authority are unchanged.
 | Tier | Model / effort | Work |
 | --- | --- | --- |
 | Shell | No model | Git/ref/diff inspection, rg/jq, counts/checksums, migration lists, tests/builds/compileall, lint/format, links and CI status. |
-| Luna | `gpt-5.6-luna` / low | Assistant for bounded, preferably read-only inventories, log/CI summaries, straightforward failure classification, terminology/docs/link review, mechanical comparisons and existing-evidence summaries. Not the default implementation engineer; no architecture, security, migration or publication decisions. |
-| Terra | `gpt-5.6-terra` / medium by default; low only for clearly mechanical work | Normal backend/frontend implementation, approved connector designs, fixtures/tests, bounded refactors, repository docs, straightforward fixes, PR preparation and routine reviews. |
-| Astra | `gpt-6-astra` / medium; high when justified | Proactive high-risk architecture/security judgment before implementation and final review, difficult diagnosis, contradictory evidence and release-readiness decisions. Focus on judgment, not mechanical repository work. |
+| Luna | `gpt-5.6-luna` / low | Assistant for bounded, preferably read-only inventories, log/CI summaries, straightforward failure classification, terminology/docs/link review, mechanical comparisons and existing-evidence summaries. Not the default implementation engineer or an acceptance authority; no architecture, security, migration or publication decisions. |
+| Terra | `gpt-5.6-terra` / medium by default; low only for clearly mechanical work | Normal backend/frontend implementation, approved connector designs, fixtures/tests, bounded refactors, repository docs, straightforward fixes, PR preparation and routine reviews. May report IMPLEMENTATION COMPLETE; cannot self-accept the owner's task. |
+| Astra | `gpt-6-astra` / medium; high when justified | Proactive high-risk architecture/security judgment before implementation, independent final acceptance, difficult diagnosis, contradictory evidence and release-readiness decisions. Focus on judgment, not mechanical repository work. |
 
 ## Classify risk before delegation
 
 | Risk | Scope | Execution path |
 | --- | --- | --- |
-| LOW | Narrow, reversible work with deterministic verification | Shell / Luna assistance / Terra-low for mechanical implementation. |
-| MEDIUM | Bounded product behavior | Terra-medium implementation and review, plus applicable tests. |
-| HIGH | Architecture, security, data integrity, protocol, concurrency or expensive rework | Astra designs/reviews the approach → Terra implements → deterministic tests → Astra final review. |
+| LOW | Narrow, reversible work with deterministic verification, including README/copy/labels/links/presentation | Implementation using shell/Luna assistance/Terra-low as appropriate → deterministic checks → bounded read-only Astra review → acceptance. |
+| MEDIUM | Bounded product behavior, including UI/API behavior, parsers, rules and routine connectors | Terra-medium implementation → tests → Astra implementation review → targeted remediation if needed → Astra acceptance. |
+| HIGH | Architecture, security, data integrity, protocol, concurrency or expensive rework | Astra designs/reviews before coding → Terra implements → deterministic verification → Astra code/security review → remediation → Astra verifies fixes → acceptance. |
 
 Require Astra involvement **before implementation** and **final Astra review
 before merging** changes involving authentication/authorization, secret or
@@ -34,7 +34,8 @@ collectors/egress/SSRF, sandboxing/isolation, migrations/data integrity, durable
 queues/concurrency/fencing, endpoint privileges/security controls, enforcement,
 protocol compatibility design or major architecture/cross-cutting refactors.
 Use Astra for release-readiness decisions as well. Ordinary low/medium-risk work
-needs Terra review plus tests; it does not automatically need Astra.
+does not require Astra architecture work up front, but does require proportional
+independent Astra acceptance after implementation and checks.
 
 After **one meaningful unexpected implementation failure**, inspect deterministic
 evidence. Fix directly when the root cause is obvious; otherwise escalate reasoning
@@ -45,6 +46,87 @@ maximum-quality request. File count or polished prose alone is insufficient.
 After Astra decides a direction, return implementation to Terra and mechanical
 follow-up to Luna or shell. Review is a required quality gate where specified;
 it never grants authority to merge, deploy, publish or execute live MCP tools.
+
+## Astra supervisory acceptance
+
+**IMPLEMENTATION COMPLETE != TASK ACCEPTED.** Workers implement and report;
+Astra owns the independent final quality acceptance decision before Codex reports
+a substantive repository task successfully completed to the owner. This includes
+documentation, copy and presentation changes, not just product code. Pure factual
+status queries or individual deterministic commands do not each need a separate
+acceptance review. The bounded acceptance review itself does not spawn a recursive
+review chain; the independent Astra reviewer returns the decision.
+
+Keep Terra/medium as the normal primary implementation session for low/medium
+work, invoking an explicit model-pinned read-only Astra review before handoff.
+For high-risk work, use Astra for architecture/supervision and explicit Terra
+workers for implementation. Do not make every long-running session Astra. Native
+agents remain disabled; no native Astra-to-Terra/Luna routing is claimed to work.
+Use the [explicit worker commands](#explicit-bounded-workers) below.
+
+### Independent evidence and review questions
+
+The accepting Astra reviewer must be separate from the implementation worker.
+Bind the decision to the base/head SHAs and reviewed scope. Independently inspect
+the changed-file list, `git diff base...HEAD`, critical changed implementation,
+relevant tests/results, applicable CI, acceptance criteria, architectural
+constraints and security boundaries. For uncommitted review, identify the exact
+diff/content; recheck after relevant edits. A worker's “tests passed” or “looks
+good” is an input, not proof. Pending or failing required checks prevent acceptance.
+
+Shell can extract factual state and raw evidence; Luna may summarize very large
+or repetitive logs; Terra may supply an implementation map. Give Astra only the
+relevant evidence, but never substitute summaries for direct inspection of
+critical changed code/diffs. No need to reread the whole repository.
+
+Before acceptance, consider the applicable questions:
+
+- Does the change satisfy every acceptance criterion without silently omitting,
+  weakening or reinterpreting requirements? Did unrelated behavior change?
+- Are code/docs/PR claims supported? Are `claimed`, `verified`, `observed`,
+  `unavailable` and `not_applicable` distinguished, and failures/missing checks
+  represented truthfully?
+- Are compatibility, architecture constraints, security and privacy preserved?
+- Are tests meaningful and capable of failing if the important behavior breaks?
+  Are important negative/edge cases missing? Were tests, assertions, scanners or
+  security controls weakened merely to get green CI?
+- Is there avoidable architectural debt? Does rollback/recovery remain valid
+  where relevant?
+
+For high-risk work, explicitly review the relevant security boundaries. MCP or
+network collectors may require review of execution/command allowlisting, process
+isolation and lifecycle/cancellation, environment/secret exposure, filesystem
+access, network scope/SSRF, redirects, DNS rebinding/check-connect races, IPv4/IPv6,
+loopback/private/link-local/metadata targets, credential forwarding, TLS validation,
+body/response limits, timeouts, malformed protocols, tool-execution prohibitions,
+untrusted descriptions/output, evidence provenance and declared-versus-observed
+semantics. Apply this list to the change; do not mechanically run irrelevant checks.
+
+### Remediation, outcomes and owner handoff
+
+When acceptance fails, Astra gives a narrow **TERRA REMEDIATION** assignment:
+files/scope, specific defect, required behavior, verification/tests and boundaries
+that must not change. Prefer Terra fixes over large rewrites. Then run deterministic
+checks and have Astra inspect the actual fix and evidence, including required CI
+for the revised head. Repeat until accepted or genuinely blocked. Worker reports
+cannot close the loop. Any relevant later change invalidates the prior acceptance
+for that scope until Astra reviews it again.
+
+Use these final acceptance outcomes:
+
+| Outcome | Meaning |
+| --- | --- |
+| ACCEPTED | Applicable requirements and verification pass. |
+| ACCEPTED WITH DOCUMENTED LIMITATIONS | Requested scope is correctly implemented; explicit non-blocking limitations remain. |
+| REJECTED — FIX REQUIRED | Implementation does not meet acceptance yet; remediation is required. |
+| BLOCKED | An external environment, credential, permission or infrastructure issue prevents completion. |
+
+Only the first two permit a successful completion handoff. Never relabel a
+rejection, blocker or pending review as optimistic completion. Report branch/SHA/PR,
+deterministic verification and CI, Astra's review scope and factual findings,
+corrections required/performed, remaining limitations and the final acceptance
+state. Do not expose internal chain-of-thought or dump worker conversations.
+Acceptance is a quality decision, not owner authorization to merge or publish.
 
 ## Project defaults and trust
 
