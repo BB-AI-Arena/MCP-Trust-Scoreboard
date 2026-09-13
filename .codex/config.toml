@@ -1,0 +1,10 @@
+# Trusted-project defaults; explicit CLI/session choices take precedence.
+# See docs/MODEL_ROUTING.md for trust setup and explicit worker commands.
+model = "gpt-5.6-terra"
+model_reasoning_effort = "medium"
+model_verbosity = "low"
+
+[agents]
+# Native spawning failed in the tested ephemeral CLI session. Use explicit
+# codex exec workers until native model/effort routing is independently verified.
+enabled = false
