@@ -1,5 +1,5 @@
 # Development installer. Run elevated; runtime uses a virtual service account.
-# Bootstrap is read from stdin, never a command-line or persisted service value.
+# Bootstrap is read from stdin and written only to the protected handoff file.
 param(
   [Parameter(Mandatory)][ValidateSet('Install','Enroll','Start','Stop','Inspect','Uninstall')][string]$Action,
   [Parameter(Mandatory)][string]$InstallRoot,
@@ -78,36 +78,16 @@ try {
     'Enroll' {
       $secret = [Console]::ReadLine()
       if (-not $secret -or $secret.Length -lt 32) { throw 'Private bootstrap input required' }
-      # ServiceController.Start(string[]) is not consistently bound by PowerShell
-      # 7 on hosted runners. Call StartService directly with an in-memory argv;
-      # the bootstrap is never an ImagePath/process command-line value.
-      Add-Type @'
-using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-public static class AtpScmStart {
-  [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern IntPtr OpenSCManager(string m,string d,uint a);
-  [DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern IntPtr OpenService(IntPtr h,string n,uint a);
-  [DllImport("advapi32.dll", SetLastError=true)] static extern bool StartService(IntPtr h,uint c,IntPtr a);
-  [DllImport("advapi32.dll", SetLastError=true)] static extern bool CloseServiceHandle(IntPtr h);
-  public static void Start(string name,string arg) {
-    var m=OpenSCManager(null,null,0xF003F); if(m==IntPtr.Zero) throw new Win32Exception();
-    try {
-      var s=OpenService(m,name,0x0010); if(s==IntPtr.Zero) throw new Win32Exception();
-      IntPtr serviceText=IntPtr.Zero, text=IntPtr.Zero, argv=IntPtr.Zero;
-      try {
-        serviceText=Marshal.StringToHGlobalUni(name);
-        text=Marshal.StringToHGlobalUni(arg);
-        argv=Marshal.AllocHGlobal(IntPtr.Size*2);
-        Marshal.WriteIntPtr(argv,0,serviceText);
-        Marshal.WriteIntPtr(argv,IntPtr.Size,text);
-        if(!StartService(s,2,argv)) throw new Win32Exception();
-      } finally { if(argv!=IntPtr.Zero) Marshal.FreeHGlobal(argv); if(text!=IntPtr.Zero) Marshal.FreeHGlobal(text); if(serviceText!=IntPtr.Zero) Marshal.FreeHGlobal(serviceText); CloseServiceHandle(s); }
-    } finally { CloseServiceHandle(m); }
-  }
-}
-'@
-      try { [AtpScmStart]::Start($Name,$secret) } finally { $secret = $null }
+      $handoff = @{ schema_version = 1; bootstrap_token = $secret } | ConvertTo-Json -Compress
+      $bootstrapPath = Join-Path $data 'bootstrap.json'
+      [IO.File]::WriteAllText($bootstrapPath, $handoff, [Text.UTF8Encoding]::new($false))
+      # Break inheritance and allow only SYSTEM, Administrators, and this
+      # virtual service account to read/delete the transient handoff.
+      & icacls.exe $bootstrapPath /inheritance:r /grant:r ('SYSTEM:(F)') ('Administrators:(F)') ($account+':(R,W,D)') | Out-Null
+      if ($LASTEXITCODE -ne 0) { throw 'Bootstrap ACL failed' }
+      (Get-Acl -LiteralPath $bootstrapPath).Sddl | Set-Content -LiteralPath (Join-Path $data 'bootstrap-acl.sddl') -Encoding ascii
+      $secret = $null
+      $svc.Start()
       Wait-Running
     }
     'Start' { $svc.Start(); Wait-Running }

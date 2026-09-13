@@ -36,7 +36,8 @@ func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, stat
 	// distinguish SCM launch/ACL failures from enrollment or collector failures.
 	_ = os.MkdirAll(s.config.DataDir, 0700)
 	_ = os.WriteFile(filepath.Join(s.config.DataDir, "status.json"), []byte(`{"state":"starting","service":true}`), 0600)
-	// Diagnostics retain only argument count/length/hash, never argument values.
+	// Retain only bounded argument metadata. Enrollment is deliberately read
+	// from the protected handoff file, never from SCM arguments.
 	meta := make([]map[string]any, len(args))
 	for i, arg := range args {
 		h := sha256.Sum256([]byte(arg))
@@ -47,17 +48,10 @@ func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, stat
 	// Report Running before enrollment so SCM does not block on network I/O.
 	// Enrollment remains explicit and failure still terminates the service.
 	status <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop | svc.AcceptShutdown}
-	// Ephemeral StartService input, never ImagePath/process arguments or config.
-	// Only an explicit operator start enrolls. Recovery never reenrolls.
-	var bootstrap string
-	for _, arg := range args {
-		if len(arg) >= 32 && !strings.HasPrefix(arg, "-") && !strings.ContainsAny(arg, `\\/:.`) {
-			bootstrap = arg
-			break
-		}
-	}
-	if bootstrap != "" {
-		if err := sensor.Enroll(s.config, bootstrap); err != nil {
+	// Only first start with no identity may consume the protected handoff.
+	// Recovery/restarts with an identity never reenroll or reuse bootstrap.
+	if _, err := os.Stat(filepath.Join(s.config.DataDir, "identity.dpapi")); os.IsNotExist(err) && sensor.BootstrapExists(s.config) {
+		if err := sensor.EnrollFromBootstrapFile(s.config); err != nil {
 			s.failure(err)
 			return false, 3
 		}

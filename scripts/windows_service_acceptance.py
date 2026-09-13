@@ -27,6 +27,10 @@ class ServiceAcceptance:
         try:
             self.call('Install',extra=['-Source',str(executable),'-Config',str(config)],private=bootstrap)
             wait(lambda:(self.data/'status.json').exists() and (self.data/'identity.dpapi').exists())
+            assert not (self.data/'bootstrap.json').exists()
+            bootstrap_acl=(self.data/'bootstrap-acl.sddl').read_text().strip()
+            assert ';;;BU)' not in bootstrap_acl and ';;;WD)' not in bootstrap_acl and ';;;AU)' not in bootstrap_acl
+            self.summary['bootstrap']={'single_use':'passed','deleted_after_enrollment':True,'acl_sddl':bootstrap_acl}
             self.identity=(self.data/'identity.dpapi').read_bytes()
             assert bootstrap.encode() not in self.identity and b'"credential"' not in self.identity
             # Only this disposable fixture tree becomes readable, never a user profile.

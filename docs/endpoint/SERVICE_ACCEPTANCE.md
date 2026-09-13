@@ -24,10 +24,16 @@ requires explicit identity reconciliation. An administrator can take over a
 machine; DPAPI is not protection from an administrator acting as the service.
 
 Enrollment bootstrap input goes privately over stdin to the installer and then
-as an ephemeral StartService argument. It is not an ImagePath/process argument,
-service environment registry value or configuration field. Ordinary automatic
-starts and recovery receive no bootstrap and cannot reenroll. No transcript/body
-logging should wrap enrollment. Endpoint credentials exist in memory and in
+into a bounded `data/bootstrap.json` handoff. The file is protected with
+inheritance disabled and grants only SYSTEM, Administrators, and the named
+virtual service account. It is deleted after successful enrollment; the server's
+existing 15-minute bootstrap expiry and single-redemption rules remain in force.
+The token is never an ImagePath/process argument, service environment value,
+registry value, configuration field, log, or retained evidence. Temporary server
+unavailability leaves the handoff for a bounded retry; malformed or rejected
+material produces enrollment-required/degraded state without looping. Ordinary
+automatic starts and recovery consume no bootstrap when a DPAPI identity exists
+and cannot silently reenroll. Endpoint credentials exist in memory and in
 user-bound DPAPI ciphertext only.
 
 Only a new, nonexistent leaf installation directory is accepted; the parent must

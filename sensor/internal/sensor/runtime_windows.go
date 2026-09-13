@@ -12,6 +12,42 @@ import (
 	"time"
 )
 
+const bootstrapFileName = "bootstrap.json"
+
+type bootstrapHandoff struct {
+	SchemaVersion  int    `json:"schema_version"`
+	BootstrapToken string `json:"bootstrap_token"`
+}
+
+func BootstrapExists(c Config) bool {
+	_, err := os.Stat(filepath.Join(c.DataDir, bootstrapFileName))
+	return err == nil
+}
+
+// EnrollFromBootstrapFile consumes the installer-created, ACL-protected,
+// one-time handoff. The token is never included in errors or diagnostics.
+func EnrollFromBootstrapFile(c Config) error {
+	p := filepath.Join(c.DataDir, bootstrapFileName)
+	b, err := os.ReadFile(p)
+	if err != nil {
+		return fmt.Errorf("bootstrap unavailable")
+	}
+	if len(b) == 0 || len(b) > 4096 {
+		return fmt.Errorf("bootstrap invalid")
+	}
+	var handoff bootstrapHandoff
+	if json.Unmarshal(b, &handoff) != nil || handoff.SchemaVersion != 1 || len(handoff.BootstrapToken) < 32 || len(handoff.BootstrapToken) > 128 {
+		return fmt.Errorf("bootstrap invalid")
+	}
+	if err := Enroll(c, handoff.BootstrapToken); err != nil {
+		return err
+	}
+	if err := os.Remove(p); err != nil {
+		return fmt.Errorf("bootstrap cleanup failed")
+	}
+	return nil
+}
+
 func Enroll(c Config, bootstrap string) error {
 	if len(bootstrap) < 32 {
 		return fmt.Errorf("bootstrap required in private environment")
@@ -25,7 +61,9 @@ func Enroll(c Config, bootstrap string) error {
 			return err
 		}
 		for _, entry := range entries {
-			if entry.Name() != "sensor.lock" {
+			switch entry.Name() {
+			case "sensor.lock", bootstrapFileName, "bootstrap-acl.sddl", "status.json", "service-args.json", "service-startup.error":
+			default:
 				return fmt.Errorf("enrollment requires an empty dedicated data directory")
 			}
 		}
