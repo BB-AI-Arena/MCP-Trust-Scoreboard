@@ -23,6 +23,8 @@ import uuid
 import httpx
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'scripts'))
+from windows_diagnostics import capture_before_cleanup, persist_checkpoint, record_failure
 
 
 def free_port():
@@ -55,6 +57,43 @@ def persisted_event_counts(engine, workspace_id):
     return Counter(json.loads(row).get('event_id') for row in rows)
 
 
+@contextmanager
+def workspace(evidence, diagnostics, source_binary_identity, cleanup_callbacks, temporary_directory=tempfile.TemporaryDirectory):
+    """Capture a scenario failure before every owned-resource cleanup layer."""
+    temporary = None
+    try:
+        temporary = temporary_directory(prefix='atp-windows-sensor-')
+        location = temporary.__enter__()
+    except BaseException as error:
+        record_failure(evidence, diagnostics.get('phase', 'workspace_constructor'), diagnostics.get('data_dir'), source_binary_identity, error, diagnostics.get('checkpoints', ()), observations=diagnostics.get('observations', ()))
+        raise
+    primary_error = None
+    cleanup_failure_types = []
+    try:
+        with capture_before_cleanup(evidence, diagnostics, source_binary_identity):
+            yield location
+    except BaseException as error:
+        primary_error = error
+        raise
+    finally:
+        try:
+            callbacks = list(cleanup_callbacks())
+        except BaseException as error:
+            callbacks = []
+            cleanup_failure_types.append(type(error).__name__)
+        callbacks.append(lambda: temporary.__exit__(None, None, None))
+        for cleanup in callbacks:
+            try:
+                cleanup()
+            except BaseException as error:
+                cleanup_failure_types.append(type(error).__name__)
+        if cleanup_failure_types:
+            diagnostics['cleanup_failure_types'] = cleanup_failure_types
+            record_failure(evidence, diagnostics.get('phase', 'unknown'), diagnostics.get('data_dir'), source_binary_identity, RuntimeError('cleanup failure'), diagnostics.get('checkpoints', ()), 'cleanup-diagnostic.json', diagnostics.get('observations', ()), cleanup_failure_types)
+            if primary_error is None:
+                raise AssertionError('acceptance cleanup failed')
+
+
 def main(service_mode=False):
     if sys.platform!='win32' or os.getenv('AGENT_TRUST_DISPOSABLE_WINDOWS_TEST')!='1':
         raise RuntimeError('requires explicit isolated Windows test environment')
@@ -65,6 +104,12 @@ def main(service_mode=False):
     executable=ROOT/'sensor'/'dist'/'agent-trust-sensor.exe'
     helper=ROOT/'sensor'/'dist'/'fixture-process.exe'
     version=json.loads(subprocess.check_output([str(executable),'version'],text=True))
+    source_binary_identity={
+        'source_sha':os.getenv('SENSOR_SOURCE_SHA',os.getenv('GITHUB_SHA','local')),
+        'version':version,
+        'binary_sha256':hashlib.sha256(executable.read_bytes()).hexdigest(),
+    }
+    diagnostics={'phase':'workspace_constructor','data_dir':None,'checkpoints':[]}
     token=uuid.uuid4().hex+uuid.uuid4().hex
     api_port=free_port();origin=f'http://127.0.0.1:{api_port}'
     env={**os.environ,'AGENT_TRUST_API_TOKEN':token,'AGENT_TRUST_WORKSPACE_ID':'windows-ci',
@@ -95,19 +140,14 @@ def main(service_mode=False):
             p.terminate()
             try:p.wait(timeout=15)
             except subprocess.TimeoutExpired:p.kill();p.wait(timeout=5)
-    @contextmanager
-    def workspace():
-        with tempfile.TemporaryDirectory(prefix='atp-windows-sensor-') as temporary:
-            try:yield temporary
-            finally:
-                # Release Windows executable/spool handles BEFORE removing only
-                # this helper-created temporary directory, including on failure.
-                if scm is not None:scm.cleanup()
-                for child in reversed(children):stop(child)
     api=None
+    primary_error=None
     try:
-        with workspace() as temporary:
+        with workspace(evidence, diagnostics, source_binary_identity, lambda: ([scm.cleanup] if scm is not None else [])+[lambda child=child:stop(child) for child in reversed(children)]) as temporary:
             root=Path(temporary);profile=root/'profile';data=root/'sensor-data';repo=root/'repository';repo.mkdir();(repo/'src').mkdir()
+            diagnostics.update(phase='workspace_initialized',data_dir=data)
+            def diagnostic_checkpoint(phase):
+                return persist_checkpoint(evidence,diagnostics,phase,diagnostics['data_dir'],source_binary_identity)
             cursor=profile/'AppData'/'Local'/'Programs'/'cursor'/'Cursor.exe';cursor.parent.mkdir(parents=True);shutil.copy2(helper,cursor)
             mcp=profile/'.cursor'/'mcp.json';mcp.parent.mkdir();sentinel=root/'MCP_MUST_NOT_EXECUTE'
             mcp.write_text(json.dumps({'mcpServers':{'fixture':{'command':'cmd.exe','args':['/c',f'echo unexpected>{sentinel}'],'env':{'SECRET':'synthetic-never-upload-token'}}}}))
@@ -123,7 +163,8 @@ def main(service_mode=False):
             config_path=root/'sensor.json';config_path.write_text(json.dumps(config))
             if service_mode:
                 from windows_service_acceptance import ServiceAcceptance
-                scm=ServiceAcceptance(root,executable,config_path,provision['bootstrap_secret'],evidence,sensor_env)
+                diagnostics['phase']='service_constructor'
+                scm=ServiceAcceptance(root,executable,config_path,provision['bootstrap_secret'],evidence,sensor_env,diagnostics,source_binary_identity)
                 data=scm.data
             else:
                 enroll_env={**sensor_env,'AGENT_TRUST_ENROLLMENT_SECRET':provision['bootstrap_secret']}
@@ -174,13 +215,17 @@ def main(service_mode=False):
                 file.rename(repo/'src'/'renamed.txt');wait(lambda:observed('file_renamed'))
                 (repo/'src'/'renamed.txt').unlink();wait(lambda:observed('file_deleted'))
                 wait(lambda:any(f['rule_id']=='shadow-ai-sensitive-repository' for f in all_records('findings')))
+            diagnostics['phase']='before_offline_shutdown'
+            diagnostic_checkpoint('before_offline_shutdown')
             stop(api)
+            diagnostics['phase']='offline_recovery'
             before=len(list((data/'spool').glob('*.event')))
             (repo/'src'/'offline.txt').write_text('offline disposable fixture')
             wait(lambda:len(list((data/'spool').glob('*.event')))>before,30)
             stop(sensor)
             persisted={json.loads(p.read_text())['event_id'] for p in (data/'spool').glob('*.event')}
             assert persisted,'offline spool did not persist'
+            diagnostic_checkpoint('offline_spooled')
             # Retain one exact event and replay it after central acknowledgment.
             replay_path=next((data/'spool').glob('*.event'));replay_name=replay_path.name;replay_bytes=replay_path.read_bytes()
             sensor=start_sensor(180)
@@ -189,13 +234,17 @@ def main(service_mode=False):
             api=launch([sys.executable,'-c','from agent_trust.api.app import run; run()'],'api')
             wait(lambda:httpx.get(origin+'/readiness').status_code==200)
             wait(lambda:persisted <= persisted_event_counts(engine,'windows-ci').keys(),150)
+            diagnostic_checkpoint('offline_recovered')
             stop(sensor)
             (data/'spool'/replay_name).write_bytes(replay_bytes)
+            diagnostics['phase']='before_replay_restart'
+            diagnostic_checkpoint('before_replay_restart')
             sensor=start_sensor(120)
             wait(lambda:not (data/'spool'/replay_name).exists(),60)
             replay_id=json.loads(replay_bytes)['event_id']
             replay_count=persisted_event_counts(engine,'windows-ci')[replay_id]
             assert replay_count==1,f'persisted replay count must be exactly one, got {replay_count}'
+            diagnostic_checkpoint('replay_recovered')
             if scm:
                 scm.summary.update(queued_count=len(persisted),recovered_count=len(persisted),uploaded_count=len(persisted),persisted_replay_count=replay_count,replay_attempts=1)
                 assert all(persisted_event_counts(engine,'windows-ci')[event_id]==1 for event_id in persisted)
@@ -233,9 +282,12 @@ def main(service_mode=False):
                 wait(lambda:scm.health()['online'])
                 assert scm.health()['pid']==old_pid
                 history=persisted_event_counts(engine,'windows-ci')
+                diagnostic_checkpoint('before_revocation')
+                diagnostics['phase']='revocation_validation'
                 revoked=httpx.post(origin+'/api/v1/endpoints/'+provision['endpoint_id']+'/revoke',headers=headers)
                 assert revoked.status_code==200
                 scm.validate_revocation()
+                diagnostic_checkpoint('after_revocation')
                 after=persisted_event_counts(engine,'windows-ci')
                 assert all(after[k]==v for k,v in history.items())
                 scm.validate_uninstall()
@@ -254,11 +306,27 @@ def main(service_mode=False):
                 'service_mode':'SCM virtual account' if service_mode else 'foreground',
                 'binary_sha256':hashlib.sha256(executable.read_bytes()).hexdigest(),'result':'passed'}
             (evidence/'acceptance.json').write_text(json.dumps(summary,indent=2))
+    except BaseException as error:
+        primary_error=error
+        raise
     finally:
-        for p in reversed(children):stop(p)
-        for h in handles:h.close()
-        receiver.shutdown();receiver.server_close()
-        engine.dispose()
+        cleanup_failure_types=[]
+        for cleanup in [*[lambda p=p:stop(p) for p in reversed(children)],*[lambda h=h:h.close() for h in handles],receiver.shutdown,receiver.server_close,engine.dispose]:
+            try:cleanup()
+            except BaseException as error:cleanup_failure_types.append(type(error).__name__)
+        if cleanup_failure_types:
+            record_failure(evidence,diagnostics.get('phase','outer_cleanup'),diagnostics.get('data_dir'),source_binary_identity,RuntimeError('cleanup failure'),diagnostics.get('checkpoints',()),'outer-cleanup-diagnostic.json',diagnostics.get('observations',()),cleanup_failure_types)
+            if primary_error is None:raise AssertionError('acceptance outer cleanup failed')
 
 
-if __name__=='__main__':main('--service' in sys.argv)
+def run_acceptance(service_mode=False):
+    # Covers setup failures before the scenario's detailed capture is installed.
+    try:
+        main(service_mode)
+    except BaseException as error:
+        evidence=ROOT/'evidence'/'windows'/('service' if service_mode else 'foreground')
+        record_failure(evidence,'harness_setup_or_execution',None,{},error,name='harness-failure.json')
+        raise
+
+
+if __name__=='__main__':run_acceptance('--service' in sys.argv)

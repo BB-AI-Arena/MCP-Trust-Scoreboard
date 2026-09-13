@@ -62,6 +62,119 @@ func TestSpoolRestartCapacityExpiryAndAck(t *testing.T) {
 	}
 }
 
+func TestOpenSpoolConservativelyAccountsInterruptedWrites(t *testing.T) {
+	c := config(t)
+	s, err := OpenSpool(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	i := Identity{EndpointID: ID(), InstanceID: ID()}
+	committed := i.Event("endpoint_heartbeat", "runtime", map[string]any{})
+	if err = s.Add(committed); err != nil {
+		t.Fatal(err)
+	}
+	fixtures := map[string][]byte{
+		".pending-empty-event":   nil,
+		".pending-partial-event": []byte(`{"event_id":"partial"`),
+	}
+	for name, body := range fixtures {
+		if err = os.WriteFile(filepath.Join(s.dir, name), body, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s, err = OpenSpool(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	events, _, err := s.Batch()
+	if err != nil || len(events) != 1 || events[0].EventID != committed.EventID || s.Stats.Dropped != 2 || s.Stats.Expired != 0 {
+		t.Fatal("pending recovery must retain committed event and conservatively count every artifact", err, s.Stats)
+	}
+
+	// Model a crash after Dropped was saved but before this pending artifact was removed.
+	pending := filepath.Join(s.dir, ".pending-after-counter-save")
+	if err = os.WriteFile(pending, []byte("not-an-event"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	s.Stats.Dropped++
+	if err = s.save(); err != nil {
+		t.Fatal(err)
+	}
+	// Deliberately do not remove pending: the next OpenSpool must count it again.
+	s, err = OpenSpool(c)
+	if err != nil || s.Stats.Dropped != 4 || s.Stats.Expired != 0 {
+		t.Fatal("counter-save interruption recovery", err, s.Stats)
+	}
+	events, _, err = s.Batch()
+	if err != nil || len(events) != 1 || events[0].EventID != committed.EventID {
+		t.Fatal("previously committed event identity was not retained", err)
+	}
+	// OpenSpool removed the pending artifact, so a further restart cannot recount it.
+	s, err = OpenSpool(c)
+	if err != nil || s.Stats.Dropped != 4 || s.Stats.Expired != 0 {
+		t.Fatal("cleared pending file was double-counted", err, s.Stats)
+	}
+}
+
+func TestOpenSpoolConservativelyAccountsPendingCounterWrites(t *testing.T) {
+	c := config(t)
+	s, err := OpenSpool(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	i := Identity{EndpointID: ID(), InstanceID: ID()}
+	committed := i.Event("endpoint_heartbeat", "runtime", map[string]any{})
+	if err = s.Add(committed); err != nil {
+		t.Fatal(err)
+	}
+	persisted := Counters{Sent: 7, Dropped: 3, Expired: 1, LastUpload: "2026-01-01T00:00:00Z"}
+	counterBody, err := json.Marshal(persisted)
+	if err != nil {
+		t.Fatal(err)
+	}
+	eventBody, err := json.Marshal(i.Event("endpoint_heartbeat", "runtime", map[string]any{}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(filepath.Join(s.dir, "counters.json"), counterBody, 0600); err != nil {
+		t.Fatal(err)
+	}
+	fixtures := []struct {
+		name string
+		body []byte
+	}{
+		{".pending-counter-complete", counterBody},
+		{".pending-counter-empty", nil},
+		{".pending-counter-partial", []byte(`{"dropped":`)},
+		{".pending-event-complete", eventBody},
+	}
+	for _, fixture := range fixtures {
+		if err = os.WriteFile(filepath.Join(s.dir, fixture.name), fixture.body, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s, err = OpenSpool(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	events, _, err := s.Batch()
+	if err != nil || len(events) != 1 || events[0].EventID != committed.EventID {
+		t.Fatal("pending recovery must preserve committed event identity", err)
+	}
+	if s.Stats.Sent != persisted.Sent || s.Stats.Dropped != persisted.Dropped+uint64(len(fixtures)) || s.Stats.Expired != persisted.Expired || s.Stats.LastUpload != persisted.LastUpload {
+		t.Fatal("pending counter recovery must conservatively preserve persisted fields", s.Stats)
+	}
+	for _, fixture := range fixtures {
+		if _, err = os.Stat(filepath.Join(s.dir, fixture.name)); !os.IsNotExist(err) {
+			t.Fatal("pending artifact not removed", fixture.name, err)
+		}
+	}
+	s, err = OpenSpool(c)
+	if err != nil || s.Stats.Dropped != persisted.Dropped+uint64(len(fixtures)) || s.Stats.Sent != persisted.Sent || s.Stats.Expired != persisted.Expired {
+		t.Fatal("cleared pending counter writes were recounted or persisted fields changed", err, s.Stats)
+	}
+}
+
 func TestRevocationRetainsStableSpoolAndReportsAuthentication(t *testing.T) {
 	c := config(t)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(401) }))
