@@ -1,24 +1,50 @@
-# Least-cost development routing
+# Quality-gated cost routing
 
-Use **Shell → Luna → Terra → Astra**, selecting the cheapest tier likely to
-succeed. This is the owner's routing policy, not a pricing or billing guarantee.
-It changes developer tooling only; product behavior and publication authority
-are unchanged.
+Optimize **first-pass correctness and total engineering cost**, not token cost
+or the cheapest first attempt. Total cost includes model/API use, implementation
+time, failed attempts, CI failures, debugging, rework, regressions, security risk
+and architectural churn. Choose the least expensive execution path with a **high
+likelihood of producing a correct first implementation**. Do not assign a weaker
+model when a poor result would likely require significant rewriting.
+
+**Shell → Luna → Terra → Astra** describes available tiers, not a mandatory
+sequence of cheap attempts. Start high-risk work with Astra judgment. This is the
+owner's routing policy, not a pricing guarantee; product behavior and publication
+authority are unchanged.
 
 | Tier | Model / effort | Work |
 | --- | --- | --- |
 | Shell | No model | Git/ref/diff inspection, rg/jq, counts/checksums, migration lists, tests/builds/compileall, lint/format, links and CI status. |
-| Luna | `gpt-5.6-luna` / low | Bounded read-only inventories, log/CI summaries, straightforward classification, terminology/docs/link review, acceptance checklists and draft status/PR text. No architecture, security, migration or publication decisions. |
-| Terra | `gpt-5.6-terra` / low or medium | Normal implementation, bounded fixes, UI/backend work with clear contracts, fixtures/tests, refactors, repository docs, PR preparation and routine reviews. |
-| Astra | `gpt-6-astra` / medium; high when justified | Architecture, threat modeling, authorization, concurrency/fencing/idempotency, data integrity/migrations, major MCP collector design, difficult diagnosis, cross-subsystem decisions, contradictory evidence and final security-sensitive merge/release review. |
+| Luna | `gpt-5.6-luna` / low | Assistant for bounded, preferably read-only inventories, log/CI summaries, straightforward failure classification, terminology/docs/link review, mechanical comparisons and existing-evidence summaries. Not the default implementation engineer; no architecture, security, migration or publication decisions. |
+| Terra | `gpt-5.6-terra` / medium by default; low only for clearly mechanical work | Normal backend/frontend implementation, approved connector designs, fixtures/tests, bounded refactors, repository docs, straightforward fixes, PR preparation and routine reviews. |
+| Astra | `gpt-6-astra` / medium; high when justified | Proactive high-risk architecture/security judgment before implementation and final review, difficult diagnosis, contradictory evidence and release-readiness decisions. Focus on judgment, not mechanical repository work. |
 
-Escalate only for genuine uncertainty, high security/data-integrity impact,
-competing architectures, repeated failed attempts, behavior crossing subsystems,
-final merge/release judgment, contradictory evidence or an explicit user request
-for maximum-quality reasoning. Many files or more polished prose is insufficient.
-After Astra recommends a direction, return implementation to Terra; move
-mechanical follow-up to Luna or shell. Advisory review never authorizes merging,
-deployment, publication or live MCP tool execution.
+## Classify risk before delegation
+
+| Risk | Scope | Execution path |
+| --- | --- | --- |
+| LOW | Narrow, reversible work with deterministic verification | Shell / Luna assistance / Terra-low for mechanical implementation. |
+| MEDIUM | Bounded product behavior | Terra-medium implementation and review, plus applicable tests. |
+| HIGH | Architecture, security, data integrity, protocol, concurrency or expensive rework | Astra designs/reviews the approach → Terra implements → deterministic tests → Astra final review. |
+
+Require Astra involvement **before implementation** and **final Astra review
+before merging** changes involving authentication/authorization, secret or
+credential handling, MCP execution/discovery/transport boundaries, network
+collectors/egress/SSRF, sandboxing/isolation, migrations/data integrity, durable
+queues/concurrency/fencing, endpoint privileges/security controls, enforcement,
+protocol compatibility design or major architecture/cross-cutting refactors.
+Use Astra for release-readiness decisions as well. Ordinary low/medium-risk work
+needs Terra review plus tests; it does not automatically need Astra.
+
+After **one meaningful unexpected implementation failure**, inspect deterministic
+evidence. Fix directly when the root cause is obvious; otherwise escalate reasoning
+or model quality. Do not wait through several cheap attempts. Also escalate for
+genuine uncertainty, competing approaches, contradictory evidence or an explicit
+maximum-quality request. File count or polished prose alone is insufficient.
+
+After Astra decides a direction, return implementation to Terra and mechanical
+follow-up to Luna or shell. Review is a required quality gate where specified;
+it never grants authority to merge, deploy, publish or execute live MCP tools.
 
 ## Project defaults and trust
 
@@ -68,11 +94,12 @@ codex exec --strict-config --ephemeral \
   --model gpt-6-astra \
   --config 'model_reasoning_effort="medium"' \
   --config 'agents.enabled=false' --sandbox read-only \
-  'Review AGENTS.md and docs/MODEL_ROUTING.md only for contradictory authority boundaries. Do not change files or spawn workers. Return findings with evidence in at most five bullets.'
+  'Review src/agent_trust/security/ only for credential-handling and egress risks. Do not change files or spawn workers. Return findings with evidence and uncertainty in at most five bullets.'
 ```
 
-For a Terra worker, use the same pattern with `--model gpt-5.6-terra` and low or
-medium effort. Read-only is the default worker policy. Grant workspace writes
+For a Terra worker, use the same pattern with `--model gpt-5.6-terra` and medium
+effort; use low only for clearly mechanical work. Read-only is the default worker
+policy. Grant workspace writes
 only to an explicitly assigned implementer; never run independent writers in one
 worktree. Use isolated Git worktrees when parallel implementation is useful.
 Direct commands suffice; no wrapper scripts or automatic commits/pushes are added.
@@ -80,8 +107,10 @@ Direct commands suffice; no wrapper scripts or automatic commits/pushes are adde
 Usually use at most 2–4 workers, only for independent work that saves time/context.
 Give each worker exact files/areas, expected output, write permission and required
 verification. Do not recursively spawn trees without a clear difficult-task need.
-Use rg/jq and relevant ranges first; summarize large logs before expensive review.
-Return concise evidence, SHAs, filenames and uncertainty to the parent.
+Use shell or Luna to narrow evidence first. Give Terra/Astra relevant files and
+diffs, acceptance criteria, concise failure evidence and security constraints.
+Deterministic evidence is authoritative; avoid feeding entire logs/repositories
+to expensive models. Return concise evidence, SHAs, filenames and uncertainty.
 
 ## Verification proportional to impact
 
@@ -121,7 +150,8 @@ id`. Its project config was disabled by missing exact-root trust, so the parent
 retained the global model. No child model/effort was verified. Use explicit exec
 workers; do not assume inheritance or claim silent child-model substitution.
 Before enabling native routing, verify actual child model/effort in the intended
-CLI/app mode; only then consider Terra/low native defaults and a four-worker cap.
+CLI/app mode; only then consider Terra native defaults with effort matched to
+task risk (medium normally, low for mechanical work) and a four-worker cap.
 Luna is not configured as a native default.
 
 `--strict-config` works with `codex exec` but is rejected by `codex debug` in this

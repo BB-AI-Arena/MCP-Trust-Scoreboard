@@ -29,19 +29,35 @@
 
 ## Least-cost model routing
 
-- Use shell commands first for deterministic facts: Git, search, JSON queries,
-  checksums, tests, builds, lint/format, links and CI status.
+- Optimize total engineering cost and first-pass correctness, not token cost or
+  the cheapest first attempt. Include implementation time, failures, CI/debugging,
+  rework, regressions, security risk and architectural churn. Choose the least
+  expensive path with a high likelihood of a correct first implementation.
+- Before delegation classify risk: LOW (narrow, reversible, deterministically
+  verifiable) → shell/Luna/Terra-low; MEDIUM (bounded product behavior) →
+  Terra-medium; HIGH (architecture/security/data integrity/protocol/concurrency
+  or expensive rework) → Astra design, Terra implementation, tests, Astra review.
+- Use shell commands first for authoritative deterministic evidence: Git, search,
+  JSON/schema queries, inventories, checksums, tests, builds, lint/format and CI.
 - Use `gpt-5.6-luna` / low for bounded low-risk inspection, log summaries,
   terminology/link review and basic status/PR drafts; prefer read-only work.
-  Luna must not decide architecture, security, migrations or publication.
+  Luna is an assistant, not the default implementation engineer. Do not assign
+  work whose failure would require meaningful rewriting. Luna must not decide
+  architecture, security, migrations or publication.
 - Use `gpt-5.6-terra` for normal implementation, fixes, UI/backend work, tests,
-  refactors, repository documentation and routine reviews; low for straightforward
-  tasks, medium for normal engineering. This is the day-to-day default.
-- Use `gpt-6-astra` / medium selectively for difficult architecture/security,
-  authorization, concurrency, migrations/data integrity, contradictory evidence
-  and final security-sensitive merge/release review; high only when justified.
-- Escalate for genuine uncertainty, high impact, architectural choices, repeated
-  failures, cross-subsystem behavior, final merge/release judgment or an explicit
+  refactors, repository documentation and routine reviews. Use medium by default
+  for nontrivial product code; low only for clearly mechanical work.
+- Use `gpt-6-astra` / medium proactively before high-risk implementation, not just
+  after failures; high only when justified. Require Astra design/review for auth,
+  secrets, MCP execution/discovery/transports, network collectors/SSRF, isolation,
+  migrations, queues/concurrency/fencing, endpoint privileges, enforcement,
+  protocol compatibility and major cross-cutting architecture. Require final
+  Astra review before merging these changes; ordinary low/medium-risk changes
+  need Terra review plus tests. Release-readiness judgment also belongs to Astra.
+- After one meaningful unexpected implementation failure, inspect deterministic
+  evidence; fix directly if the cause is obvious, otherwise escalate reasoning
+  or model quality. Do not burn repeated cheap attempts. Also escalate for
+  genuine uncertainty, competing approaches, contradictory evidence or an explicit
   maximum-quality request. File count or nicer prose alone is not justification.
   Return implementation to Terra after the hard decision, then mechanical work
   to Luna or shell. Never substitute an unavailable model silently.
@@ -50,8 +66,9 @@
   Parallelize only independent useful work, usually 2–4 workers, with narrow
   scope, output, write permission and verification stated. Avoid recursive trees.
 - Never run parallel writers in one worktree; use isolated worktrees for parallel
-  implementation. Give workers relevant ranges/summaries and SHAs, not whole
-  repositories/logs. Keep durable state in repository docs. Match verification to
+  implementation. Give workers relevant files/diffs, acceptance criteria, concise
+  failure evidence, security constraints and SHAs, not whole repositories/logs.
+  Keep durable state in repository docs. Match verification to
   impact without weakening required runtime, security or release gates.
 
 See [MODEL_ROUTING.md](docs/MODEL_ROUTING.md) for verified CLI commands, project
