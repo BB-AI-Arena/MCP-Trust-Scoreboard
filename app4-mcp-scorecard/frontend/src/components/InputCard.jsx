@@ -52,19 +52,22 @@ export default function InputCard({ onScan, error }) {
       {/* Logo */}
       <div className="flex flex-col items-center mb-10">
         <div className="flex items-center gap-3 mb-3">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-label="MCP Trust Scorecard">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-label="MCP Trust Scoreboard">
             <rect width="40" height="40" rx="10" fill="#00D4FF" fillOpacity="0.12"/>
             <path d="M20 8L32 14.5V25.5L20 32L8 25.5V14.5L20 8Z" stroke="#00D4FF" strokeWidth="1.5" fill="none"/>
             <path d="M20 13L27 16.75V24.25L20 28L13 24.25V16.75L20 13Z" fill="#00D4FF" fillOpacity="0.2" stroke="#00D4FF" strokeWidth="1"/>
             <path d="M17 20L19.5 22.5L23.5 18" stroke="#00FF9C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <div>
-            <h1 className="text-xl font-800 text-white tracking-tight leading-none">MCP Trust Scorecard</h1>
-            <p className="text-xs text-muted mt-0.5">Model Context Protocol Security Analysis</p>
+            <h1 className="text-xl font-800 text-white tracking-tight leading-none">MCP Trust Scoreboard</h1>
+            <p className="text-xs text-muted mt-0.5">MCP Security Dashboard</p>
           </div>
         </div>
         <p className="text-sm text-muted text-center max-w-sm leading-relaxed">
-          Analyze any MCP server manifest for security risks, permission sprawl, and malicious intent.
+          Assess Model Context Protocol servers, tools, permissions, identity, network references, and trust evidence.
+        </p>
+        <p className="text-xs text-muted text-center max-w-sm mt-2 leading-relaxed">
+          Current assessment uses a submitted JSON manifest and its claimed top-level tools and permissions. Stdio and Streamable HTTP discovery are planned.
         </p>
       </div>
 
@@ -75,7 +78,7 @@ export default function InputCard({ onScan, error }) {
       >
         {/* URL Input */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-500 text-muted uppercase tracking-wider">MCP Server URL</label>
+          <label className="text-xs font-500 text-muted uppercase tracking-wider">Manifest JSON URL</label>
           <input
             type="url"
             value={url}

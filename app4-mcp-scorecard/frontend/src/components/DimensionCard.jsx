@@ -2,11 +2,20 @@ import React, { useEffect, useRef } from 'react'
 
 const DIMENSION_LABELS = {
   identity: 'Identity',
-  permission_sprawl: 'Permission Sprawl',
-  network_behavior: 'Network Behavior',
+  permission_sprawl: 'Declared Permissions',
+  network_behavior: 'Network References',
   code_transparency: 'Code Transparency',
-  version_drift: 'Version Drift',
+  version_drift: 'Version Metadata',
   community_signal: 'Community Signal',
+}
+
+const DIMENSION_CONTEXT = {
+  identity: 'Identity signals reflect submitted metadata, not verified publisher identity.',
+  permission_sprawl: 'Permissions are declared in the manifest, not verified authorization.',
+  network_behavior: 'Network references are declared references, not observed traffic.',
+  version_drift: 'Version metadata is assessed as submitted and may be incomplete.',
+  code_transparency: 'Source and audit fields are submitted claims, not independently verified.',
+  community_signal: 'Community signals use submitted metadata, not independent verification.',
 }
 
 const DIMENSION_ICONS = {
@@ -102,6 +111,9 @@ export default function DimensionCard({ dimension, data, index }) {
 
       {/* Explanation */}
       <p className="text-xs text-muted leading-relaxed">{data.explanation}</p>
+      {DIMENSION_CONTEXT[dimension] && (
+        <p className="text-xs text-muted/80 leading-relaxed">{DIMENSION_CONTEXT[dimension]}</p>
+      )}
     </div>
   )
 }

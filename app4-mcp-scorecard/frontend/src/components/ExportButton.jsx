@@ -45,8 +45,9 @@ export default function ExportButton({ targetId = 'results-view' }) {
         format: [canvas.width / 2, canvas.height / 2],
       })
 
+      pdf.setProperties({ title: 'MCP Trust Scoreboard — Security Assessment' })
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2)
-      pdf.save(`mcp-trust-scorecard-${Date.now()}.pdf`)
+      pdf.save(`mcp-trust-scoreboard-${Date.now()}.pdf`)
     } catch (err) {
       console.error('PDF export failed:', err)
       alert('PDF export failed. Please try again.')

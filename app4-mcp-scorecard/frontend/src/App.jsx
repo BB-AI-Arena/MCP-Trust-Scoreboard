@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState } from 'react'
 import InputCard from './components/InputCard'
 import ScoreRing from './components/ScoreRing'
 import DimensionCard from './components/DimensionCard'
@@ -6,15 +6,6 @@ import FlagsPanel from './components/FlagsPanel'
 import ExportButton from './components/ExportButton'
 
 const API_BASE = ''  // proxied via Vite to http://localhost:8004
-
-const SCAN_STEPS = [
-  'Fetching manifest…',
-  'Resolving domains…',
-  'Checking threat intelligence…',
-  'Analyzing with Gemini AI…',
-  'Calculating trust score…',
-  'Finalizing report…',
-]
 
 const DIMENSION_ORDER = [
   'identity',
@@ -50,26 +41,13 @@ function formatDate(iso) {
   }
 }
 
-// Progress bar component
-function ScanProgress({ step, total }) {
-  const pct = Math.round(((step + 1) / total) * 100)
-  return (
-    <div className="w-full h-1 bg-surface rounded-full overflow-hidden">
-      <div
-        className="h-full bg-accent rounded-full transition-all duration-700 ease-out"
-        style={{ width: `${pct}%` }}
-      />
-    </div>
-  )
-}
-
 // ── Shared platform header ───────────────────────────────────────────────────
 function PlatformHeader() {
   const navLinks = [
     { label: 'Blast Radius', href: '#', active: false },
     { label: 'Behavior Baseline', href: '#', active: false },
     { label: 'Code Provenance', href: '#', active: false },
-    { label: 'MCP Scorecard', href: '#', active: true },
+    { label: 'MCP Scoreboard', href: '#', active: true },
   ]
 
   return (
@@ -77,7 +55,7 @@ function PlatformHeader() {
       className="w-full border-b"
       style={{ background: '#0D1220', borderColor: '#1F2937' }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-0 h-auto sm:h-14 flex flex-col sm:flex-row items-start sm:items-center justify-start sm:justify-between gap-3 sm:gap-4">
         {/* Left: platform branding */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className="text-lg leading-none select-none">🐟</span>
@@ -89,12 +67,12 @@ function PlatformHeader() {
         {/* Center: Current app name */}
         <div className="hidden sm:flex items-center">
           <span className="text-sm font-600 text-white tracking-wide">
-            MCP Trust Scorecard
+            MCP Trust Scoreboard
           </span>
         </div>
 
         {/* Right: nav links */}
-        <nav className="flex items-center gap-1 sm:gap-2">
+        <nav className="flex flex-wrap items-center gap-1 sm:gap-2">
           {navLinks.map((link) => (
             <a
               key={link.label}
@@ -116,28 +94,12 @@ function PlatformHeader() {
 
 export default function App() {
   const [phase, setPhase] = useState('idle') // idle | scanning | results | error
-  const [stepIndex, setStepIndex] = useState(0)
   const [results, setResults] = useState(null)
   const [error, setError] = useState(null)
-  const stepTimer = useRef(null)
-
-  // Cycle through scan steps during loading
-  useEffect(() => {
-    if (phase !== 'scanning') {
-      clearInterval(stepTimer.current)
-      return
-    }
-    setStepIndex(0)
-    stepTimer.current = setInterval(() => {
-      setStepIndex((i) => Math.min(i + 1, SCAN_STEPS.length - 1))
-    }, 900)
-    return () => clearInterval(stepTimer.current)
-  }, [phase])
 
   const handleScan = async (url, manifest) => {
     setError(null)
     setPhase('scanning')
-    setStepIndex(0)
 
     try {
       const body = {}
@@ -159,7 +121,7 @@ export default function App() {
       setResults(data)
       setPhase('results')
     } catch (err) {
-      setError(err.message || 'Scan failed. Is the backend running?')
+      setError(err.message || 'Assessment failed. Is the backend running?')
       setPhase('idle')
     }
   }
@@ -209,22 +171,13 @@ export default function App() {
               </svg>
             </div>
 
-            <div className="w-full flex flex-col gap-3">
-              <ScanProgress step={stepIndex} total={SCAN_STEPS.length} />
-              <p className="text-sm font-500 text-center text-accent animate-pulse-slow">
-                {SCAN_STEPS[stepIndex]}
+            <div className="w-full flex flex-col gap-2 text-center">
+              <p className="text-sm font-500 text-accent animate-pulse-slow">
+                Assessing submitted manifest…
               </p>
-            </div>
-
-            <div className="flex flex-col gap-2 w-full">
-              {SCAN_STEPS.map((step, i) => (
-                <div key={i} className={`flex items-center gap-2.5 text-xs transition-all duration-300
-                  ${i < stepIndex ? 'text-muted' : i === stepIndex ? 'text-white' : 'text-border'}`}>
-                  <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 transition-all duration-300
-                    ${i < stepIndex ? 'bg-success' : i === stepIndex ? 'bg-accent animate-pulse' : 'bg-border'}`}/>
-                  {step}
-                </div>
-              ))}
+              <p className="text-xs text-muted leading-relaxed">
+                Reviewing the submitted manifest fields; no live MCP discovery or progress details are reported.
+              </p>
             </div>
           </div>
         </div>
@@ -252,7 +205,8 @@ export default function App() {
                   <path d="M17 20L19.5 22.5L23.5 18" stroke="#00FF9C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <div>
-                  <h1 className="text-base font-700 text-white">MCP Trust Scorecard</h1>
+                  <h1 className="text-base font-700 text-white">MCP Trust Scoreboard</h1>
+                  <p className="text-xs text-muted">Security Assessment</p>
                   {results.source_url && (
                     <p className="text-xs text-muted truncate max-w-xs">{results.source_url}</p>
                   )}
@@ -267,7 +221,7 @@ export default function App() {
                   <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                     <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
                   </svg>
-                  New Scan
+                  New Assessment
                 </button>
               </div>
             </div>
@@ -294,7 +248,10 @@ export default function App() {
                   </div>
                 </div>
                 <p className="text-xs text-muted">
-                  Scanned {formatDate(results.scanned_at)}
+                  Trust Rating and Overall Score are heuristic assessments. AI Suspicion is heuristic and may reflect fallback values.
+                </p>
+                <p className="text-xs text-muted">
+                  Assessed {formatDate(results.scanned_at)}
                 </p>
               </div>
             </div>
@@ -336,8 +293,8 @@ export default function App() {
             )}
 
             {/* Footer note */}
-            <p className="text-xs text-muted text-center pb-4">
-              Assessment is evidence-backed where verification is available; unknowns remain unknown.
+            <p className="text-xs text-muted text-center pb-4 leading-relaxed">
+              Assessment limitations: scores use submitted or claimed inputs. Provider checks may be unavailable; a high score does not guarantee security. Review the dimension context and missing checks alongside the findings.
             </p>
           </div>
         </div>
