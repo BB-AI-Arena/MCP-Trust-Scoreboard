@@ -8,11 +8,15 @@ import time
 import uuid
 
 from windows_acceptance import ROOT, wait
+from windows_diagnostics import persist_checkpoint, persist_health_observation, record_failure
 
 
 class ServiceAcceptance:
-    def __init__(self, root, executable, config, bootstrap, evidence, env):
+    def __init__(self, root, executable, config, bootstrap, evidence, env, diagnostics, source_binary_identity):
         self.root=root;self.install=root/'installed';self.data=self.install/'data'
+        self.diagnostics=diagnostics;self.source_binary_identity=source_binary_identity
+        # SCM relocation changes the authoritative runtime path for all later capture.
+        self.diagnostics['data_dir']=self.data
         self.name='AgentTrustEndpoint-'+uuid.uuid4().hex[:12]
         self.evidence=evidence;self.env=env;self.removed=False
         self.summary={'service_name':self.name,'identity_type':'virtual service account',
@@ -46,14 +50,13 @@ class ServiceAcceptance:
             before=self.call('Inspect')
             self.call('Install',extra=['-Source',str(executable),'-Config',str(config)],private=bootstrap,expected_failure=True)
             assert json.loads(before)['acls']==json.loads(self.call('Inspect'))['acls']
-        except BaseException:
-            # Preserve bounded service diagnostics before cleanup removes only
-            # the SCM registration/executable. Never copy private credentials.
-            self.evidence.mkdir(parents=True, exist_ok=True)
-            for name in ('status.json','service-startup.error','service-args.json','counters.json'):
-                p=self.data/name
-                if p.exists(): (self.evidence/name).write_bytes(p.read_bytes())
-            self.cleanup();raise
+        except BaseException as error:
+            # Constructor capture and late workspace capture both precede cleanup.
+            record_failure(self.evidence,self.diagnostics['phase'],self.data,self.source_binary_identity,error,self.diagnostics['checkpoints'],'scm-failure-diagnostic.json',self.diagnostics.get('observations',()))
+            try:self.cleanup()
+            except BaseException as cleanup_error:
+                record_failure(self.evidence,self.diagnostics['phase'],self.data,self.source_binary_identity,RuntimeError('cleanup failure'),self.diagnostics['checkpoints'],'scm-cleanup-diagnostic.json',self.diagnostics.get('observations',()),[type(cleanup_error).__name__])
+            raise
 
     def ps(self, script, *args):
         # Exact script on stdin: secrets never enter shell interpolation/argv.
@@ -95,6 +98,12 @@ class ServiceAcceptance:
         assert (self.data/'identity.dpapi').read_bytes()==self.identity
         return self
 
+    def diagnostic_checkpoint(self, phase):
+        return persist_checkpoint(self.evidence,self.diagnostics,phase,self.data,self.source_binary_identity)
+
+    def persist_health_observation(self, phase, health):
+        return persist_health_observation(self.evidence,self.diagnostics,phase,health,self.source_binary_identity)
+
     def validate_lifecycle(self):
         inspect=json.loads(self.call('Inspect'))
         assert inspect['start_name'].lower()==self.summary['identity'].lower()
@@ -112,8 +121,13 @@ class ServiceAcceptance:
         self.stop();self.start();wait(lambda:self.health()['online'])
         old=self.health()['pid']
         # This is explicitly a disposable acceptance fault, not a sensor response.
+        self.diagnostic_checkpoint('before_intentional_crash')
         self.ps('param($pidToKill) Stop-Process -Id ([int]$pidToKill) -Force',str(old))
+        try:self.persist_health_observation('post_kill_observation_may_include_scm_recovery',self.health())
+        except BaseException:self.diagnostic_checkpoint('post_kill_observation_unavailable')
+        self.diagnostics['phase']='awaiting_scm_recovery'
         wait(lambda:self.health()['pid']!=old and self.health()['online'],90)
+        self.diagnostic_checkpoint('after_scm_recovery')
         assert (self.data/'identity.dpapi').read_bytes()==self.identity
         self.summary['dpapi_restart_and_scm_recovery']='passed'
         self.summary['collector_states']=self.health()['collectors']
@@ -149,13 +163,19 @@ class ServiceAcceptance:
 
     def validate_revocation(self):
         wait(lambda:self.health()['reason']=='authentication_rejected',60)
+        before_restart=self.health()
+        self.persist_health_observation('revocation_before_restart',before_restart)
+        self.diagnostics['phase']='revocation_before_restart'
         self.stop();self.start()
+        self.diagnostics['phase']='revocation_after_restart'
         wait(lambda:self.health()['reason']=='authentication_rejected',60)
+        after_restart=self.health()
+        self.persist_health_observation('revocation_after_restart',after_restart)
         assert (self.data/'identity.dpapi').read_bytes()==self.identity
         self.summary['revocation']='authentication rejected before and after service restart; identity unchanged'
-        counters=self.health()['counters']
+        counters=after_restart['counters']
         self.summary.update(dropped_count=counters['dropped'],expired_count=counters['expired'],total_uploaded_count=counters['sent'])
-        assert counters['dropped']==0 and counters['expired']==0
+        assert counters['dropped']==0 and counters['expired']==0, 'revocation counters must remain zero: '+json.dumps({key:counters.get(key) for key in ('dropped','expired','sent')})
 
     def validate_uninstall(self):
         self.stop()
@@ -184,5 +204,5 @@ class ServiceAcceptance:
 
 
 if __name__=='__main__':
-    from windows_acceptance import main
-    main(service_mode=True)
+    from windows_acceptance import run_acceptance
+    run_acceptance(service_mode=True)
