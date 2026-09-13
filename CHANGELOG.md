@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Read-only CrowdStrike Falcon source: OAuth/Hosts/Alerts client, bounded sync-once,
+  transactional checkpoints (migration 004), vendor evidence/finding revisions,
+  explicit agent mappings and existing webhook delivery; local TLS/PostgreSQL
+  fixture coverage, no live vendor or enforcement claim.
+
 - Apply owner-authorized development/alpha dependency-risk acceptance. Keep raw
   scans/SBOMs and a complete known-issues register; findings are informational,
   scanner execution failures remain blocking. No automatic merge/publication.

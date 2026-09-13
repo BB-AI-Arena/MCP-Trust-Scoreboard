@@ -46,7 +46,7 @@ def test_fresh_and_existing_schema_migrations_preserve_data(pg_engine):
     assert projection["operator_note"] == "preserve me"
     assert ledger.enqueue("assessment", "b", {}, idempotency_key="old-key")["id"] != "old-job"
     with pg_engine.connect() as c:
-        assert c.execute(text("SELECT count(*) FROM agent_trust_migrations")).scalar() == 3
+        assert c.execute(text("SELECT count(*) FROM agent_trust_migrations")).scalar() == 4
         indexes = set(c.execute(text("SELECT indexname FROM pg_indexes WHERE tablename='agent_trust_jobs'")).scalars())
         assert {"ix_agent_trust_jobs_claim", "uq_agent_trust_jobs_workspace_key"} <= indexes
 

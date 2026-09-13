@@ -32,6 +32,7 @@ test = [
 [project.scripts]
 agent-trust-api = "agent_trust.api.app:run"
 agent-trust-worker = "agent_trust.jobs.worker:run"
+agent-trust-falcon = "agent_trust.adapters.connectors.falcon_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

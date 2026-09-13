@@ -13,6 +13,7 @@ Stable IDs are used for issues, board items, commits, and handoffs.
 | ATP-C2 | 2.0.0-beta.1 | Graph/artifact views and Python/JS SDKs | Multi-edge/cycle and telemetry mapping tests | Planned |
 | ATP-D1 | 2.0.0-rc.1 | Recovery, upgrade, compatibility, packaging, release prep | Fresh/upgrade/rollback/end-to-end gates | Alpha subset in review; dependency risk accepted, hardening deferred |
 | ATP-B3 | 2.0.0-alpha.1 | Connector framework, JSON evidence source, webhook finding destination | Authenticated durable end-to-end path with local receiver and retries | Implemented for review (#18); live vendor validation not claimed |
+| ATP-B4 | 2.0.0-alpha.1 | Read-only CrowdStrike host/alert source | TLS fixture + PostgreSQL checkpoint/revision/worker/webhook tests | In review (#20, PR #21); live validation pending |
 | ATP-E1 | 2.0.0 | Human-reviewed stable release | Maintainer review after D; no automatic release | Planned |
 | ATP-F1 | 2.1.0 | Optional inline enforcement and expiring approvals | Denied calls never reach upstream; replay-proof approvals | Planned |
 
@@ -30,5 +31,6 @@ gates are implemented, not automatically accepted or released. ATP-A3 remains
 In review; dependency CVEs no longer block development or alpha preparation.
 Scanner execution and functional/data-integrity checks plus maintainer review
 remain required. No future-phase issue is complete from interfaces alone.
-Current scope: ATP-B3, a vendor-neutral connector framework and JSON-to-webhook
-reference path, with sources/destinations/response capabilities kept separate.
+Current scope: ATP-B4, the owner-selected read-only CrowdStrike source on ATP-B3's
+existing path. Sources/destinations/response authority remain separate; only local
+protocol fixtures are validated, not live vendor compatibility.

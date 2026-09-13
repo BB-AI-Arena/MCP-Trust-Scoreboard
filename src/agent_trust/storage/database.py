@@ -42,6 +42,15 @@ jobs = Table(
     UniqueConstraint("workspace_id", "idempotency_key", name="uq_agent_trust_jobs_workspace_key"),
 )
 
+# Operator checkpoint state is not writable via generic API records.
+connector_checkpoints = Table(
+    "agent_trust_connector_checkpoints", metadata,
+    Column("id", String(128), primary_key=True),
+    Column("workspace_id", String(128), nullable=False, index=True),
+    Column("payload", Text, nullable=False),
+    Column("updated_at", String(40), nullable=False),
+)
+
 
 def make_engine(database_url: str):
     """Create an engine without opening a connection until it is used."""

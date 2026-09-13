@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, "feat/**", "fix/**", "test/**", "chore/**"]
   pull_request:
-    branches: [main, "fix/**", "test/**", "chore/**"]
+    branches: [main, "fix/**", "test/**", "chore/**", "feat/**"]
   workflow_call:
     inputs:
       source_sha:
@@ -53,7 +53,15 @@ jobs:
           . .runtime-venv/bin/activate
           python -m pip install --upgrade pip
           python -m pip install -e '.[postgres,test]'
-          pytest --run-integration tests/integration -v
+          pytest --run-integration tests/integration -v --junitxml=evidence/runtime/junit.xml
+      - name: Retain installed runtime and connector protocol results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: runtime-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/runtime
+          retention-days: 14
+          if-no-files-found: error
 
   frontend:
     runs-on: ubuntu-latest

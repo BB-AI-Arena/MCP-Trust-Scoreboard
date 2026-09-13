@@ -12,7 +12,7 @@ development, reviewed merges or approved alpha preparation/publication. Scanner
 execution, secrets, functional and data-integrity gates remain. Do not restart a
 CVE-remediation loop. Approval is still required; alpha is not production-hardened.
 
-Current product slice (ATP-B3, implemented in PR #19, awaiting review): separate EvidenceSource, FindingDestination
+Reference slice (ATP-B3, implemented in PR #19, awaiting review): separate EvidenceSource, FindingDestination
 and ResponseAdapter contracts. No selected vendor priority exists, so implement
 generic JSON ingestion and a configured webhook destination first. Authenticate
 ingestion, normalize/redact evidence, persist it and deterministic findings with
@@ -23,6 +23,17 @@ The working reference path and tested limits are in [CONNECTORS.md](CONNECTORS.m
 Local HTTP/TLS fixture success is not live vendor validation; response contracts
 have no registered enforcement implementation. Follow this slice with a selected
 source/destination adapter using the same contracts, not a new CVE-hardening loop.
+
+Owner-selected next source (ATP-B4): read-only CrowdStrike Falcon. Reuse registered
+source/destination dispatch and the existing worker/outbox. A small typed client
+allowlists OAuth token issuance, Hosts scroll/v2 details, and Alerts combined v1
+(read POST). Durable page enqueue/checkpoint transactions plus a per-connection
+PostgreSQL session advisory lock provide bounded resumable sync-once. Migration
+004 adds a private checkpoint table, not a public record kind. Imported alerts are
+vendor findings with immutable revisions; inventory remains context. Explicit
+registered-agent mappings never prove causality. No response capabilities, live
+compatibility claims, SDK dependency, new service or CVE-remediation work. Contract,
+limits and executable acceptance: [CROWDSTRIKE.md](connectors/CROWDSTRIKE.md).
 
 1. Keep FastAPI, Python, React, Vite, D3, and Recharts. Introduce one Python
    namespace at `src/agent_trust` and retain the old app directories as tested
@@ -42,8 +53,9 @@ source/destination adapter using the same contracts, not a new CVE-hardening loo
 5. The legacy four services keep their route and response shapes. Their seeded
    examples and heuristic attribution are compatibility/demo behavior and are
    not advertised as verified security evidence.
-6. No new graph database, Kafka, cloud service, enforcement gateway, or
-   proprietary integration is introduced in alpha. Inline enforcement is a
+6. No new graph database, Kafka, cloud service or enforcement gateway is
+   introduced in alpha. The owner explicitly authorized the bounded read-only
+   Falcon source above, without proprietary integration breadth claims. Inline enforcement is a
    v2.1 design and remains absent.
 
 ## Dependency order and gates
