@@ -14,7 +14,7 @@ from typing import Any
 # ---------------------------------------------------------------------------
 
 def _score_identity(manifest: dict) -> tuple[int, str]:
-    """Verified org → 90 | Named individual → 60 | Anonymous → 25"""
+    """Submitted publisher verification/URL signal → 90 | Named publisher → 60 | Anonymous → 25"""
     publisher = manifest.get("publisher") or manifest.get("author") or manifest.get("vendor") or {}
 
     if isinstance(publisher, str):
@@ -37,8 +37,8 @@ def _score_identity(manifest: dict) -> tuple[int, str]:
     if not publisher_name:
         return 25, "No publisher identity found — anonymous source"
     if verified:
-        return 90, f'Publisher "{publisher_name}" with verified identity/URL'
-    # Has a name but no verification signal
+        return 90, f'Publisher "{publisher_name}" with submitted verification/URL claim — not independently verified'
+    # Has a name but no submitted verification/URL claim
     return 60, f'Named publisher "{publisher_name}" — not independently verified'
 
 
@@ -114,20 +114,20 @@ def _score_network_behavior(domain_results: dict) -> tuple[int, str]:
 
 
 def _score_code_transparency(manifest: dict) -> tuple[int, str]:
-    """No source → 20 | Source present → 50 | Audited → 95"""
+    """No submitted source claim → 20 | Submitted source link → 50 | Submitted audit claim → 95"""
     repository = manifest.get("repository") or manifest.get("source") or manifest.get("repo")
     audit = manifest.get("audit") or manifest.get("security_audit") or manifest.get("audited")
     license_field = manifest.get("license")
 
     if audit:
-        return 95, "Source code available and independently audited"
+        return 95, "Submitted audit claim — not independently verified; source availability not verified"
     if repository:
         repo_url = repository if isinstance(repository, str) else repository.get("url", "")
-        note = f"Source at {repo_url}" if repo_url else "Source repository linked"
+        note = f"Submitted repository link: {repo_url}" if repo_url else "Submitted source repository link"
         if license_field:
-            note += f" — {license_field} license"
-        return 50, f"{note} — no audit record found"
-    return 20, "No source repository or code transparency information found"
+            note += f" — submitted {license_field} license"
+        return 50, f"{note} — no audit record claimed"
+    return 20, "No submitted source repository or code transparency information found"
 
 
 def _score_version_drift(manifest: dict) -> tuple[int, str]:

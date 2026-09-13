@@ -188,3 +188,109 @@ def test_tool_connector_contract_uses_manifest_and_rejects_private_url():
     )
     assert rejected.status_code == 422
     assert "Unsafe manifest URL" in rejected.json()["detail"]
+
+
+@pytest.mark.parametrize(
+    ("manifest", "expected_scores", "expected_overall", "expected_rating", "expected_flags", "expected_identity", "expected_transparency"),
+    [
+        (
+            {"publisher": {"name": "Claimed Audit", "verified": True}, "audit": "vendor attestation", "version": "1.0.0", "installs": 1000},
+            {"identity": 90, "permission_sprawl": 100, "network_behavior": 100, "code_transparency": 95, "version_drift": 50, "community_signal": 70},
+            89,
+            "High",
+            [],
+            'Publisher "Claimed Audit" with submitted verification/URL claim — not independently verified',
+            "Submitted audit claim — not independently verified; source availability not verified",
+        ),
+        (
+            {"publisher": {"name": "Verified Flag", "verified": True}, "version": "1.0.0", "installs": 1000},
+            {"identity": 90, "permission_sprawl": 100, "network_behavior": 100, "code_transparency": 20, "version_drift": 50, "community_signal": 70},
+            78,
+            "Medium",
+            ["No source code or audit trail available"],
+            'Publisher "Verified Flag" with submitted verification/URL claim — not independently verified',
+            "No submitted source repository or code transparency information found",
+        ),
+        (
+            {"publisher": {"name": "Publisher URL", "url": "https://publisher.example"}, "version": "1.0.0", "installs": 1000},
+            {"identity": 90, "permission_sprawl": 100, "network_behavior": 100, "code_transparency": 20, "version_drift": 50, "community_signal": 70},
+            78,
+            "Medium",
+            ["No source code or audit trail available"],
+            'Publisher "Publisher URL" with submitted verification/URL claim — not independently verified',
+            "No submitted source repository or code transparency information found",
+        ),
+        (
+            {"publisher": {"name": "Homepage Signal"}, "homepage": "https://homepage.example", "version": "1.0.0", "installs": 1000},
+            {"identity": 90, "permission_sprawl": 100, "network_behavior": 100, "code_transparency": 20, "version_drift": 50, "community_signal": 70},
+            78,
+            "Medium",
+            ["No source code or audit trail available"],
+            'Publisher "Homepage Signal" with submitted verification/URL claim — not independently verified',
+            "No submitted source repository or code transparency information found",
+        ),
+        (
+            {"publisher": {"name": "Repository Signal"}, "repository": "https://repo.example/project", "version": "1.0.0", "installs": 1000},
+            {"identity": 90, "permission_sprawl": 100, "network_behavior": 100, "code_transparency": 50, "version_drift": 50, "community_signal": 70},
+            82,
+            "High",
+            [],
+            'Publisher "Repository Signal" with submitted verification/URL claim — not independently verified',
+            "Submitted repository link: https://repo.example/project — no audit record claimed",
+        ),
+        (
+            {"source": "https://source.example/project", "version": "1.0.0", "installs": 1000},
+            {"identity": 25, "permission_sprawl": 100, "network_behavior": 100, "code_transparency": 50, "version_drift": 50, "community_signal": 70},
+            70,
+            "Medium",
+            ["Anonymous publisher — identity cannot be verified"],
+            "No publisher identity found — anonymous source",
+            "Submitted repository link: https://source.example/project — no audit record claimed",
+        ),
+        (
+            {"version": "1.0.0", "installs": 1000},
+            {"identity": 25, "permission_sprawl": 100, "network_behavior": 100, "code_transparency": 20, "version_drift": 50, "community_signal": 70},
+            65,
+            "Medium",
+            ["Anonymous publisher — identity cannot be verified", "No source code or audit trail available"],
+            "No publisher identity found — anonymous source",
+            "No submitted source repository or code transparency information found",
+        ),
+    ],
+)
+def test_tool_connector_claimed_identity_and_transparency_are_not_verified(
+    monkeypatch,
+    manifest,
+    expected_scores,
+    expected_overall,
+    expected_rating,
+    expected_flags,
+    expected_identity,
+    expected_transparency,
+):
+    module = _load_legacy_app("tool_connector_claims", "app4-mcp-scorecard/backend")
+    monkeypatch.setattr(module, "check_domains", lambda domains: {"flagged": [], "unresolvable": [], "clean": []})
+    monkeypatch.setattr(
+        module,
+        "analyze_tools",
+        lambda tools: {
+            "risk_flags": [],
+            "intent_summary": "deterministic fixture",
+            "permission_analysis": "deterministic fixture",
+            "suspicion_score": 0,
+        },
+    )
+
+    response = TestClient(module.app).post("/scan", json={"manifest": manifest})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert set(body["dimensions"]) == set(expected_scores)
+    assert {name: dimension["score"] for name, dimension in body["dimensions"].items()} == expected_scores
+    assert body["overall_score"] == expected_overall
+    assert body["trust_rating"] == expected_rating
+    assert body["flags"] == expected_flags
+    assert body["dimensions"]["identity"]["explanation"] == expected_identity
+    assert body["dimensions"]["code_transparency"]["explanation"] == expected_transparency
+    assert "independently audited" not in body["dimensions"]["code_transparency"]["explanation"]
+    assert "with verified identity/URL" not in body["dimensions"]["identity"]["explanation"]
