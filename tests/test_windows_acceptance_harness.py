@@ -179,3 +179,25 @@ def test_status_missing_counter_fields_are_partial_even_when_other_evidence_avai
     assert 'dropped' in snapshot['counters']['missing_fields']
     assert snapshot['counters']['value']=={'sent':1}
     assert diagnostics._source_binary_identity({'source_sha':'a'*40,'binary_sha256':'b'*64,'version':{'private':'secret'}})=={'source_sha':'a'*40,'binary_sha256':'b'*64}
+
+
+def test_standalone_service_launcher_retains_setup_failure(tmp_path, monkeypatch):
+    import runpy
+    import sys
+    scripts=Path(__file__).resolve().parents[1]/'scripts'
+    spec=importlib.util.spec_from_file_location('windows_acceptance',scripts/'windows_acceptance.py')
+    harness=importlib.util.module_from_spec(spec);spec.loader.exec_module(harness)
+    monkeypatch.setattr(harness,'ROOT',tmp_path)
+    original=RuntimeError('private setup details')
+    def fail_setup(service_mode=False):
+        assert service_mode is True
+        raise original
+    monkeypatch.setattr(harness,'main',fail_setup)
+    monkeypatch.setitem(sys.modules,'windows_acceptance',harness)
+    with pytest.raises(RuntimeError) as raised:
+        runpy.run_path(str(scripts/'windows_service_acceptance.py'),run_name='__main__')
+    assert raised.value is original
+    report=(tmp_path/'evidence'/'windows'/'service'/'harness-failure.json').read_text()
+    assert 'private setup details' not in report
+    assert json.loads(report)['state']=='failed'
+    assert json.loads(report)['diagnostics']=='partial'

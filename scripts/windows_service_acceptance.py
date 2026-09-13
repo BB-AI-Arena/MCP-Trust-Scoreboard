@@ -204,5 +204,5 @@ class ServiceAcceptance:
 
 
 if __name__=='__main__':
-    from windows_acceptance import main
-    main(service_mode=True)
+    from windows_acceptance import run_acceptance
+    run_acceptance(service_mode=True)
