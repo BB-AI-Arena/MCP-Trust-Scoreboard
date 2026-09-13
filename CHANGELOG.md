@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Apply owner-authorized development/alpha dependency-risk acceptance. Keep raw
+  scans/SBOMs and a complete known-issues register; findings are informational,
+  scanner execution failures remain blocking. No automatic merge/publication.
+- Resume connector-framework/reference-path work; defer image hardening.
+
 - Add actual thirteen-service Compose/Chromium acceptance, PDF content/layout
   evidence, installed-runtime recreation, old-schema upgrade and separate backup
   restore gates. Preserve all existing unit/PostgreSQL checks.
@@ -11,7 +16,8 @@
   private fresh-install credentials and require hosted-provider opt-in. Remove
   external font requests; no cosmetic redesign or new product integrations.
 - Generate real CycloneDX inventories and scan built OS/application images in CI;
-  retain complete evidence. Unresolved HIGH/CRITICAL findings block release.
+  retain complete evidence. Dependency findings are informational under the
+  subsequent owner-approved alpha policy; do not claim a clean scan.
 
 - Fix slotted `Settings.from_env()` defaults; install Uvicorn at runtime and
   preserve the `postgresql://` environment alias with psycopg.

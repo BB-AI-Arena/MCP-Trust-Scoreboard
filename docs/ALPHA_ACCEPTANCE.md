@@ -1,6 +1,6 @@
 # Alpha runtime and release acceptance
 
-Target: **2.0.0-alpha.1, unreleased and blocked**. See
+Target: **2.0.0-alpha.1, unreleased, not production-hardened**. See
 [implementation status](IMPLEMENTATION_STATUS.md) for measured results and exact
 source. PR #15 is the open dependency, not an assumed merged baseline.
 
@@ -20,9 +20,10 @@ python3 -m venv .venv
 python3 scripts/scan_images.py --output evidence/containers
 .venv/bin/python -m compileall -q src tests scripts
 .venv/bin/python -m pip check
-.venv/bin/python -m pip_audit
+.venv/bin/python scripts/dependency_audit.py python --output evidence/dependencies/python
 for d in app1-blast-radius/frontend app2-behavior-baseline/frontend app3-code-provenance/frontend app4-mcp-scorecard/frontend; do
-  (cd "$d" && npm ci --ignore-scripts && npm audit --audit-level=high && node --test ../../tests/frontend/pdf-export.test.cjs && npm run build) || exit 1
+  (cd "$d" && npm ci --ignore-scripts && node --test ../../tests/frontend/pdf-export.test.cjs && npm run build) || exit 1
+  python3 scripts/dependency_audit.py npm --directory "$d" --output "evidence/dependencies/$(dirname "$d")" || exit 1
 done
 ```
 
@@ -129,8 +130,10 @@ Record scanner version/digest, database UpdatedAt/DownloadedAt (max age 48 hours
 source SHA, dirty flag, image identities, exact commands, full findings, CycloneDX
 components and SHA-256 file checksums. Scan reports are time-sensitive evidence,
 not a permanent assertion of safety. Full findings include low/medium severity;
-**any HIGH or CRITICAL, even without a fix, fails**. No ignore files, VEX exceptions,
-hidden findings or audit-threshold changes are introduced.
+owner policy makes dependency findings **informational**, including HIGH/CRITICAL
+and unfixed findings. Status: "Accepted for development/alpha; hardening deferred."
+No ignore files, hidden findings or clean-scan claim. Scanner execution, stale DB,
+missing inventory and invalid reports still fail. See [known issues](KNOWN_SECURITY_ISSUES.md).
 
 CI keeps existing Python, PostgreSQL, four frontend, Compose and audit jobs and
 adds `full-stack-acceptance` / `container-security`. Pinned upload-artifact retains

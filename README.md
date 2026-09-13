@@ -207,8 +207,10 @@ docker compose config
 
 Run [full runtime/browser/security acceptance](docs/ALPHA_ACCEPTANCE.md) before
 considering a release. Those gates include real PostgreSQL, installed containers,
-browser downloads, backup/restore and container SBOM/scans. Release remains blocked
-until mandatory checks and maintainer review pass; green unit tests alone are insufficient.
+browser downloads, backup/restore and container SBOM/scans. Known dependency CVEs
+are [accepted for development/alpha; hardening deferred](docs/KNOWN_SECURITY_ISSUES.md).
+Alpha is not production-hardened. Scanner execution, functional/data-integrity
+checks and maintainer review remain required; green unit tests alone are insufficient.
 
 The test suite uses disposable SQLite databases only as a fast contract test;
 production and Compose configuration target PostgreSQL. Tests cover provider

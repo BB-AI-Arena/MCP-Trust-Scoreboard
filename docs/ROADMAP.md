@@ -11,12 +11,13 @@ Stable IDs are used for issues, board items, commits, and handoffs.
 | ATP-B2 | 2.0.0-alpha.2 | Evidence, verification, snapshots, drift | Claimed/verified/observed states and diff tests | Planned |
 | ATP-C1 | 2.0.0-beta.1 | Durable behavior events and baselines | Auth, duplicates, late data, warm-up tests | Planned |
 | ATP-C2 | 2.0.0-beta.1 | Graph/artifact views and Python/JS SDKs | Multi-edge/cycle and telemetry mapping tests | Planned |
-| ATP-D1 | 2.0.0-rc.1 | Recovery, upgrade, compatibility, packaging, release prep | Fresh/upgrade/rollback/end-to-end gates | Alpha subset in review; release blocked on container findings |
+| ATP-D1 | 2.0.0-rc.1 | Recovery, upgrade, compatibility, packaging, release prep | Fresh/upgrade/rollback/end-to-end gates | Alpha subset in review; dependency risk accepted, hardening deferred |
+| ATP-B3 | 2.0.0-alpha.1 | Connector framework, JSON evidence source, webhook finding destination | Authenticated durable end-to-end path with local receiver and retries | In progress |
 | ATP-E1 | 2.0.0 | Human-reviewed stable release | Maintainer review after D; no automatic release | Planned |
 | ATP-F1 | 2.1.0 | Optional inline enforcement and expiring approvals | Denied calls never reach upstream; replay-proof approvals | Planned |
 
 Runtime repair continuation: PR #12 is merged, but Phase A is not complete.
-Feature/UI work is paused. ATP-A2 persistence and ATP-A3 dependency remediation
+UI work remains paused; owner-authorized connector development resumes. ATP-A2 persistence and ATP-A3 dependency remediation
 passed local and remote CI on `fix/runtime-postgres-release-gates` (PR #15).
 Release remains blocked for review and broader legacy/runtime/security gates.
 See [implementation status](IMPLEMENTATION_STATUS.md) for measured results.
@@ -24,7 +25,8 @@ See [implementation status](IMPLEMENTATION_STATUS.md) for measured results.
 Alpha acceptance continuation: `test/alpha-release-acceptance` depends on open
 PR #15. Full Compose/browser/report, recreation/upgrade/restore and scan/SBOM CI
 gates are implemented, not automatically accepted or released. ATP-A3 remains
-In review; ATP-D1 and the alpha epic remain Blocked until findings and review are
-resolved. No future-phase issue is complete because its acceptance plumbing exists.
-Next product scope, **after these gates**, is the vendor-neutral connector
-framework plus one end-to-end cross-vendor integration. Not part of this PR.
+In review; dependency CVEs no longer block development or alpha preparation.
+Scanner execution and functional/data-integrity checks plus maintainer review
+remain required. No future-phase issue is complete from interfaces alone.
+Current scope: ATP-B3, a vendor-neutral connector framework and JSON-to-webhook
+reference path, with sources/destinations/response capabilities kept separate.

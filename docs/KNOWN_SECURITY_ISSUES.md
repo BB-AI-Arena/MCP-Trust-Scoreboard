@@ -1,0 +1,214 @@
+# Known security issues
+
+Accepted for development/alpha; hardening deferred.
+
+Owner-authorized development/alpha risk acceptance supersedes earlier zero-HIGH/CRITICAL instructions. Do not restart remediation automatically. This is not production hardening, a clean scan, an exploitability determination, or maintainer approval to publish. Scanner execution, inventory, secret, build, runtime, migration and data-integrity failures still block.
+
+Snapshot source: `6f9cdb8d8aac35b5647288200ecff16f31183fab`; scan: `2026-09-12T03:30:00.197989+00:00`. Historical evidence is not a newly scanned artifact. All severities are retained below. Repeated package matches and shared service images are not unique CVEs.
+
+Raw baseline: [CI run 34670450930](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670450930), artifact `container-security-34670450930-1` / ID `10290422302`; 41 checksums verified. Machine-readable companion: [known_security_issues.json](known_security_issues.json).
+
+## Image identities
+
+| Ref | Services | Image ID |
+| --- | --- | --- |
+| I1 | api-baseline | `sha256:007bbc8d343cd6c97c1d8b8f3ada14148131a66cdb1f13f57549811c9188a8a0` |
+| I2 | api-blast | `sha256:26e979df419f133932bcd99fbf8ebcb406a1492882c3d49a8b4c0ba4ac8f7bb5` |
+| I3 | api-platform, worker-platform | `sha256:d405f4eaf6421e9ce12ab83d415d775479bd627b44d163745dcf71179cfe488b` |
+| I4 | api-provenance | `sha256:1870141ab4d1a722dcdcd1995f324bf35f965cdb4e801bf2da6b178444a5f8bf` |
+| I5 | api-scorecard | `sha256:e717e02094a246f808159fb49a9cccd6d845be73fd30b090b3ac55e7dd4ba5be` |
+| I6 | frontend-baseline | `sha256:e92e1bb4772dde07f00766dd4c6b9eb9c5fa5ec17c28dc800f437462b19d9541` |
+| I7 | frontend-blast | `sha256:00c25096ed8e2e7c611ba2156e0c52a1b4b52b2ac5bae93108b79ad1bf295afa` |
+| I8 | frontend-provenance | `sha256:bc75697460f91998823edecd49cc3998ac1d456c03e7a629927847c368cf62ea` |
+| I9 | frontend-scorecard | `sha256:6c87f5ea2ef21a99eafb2b47872d558ff08fccbdf43c897b32de9565860bf329` |
+| I10 | postgres | `sha256:b649e45f44dcb90c7db8a677178de63382346ac1329eb3717d7cc27cd10da983` |
+| I11 | redis | `sha256:5509c0097c6064aa8a3b1df58f1d950e67090fffa6678ae8f3f1dc2385f12deb` |
+| I12 | worker | `sha256:26f2d96ab3c3e54d6ff02b518e2b71939f82d6071043a2a8cac95525dcc58900` |
+
+## Observed findings
+
+Every row has status **"Accepted for development/alpha; hardening deferred."** Scan date is the snapshot timestamp above. Available fixes are scanner reports, not instructions to upgrade in this slice.
+
+| Advisory | Package | Version | Severity | Images | Fix reported |
+| --- | --- | --- | --- | --- | --- |
+| CVE-2005-2541 | tar | 1.35+dfsg-3.1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2007-5686 | login.defs | 1:4.17.4-2 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2007-5686 | passwd | 1:4.17.4-2 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2010-4756 | libc-bin | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2010-4756 | libc6 | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2011-3374 | apt | 3.0.3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2011-3374 | libapt-pkg7.0 | 3.0.3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2011-4116 | perl-base | 5.40.1-6 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2013-4392 | libsystemd0 | 257.13-1~deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2013-4392 | libudev1 | 257.13-1~deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2017-18018 | coreutils | 9.7-3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2018-20796 | libc-bin | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2018-20796 | libc6 | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2019-1010022 | libc-bin | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2019-1010022 | libc6 | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2019-1010023 | libc-bin | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2019-1010023 | libc6 | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2019-1010024 | libc-bin | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2019-1010024 | libc6 | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2019-1010025 | libc-bin | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2019-1010025 | libc6 | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2019-9192 | libc-bin | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2019-9192 | libc6 | 2.41-12+deb13u3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2021-45346 | libsqlite3-0 | 3.46.1-7+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2022-0563 | bsdutils | 1:2.41.5-0+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2022-0563 | libblkid1 | 2.41.5-0+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2022-0563 | liblastlog2-2 | 2.41.5-0+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2022-0563 | libmount1 | 2.41.5-0+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2022-0563 | libsmartcols1 | 2.41.5-0+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2022-0563 | libuuid1 | 2.41.5-0+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2022-0563 | login | 1:4.16.0-2+really2.41.5-0+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2022-0563 | mount | 2.41.5-0+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2022-0563 | util-linux | 2.41.5-0+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2023-31437 | libsystemd0 | 257.13-1~deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2023-31437 | libudev1 | 257.13-1~deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2023-31438 | libsystemd0 | 257.13-1~deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2023-31438 | libudev1 | 257.13-1~deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2023-31439 | libsystemd0 | 257.13-1~deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2023-31439 | libudev1 | 257.13-1~deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2024-56433 | login.defs | 1:4.17.4-2 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2024-56433 | passwd | 1:4.17.4-2 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-15649 | perl-base | 5.40.1-6 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-47273 | setuptools | 70.3.0 | HIGH | I1,I2,I3,I4,I5,I12 | 78.1.1 |
+| CVE-2025-5278 | coreutils | 9.7-3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-6141 | libncursesw6 | 6.5+20250216-2 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-6141 | libtinfo6 | 6.5+20250216-2 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-6141 | ncurses-base | 6.5+20250216-2 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-6141 | ncurses-bin | 6.5+20250216-2 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-69720 | libncursesw6 | 6.5+20250216-2 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-69720 | libtinfo6 | 6.5+20250216-2 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-69720 | ncurses-base | 6.5+20250216-2 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-69720 | ncurses-bin | 6.5+20250216-2 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2025-70873 | libsqlite3-0 | 3.46.1-7+deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-11822 | libsqlite3-0 | 3.46.1-7+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-11824 | libsqlite3-0 | 3.46.1-7+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-12087 | perl-base | 5.40.1-6 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-13221 | perl-base | 5.40.1-6 | CRITICAL | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-15059 | libsystemd0 | 257.13-1~deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-15059 | libudev1 | 257.13-1~deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-15534 | perl-base | 5.40.1-6 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-16742 | libsystemd0 | 257.13-1~deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-16742 | libudev1 | 257.13-1~deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-18374 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-18374 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-18477 | tar | 1.35+dfsg-3.1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-18508 | tar | 1.35+dfsg-3.1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-19487 | perl-base | 5.40.1-6 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-19499 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-19499 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-19542 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-19542 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-27171 | zlib1g | 1:1.3.dfsg+really1.3.1-1+b1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-3184 | bsdutils | 1:2.41.5-0+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-3184 | libblkid1 | 2.41.5-0+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-3184 | liblastlog2-2 | 2.41.5-0+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-3184 | libmount1 | 2.41.5-0+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-3184 | libsmartcols1 | 2.41.5-0+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-3184 | libuuid1 | 2.41.5-0+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-3184 | login | 1:4.16.0-2+really2.41.5-0+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-3184 | mount | 2.41.5-0+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-3184 | util-linux | 2.41.5-0+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-39113 | libsqlite3-0 | 3.46.1-7+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-40228 | libsystemd0 | 257.13-1~deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-40228 | libudev1 | 257.13-1~deb13u1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-41991 | gzip | 1.13-1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-41992 | gzip | 1.13-1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-42250 | libbz2-1.0 | 1.0.8-6 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-42496 | perl-base | 5.40.1-6 | CRITICAL | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-42497 | perl-base | 5.40.1-6 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-48959 | perl-base | 5.40.1-6 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-48961 | perl-base | 5.40.1-6 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-48962 | perl-base | 5.40.1-6 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-50812 | libsqlite3-0 | 3.46.1-7+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-50813 | libsqlite3-0 | 3.46.1-7+deb13u1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-53910 | diffutils | 1:3.10-4 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-5435 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-5435 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-54369 | libacl1 | 2.3.2-2+b1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-54370 | libacl1 | 2.3.2-2+b1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-54371 | libattr1 | 1:2.5.2-3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-54411 | libpam-modules | 1.7.0-5 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-54411 | libpam-modules-bin | 1.7.0-5 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-54411 | libpam-runtime | 1.7.0-5 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-54411 | libpam0g | 1.7.0-5 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-5450 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-5450 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-56391 | coreutils | 9.7-3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-56392 | coreutils | 9.7-3 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-5704 | tar | 1.35+dfsg-3.1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-57432 | perl-base | 5.40.1-6 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-57433 | perl-base | 5.40.1-6 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-5928 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-5928 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-59890 | setuptools | 70.3.0 | MEDIUM | I1,I2,I3,I4,I5,I12 | 83.0.0 |
+| CVE-2026-6238 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-6238 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-6368 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-6368 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-6791 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-6791 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-7010 | perl-base | 5.40.1-6 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-7017 | perl-base | 5.40.1-6 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-76642 | bsdutils | 1:2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-76642 | libblkid1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-76642 | liblastlog2-2 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-76642 | libmount1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-76642 | libsmartcols1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-76642 | libuuid1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-76642 | login | 1:4.16.0-2+really2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-76642 | mount | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-76642 | util-linux | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-77117 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-77117 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78408 | bsdutils | 1:2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78408 | libblkid1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78408 | liblastlog2-2 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78408 | libmount1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78408 | libsmartcols1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78408 | libuuid1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78408 | login | 1:4.16.0-2+really2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78408 | mount | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78408 | util-linux | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78409 | bsdutils | 1:2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78409 | libblkid1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78409 | liblastlog2-2 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78409 | libmount1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78409 | libsmartcols1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78409 | libuuid1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78409 | login | 1:4.16.0-2+really2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78409 | mount | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78409 | util-linux | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78410 | bsdutils | 1:2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78410 | libblkid1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78410 | liblastlog2-2 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78410 | libmount1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78410 | libsmartcols1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78410 | libuuid1 | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78410 | login | 1:4.16.0-2+really2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78410 | mount | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-78410 | util-linux | 2.41.5-0+deb13u1 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-80489 | libc-bin | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-80489 | libc6 | 2.41-12+deb13u3 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-8376 | perl-base | 5.40.1-6 | CRITICAL | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-85091 | zlib1g | 1:1.3.dfsg+really1.3.1-1+b1 | MEDIUM | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-86145 | libpcre2-8-0 | 10.46-1~deb13u1 | UNKNOWN | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-89092 | libc-bin | 2.41-12+deb13u3 | UNKNOWN | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-89092 | libc6 | 2.41-12+deb13u3 | UNKNOWN | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-89156 | libpcre2-8-0 | 10.46-1~deb13u1 | UNKNOWN | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-89157 | libpcre2-8-0 | 10.46-1~deb13u1 | UNKNOWN | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-89158 | libpcre2-8-0 | 10.46-1~deb13u1 | UNKNOWN | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-89160 | libpcre2-8-0 | 10.46-1~deb13u1 | UNKNOWN | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-89161 | libpcre2-8-0 | 10.46-1~deb13u1 | UNKNOWN | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-89162 | libpcre2-8-0 | 10.46-1~deb13u1 | UNKNOWN | I1,I2,I3,I4,I5,I12 | not reported |
+| CVE-2026-9538 | perl-base | 5.40.1-6 | HIGH | I1,I2,I3,I4,I5,I12 | not reported |
+| GHSA-6v7p-g79w-8964 | msgpack | 1.1.2 | HIGH | I1,I2,I3,I4,I5,I12 | 1.2.1 |
+| TEMP-0290435-0B57B5 | tar | 1.35+dfsg-3.1 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| TEMP-0517018-A83CE6 | sysvinit-utils | 3.14-4 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| TEMP-0628843-DBAD28 | login.defs | 1:4.17.4-2 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| TEMP-0628843-DBAD28 | passwd | 1:4.17.4-2 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| TEMP-0841856-B18BAF | bash | 5.2.37-2+b9 | LOW | I1,I2,I3,I4,I5,I12 | not reported |
+| TEMP-1147318-639065 | liblzma5 | 5.8.1-1+deb13u1 | UNKNOWN | I1,I2,I3,I4,I5,I12 | not reported |
