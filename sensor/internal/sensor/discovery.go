@@ -28,6 +28,12 @@ type Discovery struct {
 
 func Discover(c Config, p Policy) (Discovery, error) {
 	d := Discovery{}
+	var visibilityError error
+	for _, root := range c.ProfileRoots {
+		if _, err := os.ReadDir(root); err != nil {
+			visibilityError = fmt.Errorf("profile unavailable")
+		}
+	}
 	for id, paths := range Catalog {
 		for _, root := range c.ProfileRoots {
 			for _, rel := range paths {
@@ -77,7 +83,7 @@ func Discover(c Config, p Policy) (Discovery, error) {
 			d.Configs = append(d.Configs, path)
 		}
 	}
-	return d, nil
+	return d, visibilityError
 }
 func ReadMetadata(path string) (map[string]any, error) {
 	st, e := os.Stat(path)

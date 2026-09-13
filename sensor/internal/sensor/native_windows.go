@@ -39,6 +39,19 @@ func Protect(b []byte) ([]byte, error) {
 	defer windows.LocalFree(windows.Handle(unsafe.Pointer(out.Data)))
 	return append([]byte(nil), unsafe.Slice(out.Data, out.Size)...), nil
 }
+
+func RuntimeIdentity() map[string]any {
+	token, err := windows.OpenCurrentProcessToken()
+	if err != nil {
+		return map[string]any{"state": "unavailable"}
+	}
+	defer token.Close()
+	u, err := token.GetTokenUser()
+	if err != nil {
+		return map[string]any{"state": "unavailable"}
+	}
+	return map[string]any{"sid": u.User.Sid.String(), "elevated": token.IsElevated()}
+}
 func Unprotect(b []byte) ([]byte, error) {
 	if len(b) == 0 {
 		return nil, fmt.Errorf("empty identity")

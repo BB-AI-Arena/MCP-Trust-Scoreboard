@@ -5,6 +5,12 @@ Observe-only, **not production-hardened**, not an EDR replacement. Sensor versio
 
 ## Validation boundary
 
+Current Server 2022 foreground and virtual-account SCM acceptance passes on
+PR #24. [Authoritative reconciliation](../STACK_RECONCILIATION.md#windows-evidence-and-limits)
+records run 34738201185, exact source/tree/binary hash, nine native tests, spool
+counts and degraded service collector states. The following earlier #23 results
+are historical; they do not supersede that result or validate actual merged main.
+
 The dedicated `Windows endpoint sensor` workflow targets **windows-2022 x64**.
 Verified initial source `bebcaa09d8705befa83b6fa84923276591f8b2de`: **Windows Server
 2022 x64 build 20348**, runner image `20260907.297.1`, six native tests plus the full
@@ -17,7 +23,7 @@ Exact final-source evidence is linked in PR #23; do not infer it from this earli
 snapshot. Windows 10/11, ARM64 and other service-account configurations are not yet
 validated. Cross-compilation alone is not a Windows-support claim.
 
-Latest verified implementation source **1a5eefa8bdf7d3d9ee2c15156270ec9bc90c64bf**:
+Historical #23 implementation source **1a5eefa8bdf7d3d9ee2c15156270ec9bc90c64bf**:
 [Windows run 34680187120](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34680187120)
 (artifact **10293223676**) and PR run 34680189435 passed **eight native tests**
 and the foreground scenario on the same Windows build/image. Ten offline events
@@ -84,8 +90,11 @@ field authorizes commands, scripts or prevention. Public/Internal/Confidential/
 Restricted/Regulated are supported. An empty approved list approves no AI tools.
 
 Provisioning returns a unique endpoint ID and a **single-use 15-minute bootstrap
-secret**. Keep that response private/in memory. Do not log it or write it to disk.
-Set `AGENT_TRUST_ENROLLMENT_SECRET` privately in the enrollment process environment.
+secret**. Keep that response private; never log it. For foreground enrollment only,
+set `AGENT_TRUST_ENROLLMENT_SECRET` privately in the short-lived enrollment process.
+Service provisioning instead uses private installer stdin and the protected,
+transient `data/bootstrap.json` handoff described in [SERVICE_ACCEPTANCE.md](SERVICE_ACCEPTANCE.md).
+Never persist it in a service environment, SCM argument, registry or ordinary config.
 No generic administrator credential is copied to the endpoint.
 
 Create a private local JSON configuration (no secrets in this file):
@@ -131,19 +140,39 @@ jobs remain forensic records. The sensor does not execute a response to revocati
 
 ## Service runtime and uninstall
 
-The executable includes an SCM handler and operator-only registration commands:
+The supported development service path is `scripts/windows_service.ps1`. It
+creates a virtual account `NT SERVICE\<service-name>`, automatic startup, and
+bounded SCM recovery: restart after 5 seconds and 30 seconds, then no action; reset
+after 24 hours. Non-crash exits are included. The helper captures SCM state,
+recovery, service DACL, token identity and owned-path ACLs.
+
+The account has access only to owned installation/data paths and normal
+`SeChangeNotifyPrivilege` traversal. It has no administrator, debug, backup,
+restore or impersonation privilege. User-bound DPAPI is used under its own
+profile. Interactive-user profile visibility is not assumed; inaccessible AI/MCP
+paths report `degraded`, and protected resources report `permission_missing`.
+Literal machine reboot persistence is unverified on hosted runners.
+
+Uninstall verifies service ownership, stops the service, removes registration and
+the executable, and preserves identity, spool, status, configuration and local
+evidence. There is no default purge.
+
+The supported provisioning sequence and exact install/inspect/uninstall commands
+are in [SERVICE_ACCEPTANCE.md](SERVICE_ACCEPTANCE.md). It sets up owned paths/ACLs,
+private bootstrap consumption and starts the service without foreground enrollment.
+
+The executable also includes lower-level operator-only registration commands:
 
 ```powershell
 .\agent-trust-sensor.exe install-service --config C:\Private\sensor.json
 ```
 
-Registration is **manual start**, not automatic deployment. Before starting, choose
-a least-privilege service account and enroll under that same account (DPAPI user
-binding). SCM defaults to LocalSystem until the operator configures the account;
-do not start it against another account's enrolled identity. Foreground runtime is
-the first acceptance target; dedicated-account SCM startup/recovery is not yet
-validated and must not be claimed production-ready. No account password is accepted
-or stored by this executable. Installation alone means no telemetry is active.
+Registration now configures **Automatic** startup, the named virtual service
+account and bounded recovery, not LocalSystem. Registration alone does not provision
+the private bootstrap or owned-path ACLs; use the PowerShell helper for the tested
+installation path. Never start against another account's DPAPI identity. No account
+password is accepted/stored by the executable. Passing development SCM acceptance
+is not production certification, client-edition validation or a literal reboot test.
 
 Stop the owned sensor through normal service controls, then:
 

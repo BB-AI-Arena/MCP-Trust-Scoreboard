@@ -1,14 +1,17 @@
 version: 1
 product: Agent Trust Platform
-release_state: awaiting_gates_and_maintainer_review
+release_state: awaiting_stack_merge_and_merged_main_validation
+authoritative_status: docs/STACK_RECONCILIATION.md
+project_status: 'GitHub Project status unverified: active authentication lacks read:project.'
 dependency_policy: accepted_for_development_alpha_hardening_deferred
-active_branch: feat/windows-endpoint-sensor
-base_branch: feat/crowdstrike-evidence-source
-dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/21
+active_branch: feat/windows-service-acceptance
+base_branch: feat/windows-endpoint-sensor
+dependency_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/23
 endpoint_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/22
 endpoint_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/23
-windows_acceptance: foreground_server_2022_passed_initial_head
-windows_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34679332513
+endpoint_service_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/24
+windows_acceptance: server_2022_foreground_and_scm_passed_implementation_tree
+windows_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34738201185
 endpoint_initial_sha: bebcaa09d8705befa83b6fa84923276591f8b2de
 falcon_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/20
 falcon_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/21
@@ -16,8 +19,8 @@ connector_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/18
 connector_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/19
 policy_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34671404252
 acceptance_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/16
-tested_implementation_sha: bf175ffdf16806a56ffbab5f2d240f1f82ee55f9
-exact_source_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34677600114
+historical_falcon_implementation_sha: bf175ffdf16806a56ffbab5f2d240f1f82ee55f9
+historical_falcon_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34677600114
 historical_acceptance_ci: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34670064621
 historical_gate_outcome: nine_jobs_passed_container_security_failed_under_superseded_policy
 acceptance_gates:
@@ -28,14 +31,14 @@ acceptance_gates:
   maintainer_approval: pending
   deployed: false
   published: false
-feature_work: connector_framework_authorized
+feature_work: stopped_reconciliation_only
 ui_work: paused
 merged_foundation_pr: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/pull/12
 items:
   - id: ATP-A1
     target: 2.0.0-alpha.1
     title: Neutral namespace and provider contracts
-    status: in_progress
+    status: in_review
     depends_on: []
   - id: ATP-A2
     target: 2.0.0-alpha.1
@@ -53,19 +56,53 @@ items:
     title: Tested MCP and OpenAPI collectors
     status: planned
     depends_on: [ATP-A2, ATP-A3]
+  - id: ATP-B2
+    target: 2.0.0-alpha.2
+    title: Evidence, verification, snapshots, and drift
+    status: planned
+    source_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/7
+    depends_on: [ATP-B1]
   - id: ATP-C1
+    # #22 retains C1; #5's baseline/SDK work moves to C2.
     target: 2.0.0-alpha.1
     title: Windows Endpoint Sensor v0.1 observe-only vertical slice
     status: in_review
     broader_baselines: planned
     depends_on: [ATP-B4]
+  - id: ATP-C2
+    target: 2.0.0-beta.1
+    title: Endpoint behavioral detection, baselines, and SDK/OpenTelemetry mappings
+    status: planned
+    source_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/5
+    depends_on: [ATP-C1, ATP-B1]
+  - id: ATP-C3
+    target: 2.0.0-beta.1
+    title: DLP and sensitive data protection
+    status: planned
+    depends_on: [ATP-C2]
+  - id: ATP-C4
+    target: 2.0.0-beta.1
+    title: Endpoint vulnerability and malware intelligence
+    status: planned
+    depends_on: [ATP-C2]
   - id: ATP-D1
     target: 2.0.0-rc.1
     title: Release and recovery gates
     status: in_review
     alpha_gate_slice: true
-    remaining: [maintainer_review, exact_source_release_gates]
+    remaining: [maintainer_review_and_stack_merge, merged_main_validation, future_production_operations]
     depends_on: [ATP-C1]
+  - id: ATP-E1
+    target: 2.0.0-beta.1
+    title: Graph and artifact assurance views
+    status: planned
+    source_issue: https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/issues/6
+    depends_on: [ATP-B2, ATP-C2]
+  - id: ATP-E2
+    target: 2.0.0
+    title: Human-reviewed stable release
+    status: planned
+    depends_on: [ATP-D1, ATP-E1]
   - id: ATP-B3
     target: 2.0.0-alpha.1
     title: Connector contracts and JSON-to-webhook reference path

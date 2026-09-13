@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -21,17 +22,49 @@ import (
 
 type service struct{ config sensor.Config }
 
-func (s *service) Execute(_ []string, requests <-chan svc.ChangeRequest, status chan<- svc.Status) (bool, uint32) {
-	status <- svc.Status{State: svc.StartPending}
+func (s *service) failure(err error) {
+	if err == nil {
+		return
+	}
+	// Bounded diagnostic contains only a fixed error class/message; never tokens.
+	_ = os.WriteFile(filepath.Join(s.config.DataDir, "service-startup.error"), []byte(err.Error()), 0600)
+}
+
+func (s *service) Execute(args []string, requests <-chan svc.ChangeRequest, status chan<- svc.Status) (bool, uint32) {
+	status <- svc.Status{State: svc.StartPending, WaitHint: 30000}
+	// Emit a bounded startup marker before credential recovery so operators can
+	// distinguish SCM launch/ACL failures from enrollment or collector failures.
+	_ = os.MkdirAll(s.config.DataDir, 0700)
+	_ = os.WriteFile(filepath.Join(s.config.DataDir, "status.json"), []byte(`{"state":"starting","service":true}`), 0600)
+	// Retain only bounded argument metadata. Enrollment is deliberately read
+	// from the protected handoff file, never from SCM arguments.
+	meta := make([]map[string]any, len(args))
+	for i, arg := range args {
+		h := sha256.Sum256([]byte(arg))
+		meta[i] = map[string]any{"length": len(arg), "sha256_prefix": fmt.Sprintf("%x", h[:4])}
+	}
+	mb, _ := json.Marshal(meta)
+	_ = os.WriteFile(filepath.Join(s.config.DataDir, "service-args.json"), mb, 0600)
+	// Report Running before enrollment so SCM does not block on network I/O.
+	// Enrollment remains explicit and failure still terminates the service.
+	status <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop | svc.AcceptShutdown}
+	// Only first start with no identity may consume the protected handoff.
+	// Recovery/restarts with an identity never reenroll or reuse bootstrap.
+	if _, err := os.Stat(filepath.Join(s.config.DataDir, "identity.dpapi")); os.IsNotExist(err) && sensor.BootstrapExists(s.config) {
+		if err := sensor.EnrollFromBootstrapFile(s.config); err != nil {
+			s.failure(err)
+			return false, 3
+		}
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	done := make(chan error, 1)
 	go func() { done <- sensor.Run(ctx, s.config) }()
-	status <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop | svc.AcceptShutdown}
 	for {
 		select {
 		case err := <-done:
 			if err != nil {
+				s.failure(err)
 				return false, 1
 			}
 			return false, 0
@@ -90,12 +123,29 @@ func run() error {
 		defer s.Close()
 		cfg, e := s.Config()
 		exe, _ := os.Executable()
-		if e != nil || !strings.Contains(strings.ToLower(cfg.BinaryPathName), strings.ToLower(exe)) {
+		argv, parseErr := windows.DecomposeCommandLine(cfg.BinaryPathName)
+		if e != nil || parseErr != nil || len(argv) != 6 || !strings.EqualFold(argv[0], exe) || argv[1] != "service" || argv[2] != "--config" || argv[4] != "--name" || argv[5] != *name {
 			return fmt.Errorf("refusing unrelated service removal")
 		}
 		state, e := s.Query()
-		if e != nil || state.State != svc.Stopped {
-			return fmt.Errorf("stop sensor before uninstalling")
+		if e != nil {
+			return e
+		}
+		if state.State != svc.Stopped {
+			if _, e = s.Control(svc.Stop); e != nil {
+				return e
+			}
+			deadline := time.Now().Add(30 * time.Second)
+			for state.State != svc.Stopped && time.Now().Before(deadline) {
+				time.Sleep(200 * time.Millisecond)
+				state, e = s.Query()
+				if e != nil {
+					return e
+				}
+			}
+			if state.State != svc.Stopped {
+				return fmt.Errorf("service stop timed out")
+			}
 		}
 		return s.Delete()
 	}
@@ -119,7 +169,7 @@ func run() error {
 		return sensor.Run(ctx, c)
 	case "service":
 		return svc.Run(*name, &service{c})
-	case "install-service": // No account credentials accepted/stored. Operator selects account later.
+	case "install-service":
 		exe, e := os.Executable()
 		if e != nil {
 			return e
@@ -133,11 +183,19 @@ func run() error {
 			return e
 		}
 		defer m.Disconnect()
-		s, e := m.CreateService(*name, exe, mgr.Config{DisplayName: "Agent Trust Endpoint Sensor (observe-only)", StartType: mgr.StartManual}, "service", "--config", config, "--name", *name)
+		s, e := m.CreateService(*name, exe, mgr.Config{DisplayName: "Agent Trust Endpoint Sensor (observe-only)", StartType: mgr.StartAutomatic, ServiceStartName: `NT SERVICE\` + *name}, "service", "--config", config, "--name", *name)
 		if e != nil {
 			return e
 		}
 		defer s.Close()
+		if e = s.SetRecoveryActions([]mgr.RecoveryAction{{Type: mgr.ServiceRestart, Delay: 5 * time.Second}, {Type: mgr.ServiceRestart, Delay: 30 * time.Second}, {Type: mgr.NoAction}}, 86400); e != nil {
+			s.Delete()
+			return e
+		}
+		if e = s.SetRecoveryActionsOnNonCrashFailures(true); e != nil {
+			s.Delete()
+			return e
+		}
 		return nil
 	default:
 		return fmt.Errorf("unsupported command")

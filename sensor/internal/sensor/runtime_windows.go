@@ -12,6 +12,42 @@ import (
 	"time"
 )
 
+const bootstrapFileName = "bootstrap.json"
+
+type bootstrapHandoff struct {
+	SchemaVersion  int    `json:"schema_version"`
+	BootstrapToken string `json:"bootstrap_token"`
+}
+
+func BootstrapExists(c Config) bool {
+	_, err := os.Stat(filepath.Join(c.DataDir, bootstrapFileName))
+	return err == nil
+}
+
+// EnrollFromBootstrapFile consumes the installer-created, ACL-protected,
+// one-time handoff. The token is never included in errors or diagnostics.
+func EnrollFromBootstrapFile(c Config) error {
+	p := filepath.Join(c.DataDir, bootstrapFileName)
+	b, err := os.ReadFile(p)
+	if err != nil {
+		return fmt.Errorf("bootstrap unavailable")
+	}
+	if len(b) == 0 || len(b) > 4096 {
+		return fmt.Errorf("bootstrap invalid")
+	}
+	var handoff bootstrapHandoff
+	if json.Unmarshal(b, &handoff) != nil || handoff.SchemaVersion != 1 || len(handoff.BootstrapToken) < 32 || len(handoff.BootstrapToken) > 128 {
+		return fmt.Errorf("bootstrap invalid")
+	}
+	if err := Enroll(c, handoff.BootstrapToken); err != nil {
+		return err
+	}
+	if err := os.Remove(p); err != nil {
+		return fmt.Errorf("bootstrap cleanup failed")
+	}
+	return nil
+}
+
 func Enroll(c Config, bootstrap string) error {
 	if len(bootstrap) < 32 {
 		return fmt.Errorf("bootstrap required in private environment")
@@ -25,7 +61,9 @@ func Enroll(c Config, bootstrap string) error {
 			return err
 		}
 		for _, entry := range entries {
-			if entry.Name() != "sensor.lock" {
+			switch entry.Name() {
+			case "sensor.lock", bootstrapFileName, "bootstrap-acl.sddl", "status.json", "service-args.json", "service-startup.error":
+			default:
 				return fmt.Errorf("enrollment requires an empty dedicated data directory")
 			}
 		}
@@ -46,7 +84,15 @@ func Enroll(c Config, bootstrap string) error {
 		return err
 	}
 	if e := RestrictDirectory(c.DataDir); e != nil {
-		return e
+		// The elevated installer already applies a protected DACL. A virtual
+		// service account intentionally lacks WRITE_DAC, so it cannot rewrite
+		// that ACL during first-start enrollment. Foreground enrollment still
+		// fails closed if its caller cannot protect the directory itself.
+		identity := RuntimeIdentity()
+		sid, _ := identity["sid"].(string)
+		if !strings.HasPrefix(sid, "S-1-5-80-") {
+			return e
+		}
 	}
 	path := filepath.Join(c.DataDir, "identity.dpapi")
 	if _, e := os.Stat(path); e == nil {
@@ -141,11 +187,15 @@ func (m *Manager) discovery() error {
 		}
 	}
 	d, e := Discover(m.Config, m.Identity.Policy)
+	discoveryError := e
 	m.states["ai"] = "active"
 	if len(m.Config.ProfileRoots) == 0 && len(m.Identity.Policy.CustomTools) == 0 {
 		m.states["ai"] = "supported"
 	}
 	if e != nil {
+		m.states["ai"] = "degraded"
+	}
+	if e == nil && len(m.Config.ProfileRoots) > 0 && len(d.Tools) == 0 && len(m.Identity.Policy.CustomTools) == 0 {
 		m.states["ai"] = "degraded"
 	}
 	m.tools = d.Tools
@@ -164,6 +214,12 @@ func (m *Manager) discovery() error {
 		}
 	}
 	m.states["mcp"] = "active"
+	if discoveryError != nil {
+		m.states["mcp"] = "degraded"
+	}
+	if discoveryError == nil && len(m.Config.ProfileRoots) > 0 && len(d.Configs) == 0 && len(m.Identity.Policy.MCPPaths) == 0 {
+		m.states["mcp"] = "degraded"
+	}
 	if len(m.Config.ProfileRoots) == 0 && len(m.Identity.Policy.MCPPaths) == 0 {
 		m.states["mcp"] = "supported"
 	}
@@ -296,7 +352,17 @@ func (m *Manager) Tick() error {
 	}
 	m.ticks++
 	m.online = m.Transport.Upload(m.Identity, m.Spool) == nil
-	return nil
+	reason := ""
+	if !m.online {
+		reason = "server_unavailable"
+	}
+	if m.Transport.AuthRejected {
+		reason = "authentication_rejected"
+	}
+	depth, stats := m.Spool.Health()
+	// Local health remains observable when server authentication is rejected.
+	status, _ := json.Marshal(map[string]any{"updated_at": timestamp(), "pid": os.Getpid(), "identity": RuntimeIdentity(), "online": m.online, "reason": reason, "collectors": m.states, "spool_depth": depth, "counters": stats})
+	return atomicWrite(filepath.Join(m.Config.DataDir, "status.json"), status)
 }
 func Run(ctx context.Context, c Config) error {
 	unlock, e := LockInstance(c.DataDir)

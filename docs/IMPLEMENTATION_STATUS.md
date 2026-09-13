@@ -1,4 +1,26 @@
-# Implementation status — Windows endpoint vertical slice (issue #22)
+# Implementation status
+
+## Current reconciliation — 2026-09-13
+
+The authoritative current heads, CI, migration/issue matrix, merge order and
+actual-main validation instructions are in [STACK_RECONCILIATION.md](STACK_RECONCILIATION.md).
+PR #24's implementation head `e814ba207d243b5e0ac10e784fbf0ec102f7e205` passes
+platform, portable Go, native Windows, foreground and real SCM acceptance.
+[Windows run 34738201185](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34738201185)
+clears the service enrollment blocker; the report distinguishes test-merge source,
+foreground fixture coverage and degraded service-account collector visibility.
+New feature development is stopped. No PR merged, issue closed or release published.
+**NOT READY FOR PUBLICATION — awaiting maintainer merge and merged-main validation.**
+GitHub Project status unverified: active authentication lacks read:project.
+
+## Historical Windows endpoint vertical-slice handoffs
+
+The remaining sections preserve prior source-specific results, counts and failed
+runs. Their next-step/blocker and Project statements are historical, not a current
+Project verification or an instruction to restart product work.
+
+Service follow-up source: this branch adds SCM virtual-account acceptance after
+PR #23. GitHub Project status unverified: active authentication lacks read:project.
 
 Starting SHA `9aa41c1bdbd3c81c6bdf4ba5f33bf1035d18de43`. Rechecked GitHub and clean
 checkout: default main; #15/#16/#17/#19/#21 OPEN with unchanged heads; fetched safely.
@@ -99,7 +121,9 @@ private ACLs, scoped roots and retention/reconciliation are operator responsibil
 
 Known limitations: polling misses short-lived activity; no file-writer association,
 DNS/UDP, payloads, source-code read proof, complete inventory, learned baseline,
-production signing/updater, validated dedicated-account SCM deployment or enforcement.
+production signing/updater or enforcement. Dedicated-account SCM deployment was
+unvalidated at this historical #23 handoff; #24 now supplies the scoped acceptance
+linked above.
 Issue #22 and [the private Project](https://github.com/users/BB-AI-Arena/projects/1)
 remain In review, not Done. Next concrete follow-up: dedicated least-privilege SCM
 account enrollment/start/recovery acceptance and a Windows client-OS test matrix;

@@ -1,3 +1,4 @@
+param([switch]$Service)
 $ErrorActionPreference = 'Stop'
 $fixtureRoot = Join-Path $env:RUNNER_TEMP ("atp-postgres-" + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixtureRoot | Out-Null
@@ -15,7 +16,8 @@ try {
   $started = $true
   $env:DATABASE_URL = "postgresql://fixture@127.0.0.1:$pgPort/postgres"
   $env:AGENT_TRUST_DISPOSABLE_WINDOWS_TEST = '1'
-  python scripts/windows_acceptance.py
+  if ($Service) { python scripts/windows_service_acceptance.py }
+  else { python scripts/windows_acceptance.py }
   if ($LASTEXITCODE -ne 0) { throw 'Windows endpoint acceptance failed' }
 } finally {
   if ($started) { & "$pgBin\pg_ctl.exe" -D $dbData -m fast -w stop }
