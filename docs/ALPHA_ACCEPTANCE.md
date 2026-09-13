@@ -2,7 +2,9 @@
 
 Target: **2.0.0-alpha.1, unreleased, not production-hardened**. See
 [implementation status](IMPLEMENTATION_STATUS.md) for measured results and exact
-source. PR #15 is the open dependency, not an assumed merged baseline.
+source. The complete open #15→#24 stack, current results and exact merged-main
+workflow are in [STACK_RECONCILIATION.md](STACK_RECONCILIATION.md). No branch is
+assumed merged; historical slice-specific counts below are not current-main evidence.
 
 ## Reproduce the gates
 
@@ -66,7 +68,9 @@ names. Set a new random API token if the old value was a placeholder. Merely
 changing `POSTGRES_PASSWORD` does not rotate an initialized PostgreSQL password.
 `SECRET_KEY` is a legacy alias, **not** legacy route authentication.
 
-No new SQL schema is introduced: migrate 001 → 002 → 003 with the installed
+The original acceptance slice introduced no SQL; the current stack adds 004
+CrowdStrike checkpoints and 005 endpoint state. Validate 001→005 using the
+reconciliation commands. The original 001 → 002 → 003 scenario uses the installed
 runtime, verify old completed jobs and unrelated records, repeat migrations, and
 check the backfilled assessment projection. Tests force-recreate API/worker/PG
 containers while retaining their unique named volumes and compare result/attempt

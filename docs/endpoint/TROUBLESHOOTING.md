@@ -26,7 +26,13 @@
 - Service will not start: inspect SCM state, virtual identity, owned-path ACLs
   and retained `data/status.json`; do not switch to LocalSystem.
 - Service recovery: `sc.exe qfailure <name>` must show 5-second and 30-second
-  delayed restarts followed by no action. A third rapid retry is not configured.
+  delayed restarts and reset interval 86400. The configured third action is no
+  action; this Windows readback may omit its NONE row. Actual acceptance tests
+  the first crash recovery, not three consecutive crashes.
+- First service enrollment failure: inspect private bootstrap presence and ACLs,
+  not contents. Use installer stdin/owned handoff, never SCM arguments. SCM makes
+  bounded restart attempts; server expiry/redeemed rejection requires explicit
+  operator reconciliation. A retained file does not extend its 15-minute validity.
 - DPAPI failure after account/name change: identity is user-bound. Reconcile and
   explicitly enroll with a fresh bootstrap; never copy `identity.dpapi`.
 - Spool not draining: status reports `server_unavailable` or
@@ -43,6 +49,8 @@ requires RUNNER_TEMP and creates a uniquely named loopback-only PostgreSQL clust
 It must never be pointed at an operator database. Evidence is retained by the
 `Windows endpoint sensor` workflow, including logs on failure.
 
-Signed installer/updater, service-account acceptance, short-lived ETW telemetry,
+Service-account acceptance now passes with documented visibility limits; see
+[the current evidence](../STACK_RECONCILIATION.md#windows-evidence-and-limits).
+Signed installer/updater, literal reboot verification, short-lived ETW telemetry,
 DNS/UDP/file-writer attribution, complete inventory, learned baselines, YARA rules,
 CVE matching, DLP and enforcement are not completed capabilities.

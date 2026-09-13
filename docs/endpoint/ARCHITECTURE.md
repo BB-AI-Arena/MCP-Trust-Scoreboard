@@ -40,6 +40,14 @@ bounded recovery and user-bound DPAPI. It does not impersonate interactive
 sessions or load their hives. A future per-user helper would need separate
 enrollment and session provenance; broad profile grants are not a substitute.
 
+Service first-start uses installer-controlled private `data/bootstrap.json`, not
+SCM arguments or persistent environment. It consumes bootstrap only without an
+existing DPAPI identity, retains the server's 15-minute single-use semantics, saves
+the device credential under the service account and deletes the transient file.
+Revocation never triggers automatic replacement enrollment. This is a development
+provisioning channel, not mTLS or attestation. Current execution evidence and its
+foreground-versus-service limits: [stack reconciliation](../STACK_RECONCILIATION.md).
+
 References: [Go releases](https://go.dev/doc/devel/release),
 [Windows services](https://pkg.go.dev/golang.org/x/sys/windows/svc),
 [Toolhelp](https://learn.microsoft.com/en-us/windows/win32/toolhelp/taking-a-snapshot-and-viewing-processes),

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Complete Windows virtual-account SCM acceptance with protected transient
+  bootstrap enrollment, user-scope DPAPI restart/recovery, persistent outage spool,
+  revocation and preserved-state uninstall. Document actual service visibility
+  limits separately from foreground fixtures; no enforcement.
+- Reconcile unmerged dependency stack, migration/issue audit and roadmap IDs;
+  distinguish passing branch acceptance from pending merged-main validation.
+  No new feature, migration, merge or publication in the reconciliation pass.
+
 - Add Windows Endpoint Sensor v0.1 observe-only source: native Go collectors,
   persistent bounded spool, device enrollment/revocation, strict events and
   PostgreSQL correlation through the existing finding/webhook path. Dedicated

@@ -2,7 +2,12 @@
 
 Starting source: e8e09f1868834a13b233817bccb0e188448fedc5 (open PR #23).
 Branch: feat/windows-service-acceptance; base: feat/windows-endpoint-sensor.
-Windows execution results are pending; implementation is not proof of acceptance.
+Windows execution passed at implementation head
+`e814ba207d243b5e0ac10e784fbf0ec102f7e205` in
+[run 34738201185](https://github.com/BB-AI-Arena/MCP-Trust-Scoreboard/actions/runs/34738201185).
+See [the authoritative reconciliation](../STACK_RECONCILIATION.md#windows-evidence-and-limits)
+for exact test-merge SHA, binary hash, spool counts and actual collector states.
+This clears the historical SCM enrollment blocker, not merged-main validation.
 
 The development installer is `scripts/windows_service.ps1`. It creates a unique
 virtual account `NT SERVICE\<service name>` through SCM, sets automatic startup,
@@ -30,8 +35,11 @@ virtual service account. It is deleted after successful enrollment; the server's
 existing 15-minute bootstrap expiry and single-redemption rules remain in force.
 The token is never an ImagePath/process argument, service environment value,
 registry value, configuration field, log, or retained evidence. Temporary server
-unavailability leaves the handoff for a bounded retry; malformed or rejected
-material produces enrollment-required/degraded state without looping. Ordinary
+unavailability leaves the handoff; startup retries are bounded by the SCM recovery
+policy below, not an in-process enrollment retry loop. Server-side expiry/redeemed
+checks remain authoritative; the local file has no expiry scheduler. Rejected
+material requires explicit operator reconciliation after bounded SCM attempts.
+The token's expiry is not extended by retaining its private file. Ordinary
 automatic starts and recovery consume no bootstrap when a DPAPI identity exists
 and cannot silently reenroll. Endpoint credentials exist in memory and in
 user-bound DPAPI ciphertext only.
@@ -39,8 +47,8 @@ user-bound DPAPI ciphertext only.
 Only a new, nonexistent leaf installation directory is accepted; the parent must
 exist and neither it nor an ancestor may be a reparse point. Administrators/SYSTEM
 control the installation. The service gets read/execute on binaries/configuration
-and modify on data (enrollment gives its own identity full control on that owned
-data directory). No parent ACL changes. Configuration, identity, spool and local
+and modify on data; the virtual-account path does not require runtime WRITE_DAC
+or grant itself full control. No parent ACL changes. Configuration, identity, spool and local
 status remain private. The sensor does not write arbitrary logs; `data/status.json`
 is a bounded current health snapshot with no credential, including authentication
 rejection when the server cannot receive heartbeats.
@@ -80,6 +88,15 @@ separate enrollment/consent and explicit session provenance; it is not implement
 Reproduce only in the disposable Windows CI job:
 `./scripts/windows_acceptance.ps1 -Service`. Foreground uses the same script without
 `-Service`; native Go and portable Go tests are separate workflow steps/jobs.
+The final run reports AI/MCP/filesystem/software degraded, process
+permission_missing, network/runtime active and DNS/UDP/file-writer unsupported.
+Full fixture discovery/Shadow AI coverage is from foreground acceptance; static
+collector labels in generic acceptance JSON do not override the SCM health report.
+Server unit tests reject bootstrap reuse; the SCM scenario verifies enrollment and
+deletion, not a second service instance redeeming the token. Only the first crash
+recovery is exercised, not all three successive failure actions. No literal reboot,
+mTLS, signed installer or attestation claim.
+
 Evidence includes SCM readback, runtime SID/elevation, ACLs, runner/build/source,
 binary hash, exact spool/replay counts, revocation and collector states. Portable
 and native spool tests separately force capacity and age limits; expired is a

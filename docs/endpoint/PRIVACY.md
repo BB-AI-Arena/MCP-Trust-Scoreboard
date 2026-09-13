@@ -20,13 +20,21 @@ the enrolling Windows account. Bootstrap issuance/exchange returns secrets only 
 the authorized caller; keep HTTP access/body logging disabled at any reverse proxy.
 Central raw validation errors do not echo request data.
 
+Service bootstrap is transient plaintext in an ACL-protected owned handoff file,
+readable only by SYSTEM, Administrators and the named service identity. Successful
+enrollment deletes it; this is ordinary deletion, not cryptographic secure erasure
+of SSD storage. It is never copied into configuration, SCM arguments, persistent
+environment, registry, logs, spool or retained diagnostic artifacts. Server expiry
+and single redemption limit its usability; credentials remain user-scope DPAPI.
+
 No package/URL is fetched during discovery and no hosted analysis provider is used.
 Only the configured platform origin receives telemetry. HTTPS is verified; private
 IP ranges require local configuration. Loopback HTTP is an explicit fixture exception.
 No automatic retry to another origin or credential forwarding through redirects.
 
 Service mode uses `NT SERVICE\<service-name>` with its own profile. It cannot see
-an interactive user's HKCU configuration, session-only processes or desktop state;
+an interactive user's HKCU configuration or desktop state, and process visibility
+is limited by Windows access checks rather than guaranteed across sessions;
 those collectors report `degraded` or `permission_missing`. The service requests
 no broad profile ACLs or session impersonation. A future per-user helper requires
 separate enrollment and explicit session provenance.
